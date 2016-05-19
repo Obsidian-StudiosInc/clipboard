@@ -5,7 +5,7 @@
 
 #define __UNUSED__
 #define _(S) S
-#define ENABLE_DEBUG 1
+#define ENABLE_DEBUG 0
 #define DEBUG(f, ...) if (ENABLE_DEBUG) \
     printf("[clipboard] "f "\n", __VA_ARGS__)
 
@@ -24,7 +24,7 @@ struct _Instance
    Ecore_Timer  *check_timer;
    Evas_Object *o_button;
    Eina_List *handlers;
-   Eina_List *shares;
+   Eina_List *items;
 };
 
 /* gadcon requirements */
@@ -35,17 +35,17 @@ static const char      *_gc_label(const E_Gadcon_Client_Class *client_class);
 static                  Evas_Object *_gc_icon(const E_Gadcon_Client_Class *client_class, Evas * evas);
 static const char      *_gc_id_new(const E_Gadcon_Client_Class *client_class);
 
-static void e_share_upload_completed(Share_Data *share_data);
-static void _e_share_clear_list(Instance *inst);
-static void _share_button_cb_mouse_down(void *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *ev);
-static Eina_Bool _share_x_selection_notify_handler(Instance *instance, int type, void *event);
-static void _share_menu_post_cb(void *data, E_Menu *menu);
-static void _share_menu_share_request_click_cb(Instance *inst, E_Menu *m, E_Menu_Item *mi);
-static Eina_Bool _clipboard_cb(Instance *inst, Share_Data *selected_share);
-static void _share_menu_share_item_click_cb(Share_Data *selected_share);
-static void _free_share_data(Share_Data *sd);
+static void e_clip_upload_completed(Clip_Data *clip_data);
+static void _e_clip_clear_list(Instance *inst);
+static void _clip_button_cb_mouse_down(void *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *ev);
+static Eina_Bool _clip_x_selection_notify_handler(Instance *instance, int type, void *event);
+static void _clip_menu_post_cb(void *data, E_Menu *menu);
+static void _clip_menu_clip_request_click_cb(Instance *inst, E_Menu *m, E_Menu_Item *mi);
+static Eina_Bool _clipboard_cb(Instance *inst, Clip_Data *selected_clip);
+static void _clip_menu_clip_item_click_cb(Clip_Data *selected_clip);
+static void _free_clip_data(Clip_Data *cd);
 
-static E_Module *share_module = NULL;
+static E_Module *clipboard_module = NULL;
 //~ static E_Config_DD *conf_edd = NULL;
 //~ static E_Config_DD *conf_item_edd = NULL;
 
@@ -97,8 +97,8 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
 
    e_gadcon_client_util_menu_attach(gcc);
 
-   evas_object_event_callback_add(inst->o_button, EVAS_CALLBACK_MOUSE_DOWN, (Evas_Object_Event_Cb)_share_button_cb_mouse_down, inst);
-   E_LIST_HANDLER_APPEND(inst->handlers, ECORE_X_EVENT_SELECTION_NOTIFY, _share_x_selection_notify_handler, inst);
+   evas_object_event_callback_add(inst->o_button, EVAS_CALLBACK_MOUSE_DOWN, (Evas_Object_Event_Cb)_clip_button_cb_mouse_down, inst);
+   E_LIST_HANDLER_APPEND(inst->handlers, ECORE_X_EVENT_SELECTION_NOTIFY, _clip_x_selection_notify_handler, inst);
    inst->check_timer = ecore_timer_add(TIMEOUT_1, _clipboard_cb, inst);
    return gcc;
 }
@@ -120,8 +120,8 @@ _gc_shutdown(E_Gadcon_Client *gcc)
         inst->menu = NULL;
      }
 
-   E_FREE_LIST(inst->shares, _free_share_data);
-   inst->shares = NULL;
+   E_FREE_LIST(inst->items, _free_clip_data);
+   inst->items = NULL;
 
    evas_object_del(inst->o_button);
    ecore_timer_del(inst->check_timer);
@@ -168,7 +168,7 @@ _gc_id_new (const E_Gadcon_Client_Class *client_class)
 
 
 static void
-_share_button_cb_mouse_down(void *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *ev)
+_clip_button_cb_mouse_down(void *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *ev)
 {
     Instance *inst = (Instance*)data;
     Evas_Coord x, y, w, h;
@@ -177,7 +177,7 @@ _share_button_cb_mouse_down(void *data, Evas *evas, Evas_Object *obj, Evas_Event
     
     E_Menu_Item *mi;
     Eina_List *it;
-    Share_Data *share;
+    Clip_Data *clip;
     
 
     if (!inst) return;
@@ -194,14 +194,14 @@ _share_button_cb_mouse_down(void *data, Evas *evas, Evas_Object *obj, Evas_Event
         inst->menu = e_menu_new();
 
         
-        EINA_LIST_FOREACH(inst->shares, it, share)
+        EINA_LIST_FOREACH(inst->items, it, clip)
         {
           
 				mi = e_menu_item_new(inst->menu);
-				e_menu_item_label_set(mi, share->name);
+				e_menu_item_label_set(mi, clip->name);
 				DEBUG("num:%d",item_num);
-				DEBUG("name:%s",share->name);
-				e_menu_item_callback_set(mi, (E_Menu_Cb)_share_menu_share_item_click_cb, share);
+				DEBUG("name:%s",clip->name);
+				e_menu_item_callback_set(mi, (E_Menu_Cb)_clip_menu_clip_item_click_cb, clip);
 				
             
         }
@@ -212,21 +212,21 @@ _share_button_cb_mouse_down(void *data, Evas *evas, Evas_Object *obj, Evas_Event
         
         mi = e_menu_item_new(inst->menu);
         e_menu_item_label_set(mi, _("Add clipboard content"));
-        e_menu_item_callback_set(mi, (E_Menu_Cb)_share_menu_share_request_click_cb, inst);
+        e_menu_item_callback_set(mi, (E_Menu_Cb)_clip_menu_clip_request_click_cb, inst);
 
         mi = e_menu_item_new(inst->menu);
         e_menu_item_separator_set(mi, EINA_TRUE);
         
          mi = e_menu_item_new(inst->menu);
         e_menu_item_label_set(mi, _("Clear"));
-        e_menu_item_callback_set(mi, (E_Menu_Cb)_e_share_clear_list, inst);
+        e_menu_item_callback_set(mi, (E_Menu_Cb)_e_clip_clear_list, inst);
 
 		mi = e_menu_item_new(inst->menu);
         e_menu_item_separator_set(mi, EINA_TRUE);
         
         
         e_menu_post_deactivate_callback_set(inst->menu,
-                _share_menu_post_cb, inst);
+                _clip_menu_post_cb, inst);
 
         /* Proper menu orientation */
         switch (inst->gcc->gadcon->orient)
@@ -276,11 +276,11 @@ _share_button_cb_mouse_down(void *data, Evas *evas, Evas_Object *obj, Evas_Event
 }
 
 static Eina_Bool
-_share_x_selection_notify_handler(Instance *instance, int type, void *event)
+_clip_x_selection_notify_handler(Instance *instance, int type, void *event)
 {
    
    Ecore_X_Event_Selection_Notify *ev;
-   Share_Data *sd = NULL;
+   Clip_Data *cd = NULL;
   
    const char *data;  
 
@@ -303,19 +303,19 @@ _share_x_selection_notify_handler(Instance *instance, int type, void *event)
               char buf[20];
               if (text_data->data.length == 0)  return EINA_TRUE;
 
-              sd = E_NEW(Share_Data, 1);
-              sd->inst = instance;
+              cd = E_NEW(Clip_Data, 1);
+              cd->inst = instance;
               //~ snprintf(buf, ((text_data->data.length >= sizeof(buf)) ? (sizeof(buf) - 1) : text_data->data.length), text_data->text);
               
               strncpy(buf, text_data->text, 20);
               
-              asprintf(&sd->name, "%s", buf);
-              asprintf(&sd->content, "%s", text_data->text);
+              asprintf(&cd->name, "%s", buf);
+              asprintf(&cd->content, "%s", text_data->text);
               
               			 
               if (strcmp(text_data->text,TMP_text)!=0)
               {
-				  e_share_upload_completed(sd);
+				  e_clip_upload_completed(cd);
                   asprintf(&TMP_text, "%s", text_data->text);
 		     }
           }
@@ -338,35 +338,35 @@ _clipboard_update(const char *text, const Instance *inst)
   //~ e_util_dialog_internal ("Pišta",text);
 }
 
-void e_share_upload_completed(Share_Data *sd)
+void e_clip_upload_completed(Clip_Data *cd)
 {
-	Eina_List *l;
-    if (!sd) return;
+	//~ Eina_List *list;
+    if (!cd) return;
     if (item_num<20) {
-    ((Instance*)sd->inst)->shares = eina_list_prepend(((Instance*)sd->inst)->shares, sd);   
+    ((Instance*)cd->inst)->items = eina_list_prepend(((Instance*)cd->inst)->items, cd);   
 	item_num++;
 	}
 	else	{
 	//~ remove last item from the list 
-	((Instance*)sd->inst)->shares = eina_list_remove_list(((Instance*)sd->inst)->shares, eina_list_last(((Instance*)sd->inst)->shares)); 
-	//~ add clipboard data stored in sd to the list as a first item
-	((Instance*)sd->inst)->shares = eina_list_prepend(((Instance*)sd->inst)->shares, sd);
+	((Instance*)cd->inst)->items = eina_list_remove_list(((Instance*)cd->inst)->items, eina_list_last(((Instance*)cd->inst)->items)); 
+	//~ add clipboard data stored in cd to the list as a first item
+	((Instance*)cd->inst)->items = eina_list_prepend(((Instance*)cd->inst)->items, cd);
 	}
     //~ DEBUG("%s\n","som v tele");
 }
 
 
-void _e_share_clear_list(Instance *inst)
+void _e_clip_clear_list(Instance *inst)
 { 
 	if (!inst) 
    	    return;  
    	    
-       E_FREE_LIST(inst->shares, _free_share_data); 
+       E_FREE_LIST(inst->items, _free_clip_data); 
      item_num = 0;
 }
 
 static Eina_Bool
-_clipboard_cb(Instance *inst, Share_Data *selected_share)
+_clipboard_cb(Instance *inst, Clip_Data *selected_clip)
 {
     if (!inst) 
    	    return;   	
@@ -376,7 +376,7 @@ _clipboard_cb(Instance *inst, Share_Data *selected_share)
    }
 
 static void
-_share_menu_share_request_click_cb(Instance *inst, E_Menu *m, E_Menu_Item *mi)
+_clip_menu_clip_request_click_cb(Instance *inst, E_Menu *m, E_Menu_Item *mi)
 {
     if (!inst) 
    	    return;   	
@@ -386,14 +386,14 @@ _share_menu_share_request_click_cb(Instance *inst, E_Menu *m, E_Menu_Item *mi)
 }
 
 static void
-_share_menu_share_item_click_cb(Share_Data *selected_share)
+_clip_menu_clip_item_click_cb(Clip_Data *selected_clip)
 {
-	_clipboard_update(selected_share->content, selected_share->inst);
+	_clipboard_update(selected_clip->content, selected_clip->inst);
 }
 
 
 static void
-_share_menu_post_cb(void *data, E_Menu *menu)
+_clip_menu_post_cb(void *data, E_Menu *menu)
 {
    Instance *inst = data;
 
@@ -402,12 +402,12 @@ _share_menu_post_cb(void *data, E_Menu *menu)
    inst->menu = NULL;
 }
 
-static void _free_share_data(Share_Data *sd)
+static void _free_clip_data(Clip_Data *cd)
 {
-    free(sd->name);
-    free(sd->content);
-    free(sd->url);
-    free(sd);
+    free(cd->name);
+    free(cd->content);
+    free(cd->url);
+    free(cd);
 }
 
 /* module setup */
@@ -420,17 +420,17 @@ EAPI void *
 e_modapi_init (E_Module * m)
 {
    //~ diskio_conf = e_config_domain_load("module.clipboard", conf_edd);   
-   share_module = m;
+    clipboard_module = m;
    e_gadcon_provider_register(&_gadcon_class);
   
-   return share_module;
+   return clipboard_module;
 }
 
 EAPI int
 e_modapi_shutdown (E_Module * m)
 {
 	Instance *inst;
-  share_module = NULL;
+  clipboard_module = NULL;
   e_gadcon_provider_unregister(&_gadcon_class);
   return 1;
 }

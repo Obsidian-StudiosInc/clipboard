@@ -3,12 +3,12 @@
 
 #include <e.h>
 
-typedef struct _Share_Data {
+typedef struct _Clip_Data {
     void *inst;
     char *name;
     char *content;
     char *url;
-} Share_Data;
+} Clip_Data;
 
 EAPI extern E_Module_Api e_modapi;
 
