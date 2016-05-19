@@ -51,6 +51,7 @@ static E_Module *clipboard_module = NULL;
 
 const char *TMP_text = " ";
 int item_num;
+int item_clicked=0;
 
 /* and actually define the gadcon class that this module provides (just 1) */
 static const E_Gadcon_Client_Class _gadcon_class = {
@@ -112,6 +113,7 @@ _gc_shutdown(E_Gadcon_Client *gcc)
    inst = gcc->data;
    E_FREE_LIST(inst->handlers, ecore_event_handler_del);
    inst->handlers = NULL;
+       
 
    if (inst->menu)
      {
@@ -331,10 +333,11 @@ _clip_x_selection_notify_handler(Instance *instance, int type, void *event)
 void
 _clipboard_update(const char *text, const Instance *inst)
 {
+	 
   EINA_SAFETY_ON_NULL_RETURN(inst);
   EINA_SAFETY_ON_NULL_RETURN(text);
-
-  ecore_x_selection_clipboard_set(inst->win, text, strlen(text) + 1);
+ 
+   ecore_x_selection_clipboard_set(inst->win, text, strlen(text) + 1);
   //~ e_util_dialog_internal ("Pišta",text);
 }
 
@@ -342,6 +345,9 @@ void e_clip_upload_completed(Clip_Data *cd)
 {
 	//~ Eina_List *list;
     if (!cd) return;
+    
+    if (item_clicked!=1)
+    {
     if (item_num<20) {
     ((Instance*)cd->inst)->items = eina_list_prepend(((Instance*)cd->inst)->items, cd);   
 	item_num++;
@@ -352,6 +358,7 @@ void e_clip_upload_completed(Clip_Data *cd)
 	//~ add clipboard data stored in cd to the list as a first item
 	((Instance*)cd->inst)->items = eina_list_prepend(((Instance*)cd->inst)->items, cd);
 	}
+   }
     //~ DEBUG("%s\n","som v tele");
 }
 
@@ -382,12 +389,14 @@ _clip_menu_clip_request_click_cb(Instance *inst, E_Menu *m, E_Menu_Item *mi)
    	    return;   	
     
     ecore_x_selection_clipboard_request(inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
+    item_clicked=0;
     //~ e_util_dialog_internal ("Ahoj","1");
 }
 
 static void
 _clip_menu_clip_item_click_cb(Clip_Data *selected_clip)
 {
+	item_clicked = 1;
 	_clipboard_update(selected_clip->content, selected_clip->inst);
 }
 
