@@ -324,7 +324,7 @@ _clip_x_selection_notify_handler(Instance *instance, int type, void *event)
      }
 
 
-   return ECORE_CALLBACK_PASS_ON;
+   return ECORE_CALLBACK_DONE;
 }
 
 
