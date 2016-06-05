@@ -507,6 +507,7 @@ static void _free_clip_data(Clip_Data *cd)
     free(cd->content);
     free(cd->url);
     free(cd);
+    float_list = NULL;
 }
 
 /* module setup */
@@ -518,7 +519,7 @@ EAPI E_Module_Api e_modapi = {
 EAPI void *
 e_modapi_init (E_Module * m)
 {
-   //~ diskio_conf = e_config_domain_load("module.clipboard", conf_edd);   
+  
     clipboard_module = m;
    e_gadcon_provider_register(&_gadcon_class);
   
@@ -554,7 +555,6 @@ e_modapi_shutdown (E_Module * m)
 EAPI int
 e_modapi_save(E_Module * m)
 {
-  //~ e_config_domain_save("module.clipboard", conf_edd, diskio_conf);	
   return 1;
 }
 
