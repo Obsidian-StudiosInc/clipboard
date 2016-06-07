@@ -454,11 +454,14 @@ void e_clip_upload_completed(Clip_Data *cd)
 
 void _e_clip_clear_list(Instance *inst)
 { 
-	if (!inst) 
-   	    return;  
-   	    
-       E_FREE_LIST(inst->items, _free_clip_data); 
-     item_num = 0;
+    if (!inst) 
+        return;  
+
+    if (inst->items)
+        E_FREE_LIST(inst->items, _free_clip_data); 
+    item_num = 0;
+    inst->items = NULL;
+    ecore_x_selection_clipboard_clear();
 }
 
 static Eina_Bool
