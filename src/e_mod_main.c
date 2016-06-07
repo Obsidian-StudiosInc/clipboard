@@ -531,7 +531,7 @@ e_modapi_init (E_Module * m)
   act = e_action_add("clipboard");
    if (act)
      {
-	act->func.go = _cb_action;
+	act->func.go = (void *) _cb_action;
 	
 	e_action_predef_name_set("Clipboard","Show float menu", "clipboard", "<none>", NULL, 0);
      }
