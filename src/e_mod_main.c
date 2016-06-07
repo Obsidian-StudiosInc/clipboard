@@ -141,14 +141,15 @@ _cb_action(void *data)
                 _clip_menu_post_cb, inst);
                 
         inst->items = float_list;
-        EINA_LIST_FOREACH(inst->items, it, clip)
-        {
-			
-				mi = e_menu_item_new(inst->menu);
-				e_menu_item_label_set(mi, clip->name);
-				DEBUG("%s",clip->name);
-				e_menu_item_callback_set(mi, (E_Menu_Cb)_menu_clip_item_click_cb, clip);		
+        if (inst->items){
+            EINA_LIST_FOREACH(inst->items, it, clip)
+            {   mi = e_menu_item_new(inst->menu);
+                e_menu_item_label_set(mi, clip->name);
+                DEBUG("%s",clip->name);
+                e_menu_item_callback_set(mi, (E_Menu_Cb)_menu_clip_item_click_cb, clip);        
+            }
         }
+
 
 
 		mi = e_menu_item_new(inst->menu);
@@ -277,21 +278,17 @@ _clip_button_cb_mouse_down(void *data, Evas *evas, Evas_Object *obj, Evas_Event_
         y += cy;
 
         inst->menu = e_menu_new();
-
         
-        EINA_LIST_FOREACH(inst->items, it, clip)
-        {
-          
-				mi = e_menu_item_new(inst->menu);
-				e_menu_item_label_set(mi, clip->name);
-				DEBUG("num:%d",item_num);
-				DEBUG("name:%s",clip->name);
-				e_menu_item_callback_set(mi, (E_Menu_Cb)_menu_clip_item_click_cb, clip);
-				
-            
-        }
+        if (inst->items){
+            EINA_LIST_FOREACH(inst->items, it, clip)
+           {   mi = e_menu_item_new(inst->menu);
+                e_menu_item_label_set(mi, clip->name);
+                DEBUG("num:%d",item_num);
+                DEBUG("name:%s",clip->name);
+                e_menu_item_callback_set(mi, (E_Menu_Cb)_menu_clip_item_click_cb, clip);
+           }
+       }
 
-		
 			
 		mi = e_menu_item_new(inst->menu);
         e_menu_item_separator_set(mi, EINA_TRUE);
