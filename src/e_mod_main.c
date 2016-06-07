@@ -41,7 +41,7 @@ static void _clip_button_cb_mouse_down(void *data, Evas *evas, Evas_Object *obj,
 static Eina_Bool _clip_x_selection_notify_handler(Instance *instance, int type, void *event);
 static void _clip_menu_post_cb(void *data, E_Menu *menu);
 static void _menu_clip_request_click_cb(Instance *inst, E_Menu *m, E_Menu_Item *mi);
-static Eina_Bool _clipboard_cb(Instance *inst, Clip_Data *selected_clip);
+static Eina_Bool _clipboard_cb(void *data);
 static void _menu_clip_item_click_cb(Clip_Data *selected_clip);
 static void _free_clip_data(Clip_Data *cd);
 static Eina_Bool _selection_notify_cb(void *data, int type, void *event);
@@ -465,8 +465,9 @@ void _e_clip_clear_list(Instance *inst)
 }
 
 static Eina_Bool
-_clipboard_cb(Instance *inst, Clip_Data *selected_clip)
+_clipboard_cb(void *data)
 {
+	Instance *inst = data;
     if (!inst) 
    	    return;   	
     
@@ -528,7 +529,7 @@ e_modapi_init (E_Module * m)
      {
 	act->func.go = _cb_action;
 	
-	e_action_predef_name_set("Clipboard","Show menu", "clipboard", "<none>", NULL, 0);
+	e_action_predef_name_set("Clipboard","Show float menu", "clipboard", "<none>", NULL, 0);
      }
      
    return clipboard_module;
