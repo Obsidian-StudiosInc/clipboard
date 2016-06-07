@@ -110,6 +110,10 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
    //~ ecore_event_handler_add(ECORE_EVENT_KEY_DOWN, _key_down_cb, NULL);
 
    //~ E_LIST_HANDLER_APPEND(inst->handle, ECORE_X_EVENT_SELECTION_NOTIFY, _selection_notify_cb, inst);
+   
+   // Ensure our gadget is initialized to current clipboard contents
+   ecore_x_selection_clipboard_request(inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING); 
+
    inst->check_timer = ecore_timer_add(TIMEOUT_1, _clipboard_cb, inst);
    return gcc;
 }
