@@ -105,12 +105,7 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
    evas_object_event_callback_add(inst->o_button, EVAS_CALLBACK_MOUSE_DOWN, (Evas_Object_Event_Cb)_clip_button_cb_mouse_down, inst);
    
    E_LIST_HANDLER_APPEND(inst->handle, ECORE_X_EVENT_SELECTION_NOTIFY, _clip_x_selection_notify_handler, inst);
-   //~ ecore_event_handler_add(ECORE_X_EVENT_SELECTION_NOTIFY, _selection_notify_cb, NULL);
-   //~ ecore_event_handler_add(ECORE_X_EVENT_SELECTION_NOTIFY,_clip_x_selection_notify_handler, NULL);
-   //~ ecore_event_handler_add(ECORE_EVENT_KEY_DOWN, _key_down_cb, NULL);
-
-   //~ E_LIST_HANDLER_APPEND(inst->handle, ECORE_X_EVENT_SELECTION_NOTIFY, _selection_notify_cb, inst);
-   
+  
    // Ensure our gadget is initialized to current clipboard contents
    ecore_x_selection_clipboard_request(inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING); 
 
@@ -412,8 +407,21 @@ _clip_x_selection_notify_handler(Instance *instance, int type, void *event)
               			 
               if (strcmp(text_data->text,TMP_text)!=0)
               {
-				  e_clip_upload_completed(cd);
-                  asprintf(&TMP_text, "%s", text_data->text);
+				e_clip_upload_completed(cd);
+                asprintf(&TMP_text, "%s", text_data->text);
+             
+             // saving list to the file---------------     
+                FILE *f = fopen("history.txt", "a");
+				char separator = '^';
+				
+				if (f == NULL)
+				{
+					exit(1);
+				}
+				fprintf(f, "%s", text_data->text);
+				fprintf(f, "%c", separator);				
+				fclose(f);
+		     //----------------------------------------
 		     }
           }
      }
@@ -535,6 +543,49 @@ e_modapi_init (E_Module * m)
 	
 	e_action_predef_name_set("Clipboard","Show float menu", "clipboard", "<none>", NULL, 0);
      }
+     
+     
+    // file history.txt reading, it will be in separate function later 
+       
+    Clip_Data *cd = NULL;
+    cd = E_NEW(Clip_Data, 1);
+	
+    int c;
+    int num_chars=0;
+    char *text;
+    text = (char *) malloc(1000); //1000 just for now
+	FILE *file;
+	file = fopen("history.txt", "r");
+	char buf[20];
+	
+	if (file) 
+	{
+		while ((c = getc(file)) != EOF)
+		{
+			if (c != '^')
+		    text[num_chars++]=(char) c;
+		    else
+		    {
+		    
+		    text[num_chars++]= '\0';
+            num_chars=0;
+            strncpy(buf, text, 20);
+			asprintf(&cd->name, "%s", buf);
+			asprintf(&cd->content, "%s", text);
+			//e_clip_upload_completed(cd); 
+            
+		    }
+        }    
+        
+        
+		
+        
+	}
+	else return;
+	
+	
+    
+   fclose(file);
      
    return clipboard_module;
 }
