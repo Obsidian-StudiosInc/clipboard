@@ -449,13 +449,14 @@ void e_clip_upload_completed(Clip_Data *cd)
 	Clip_Data *clip;
     if (!cd) return;
     
+    //Solve duplicity item in Eina list
     EINA_LIST_FOREACH(((Instance*)cd->inst)->items, it, clip)
            {   
 			   if (strcmp(cd->content, clip->content)==0)
 			   ((Instance*)cd->inst)->items = eina_list_remove(((Instance*)cd->inst)->items,clip);
            }
     
-    
+    //adding item to the list
     if (item_num<20) {
     ((Instance*)cd->inst)->items = eina_list_prepend(((Instance*)cd->inst)->items, cd);   
 	item_num++;
