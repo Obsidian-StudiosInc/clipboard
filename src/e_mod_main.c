@@ -74,7 +74,8 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
 {
    Evas_Object *o;
    E_Gadcon_Client *gcc;
- 
+   
+   Instance *inst;
 
    inst = E_NEW(Instance, 1);
 
@@ -392,18 +393,22 @@ _clip_x_selection_notify_handler(Instance *instance, int type, void *event)
             (text_data->text))
           {
 			  		  
-              char buf[20];
+			  char buf[20];
+			  char *temp_buf;
               if (text_data->data.length == 0)  return EINA_TRUE;
 
               cd = E_NEW(Clip_Data, 1);
               cd->inst = instance;
-              //~ snprintf(buf, ((text_data->data.length >= sizeof(buf)) ? (sizeof(buf) - 1) : text_data->data.length), text_data->text);
               
-              strncpy(buf, text_data->text, 20);
+			  // get rid unwanted chars from string - spaces and tabs
+              temp_buf = text_data->text;
+              while ((*temp_buf == ' ') || (*temp_buf == '\t'))
+				++temp_buf;
+              //-----------------------------------------------------
               
+              strncpy(buf, temp_buf, 20);
               asprintf(&cd->name, "%s", buf);
               asprintf(&cd->content, "%s", text_data->text);
-              
               			 
               if (strcmp(text_data->text,TMP_text)!=0)
               {
