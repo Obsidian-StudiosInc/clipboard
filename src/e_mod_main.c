@@ -74,7 +74,7 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
 {
    Evas_Object *o;
    E_Gadcon_Client *gcc;
-   Instance *inst;
+ 
 
    inst = E_NEW(Instance, 1);
 
@@ -445,8 +445,17 @@ _clipboard_update(const char *text, const Instance *inst)
 
 void e_clip_upload_completed(Clip_Data *cd)
 {
-	//~ Eina_List *list;
+	Eina_List *it;
+	Clip_Data *clip;
     if (!cd) return;
+    
+    EINA_LIST_FOREACH(((Instance*)cd->inst)->items, it, clip)
+           {   
+			   if (strcmp(cd->content, clip->content)==0)
+			   ((Instance*)cd->inst)->items = eina_list_remove(((Instance*)cd->inst)->items,clip);
+           }
+    
+    
     if (item_num<20) {
     ((Instance*)cd->inst)->items = eina_list_prepend(((Instance*)cd->inst)->items, cd);   
 	item_num++;
