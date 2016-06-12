@@ -130,6 +130,7 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
     char *temp_buf;
     
     ef = eet_open("test.eet", EET_FILE_MODE_READ);
+    if (!ef) return gcc;
     ret = eet_read(ef, "MAX_ITEMS", &size);
     max_items=atoi(ret);
 
