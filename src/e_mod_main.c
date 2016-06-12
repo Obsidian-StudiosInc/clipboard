@@ -127,6 +127,7 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
     int i;
     char str[2];
     int max_items; 
+    char *temp_buf;
     
     ef = eet_open("test.eet", EET_FILE_MODE_READ);
     ret = eet_read(ef, "MAX_ITEMS", &size);
@@ -136,7 +137,12 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
 		{
 		sprintf(str, "%d", i);
 		ret = eet_read(ef,str, &size);
-		strncpy(buf, ret, 20);
+		temp_buf = ret;
+		
+		while ((*temp_buf == ' ') || (*temp_buf == '\t'))
+        		++temp_buf;
+		
+		strncpy(buf, temp_buf, 20);
 		asprintf(&cd->name, "%s", buf);
 		asprintf(&cd->content, "%s",ret);
 		inst->items = eina_list_prepend(inst->items, cd);
