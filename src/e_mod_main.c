@@ -604,12 +604,6 @@ e_modapi_init (E_Module * m)
 	
 	e_action_predef_name_set("Clipboard","Show float menu", "clipboard", "<none>", NULL, 0);
      }
-     
-     
-    // file test.eet reading, it will be in separate function later 
-    Instance *instance;
-    instance = E_NEW(Instance, 1);
-    
    return clipboard_module;
 }
 
