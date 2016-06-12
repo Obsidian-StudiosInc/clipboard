@@ -7,7 +7,6 @@ typedef struct _Clip_Data {
     void *inst;
     char *name;
     char *content;
-    char *url;
 } Clip_Data;
 
 EAPI extern E_Module_Api e_modapi;
