@@ -146,9 +146,9 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
 		strncpy(buf, temp_buf, 20);
 		asprintf(&cd->name, "%s", buf);
 		asprintf(&cd->content, "%s",ret);
-		inst->items = eina_list_append(inst->items, cd);
+		((Instance*)cd->inst)->items = eina_list_append(((Instance*)cd->inst)->items, cd);
 		
-		e_clip_upload_completed(cd,1); 
+		//e_clip_upload_completed(cd,1); 
 		cd = E_NEW(Clip_Data, 1);  //new instance for another struct
 		cd->inst = inst;
         }
