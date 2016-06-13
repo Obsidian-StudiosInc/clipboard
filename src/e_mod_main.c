@@ -81,7 +81,7 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
    inst = E_NEW(Instance, 1);
 
    ecore_x_selection_clipboard_clear();
-   item_num=0;
+   
    /*
    char buf[PATH_MAX];
    snprintf(buf, sizeof(buf), "%s/e-module-share.edj", e_module_dir_get(share_module));
@@ -119,15 +119,15 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
     
     Eet_File *ef;
     char *ret, *temp_buf;
-    int i, size, max_items;
+    int i, size;
     char buf[20], str[3];
     
     ef = eet_open("clipboard.eet", EET_FILE_MODE_READ);
     if (!ef) return gcc;
     ret = eet_read(ef, "MAX_ITEMS", &size);
-    max_items=atoi(ret);
-
-    for (i=1;i<=max_items;i++)
+    item_num=atoi(ret);
+    
+    for (i=1;i<=item_num;i++)
 		{
 		cd = E_NEW(Clip_Data, 1);  //new instance for another struct
 		cd->inst = inst;
