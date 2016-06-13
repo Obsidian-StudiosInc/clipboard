@@ -128,25 +128,20 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
     item_num=atoi(ret);
     
     for (i=1;i<=item_num;i++)
-		{
+	{
 		cd = E_NEW(Clip_Data, 1);  //new instance for another struct
 		cd->inst = inst;
 		
 		sprintf(str, "%d", i);
 		ret = eet_read(ef,str, &size);
+
+		asprintf(&cd->content, "%s",ret);
 		temp_buf = ret;
-		
-		while ((*temp_buf == ' ') || (*temp_buf == '\t'))
-        		++temp_buf;
-		
+		temp_buf = strip_whitespace(temp_buf);
 		strncpy(buf, temp_buf, 20);
 		asprintf(&cd->name, "%s", buf);
-		asprintf(&cd->content, "%s",ret);
 		((Instance*)cd->inst)->items = eina_list_append(((Instance*)cd->inst)->items, cd);
-		
-		//e_clip_upload_completed(cd,1); 
-		
-        }
+	}
     
     // inst->items = eina_list_reverse(inst->items);
     free(ret);
@@ -433,23 +428,20 @@ _clip_x_selection_notify_handler(Instance *instance, int type, void *event)
           {
 			  		  
 			  char buf[20];
-			  char *temp_buf;
+			  char *temp_buf, *strip_buf;
 			  char str[2];
               if (text_data->data.length == 0)  return EINA_TRUE;
 
               cd = E_NEW(Clip_Data, 1);
               cd->inst = instance;
-              
-			  // get rid unwanted chars from string - spaces and tabs
-              temp_buf = text_data->text;
-              while ((*temp_buf == ' ') || (*temp_buf == '\t'))
-				++temp_buf;
-              //-----------------------------------------------------
-
-              strncpy(buf, temp_buf, 20);
-              asprintf(&cd->name, "%s", buf);
               asprintf(&cd->content, "%s", text_data->text);
-              			 
+			  // get rid unwanted chars from string - spaces and tabs
+			  asprintf(&temp_buf,"%s",text_data->text);
+              strip_buf = strip_whitespace(temp_buf);
+              strncpy(buf, strip_buf, 20);
+              asprintf(&cd->name, "%s", buf);
+              free(temp_buf);
+
               if (strcmp(text_data->text,TMP_text)!=0)
               {
 				e_clip_upload_completed(cd);

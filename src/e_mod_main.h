@@ -1,6 +1,7 @@
 #ifndef E_MOD_MAIN_H
 #define E_MOD_MAIN_H
 
+#include "utility.h"
 #include <e.h>
 
 typedef struct _Clip_Data {
