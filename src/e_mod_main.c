@@ -120,7 +120,7 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
     Eet_File *ef;
     char *ret, *temp_buf;
     int i, size, max_items;
-    char buf[20], str[2];
+    char buf[20], str[3];
     
     ef = eet_open("clipboard.eet", EET_FILE_MODE_READ);
     if (!ef) return gcc;
@@ -509,7 +509,7 @@ void e_clip_upload_completed(Clip_Data *cd)
 		Eet_File *ef;
 		eet_init();
 		int i=1;
-		char str[2];
+		char str[3];
 		ef = eet_open("clipboard.eet", EET_FILE_MODE_WRITE);
 				
 		EINA_LIST_FOREACH(((Instance*)cd->inst)->items, it, cd)
