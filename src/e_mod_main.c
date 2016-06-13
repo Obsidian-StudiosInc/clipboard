@@ -36,7 +36,7 @@ static const char      *_gc_label(const E_Gadcon_Client_Class *client_class);
 static                  Evas_Object *_gc_icon(const E_Gadcon_Client_Class *client_class, Evas * evas);
 static const char      *_gc_id_new(const E_Gadcon_Client_Class *client_class);
 
-static void e_clip_upload_completed(Clip_Data *clip_data, int save);
+static void e_clip_upload_completed(Clip_Data *clip_data);
 static void _e_clip_clear_list(Instance *inst);
 static void _clip_button_cb_mouse_down(void *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *ev);
 static Eina_Bool _clip_x_selection_notify_handler(Instance *instance, int type, void *event);
@@ -452,7 +452,7 @@ _clip_x_selection_notify_handler(Instance *instance, int type, void *event)
               			 
               if (strcmp(text_data->text,TMP_text)!=0)
               {
-				e_clip_upload_completed(cd,0);
+				e_clip_upload_completed(cd);
                 asprintf(&TMP_text, "%s", text_data->text);
   
 		     }
@@ -475,7 +475,7 @@ _clipboard_update(const char *text, const Instance *inst)
   //~ e_util_dialog_internal ("Pišta",text);
 }
 
-void e_clip_upload_completed(Clip_Data *cd, int save)
+void e_clip_upload_completed(Clip_Data *cd)
 {
 	Eina_List *it;
 	Clip_Data *clip;
@@ -505,8 +505,7 @@ void e_clip_upload_completed(Clip_Data *cd, int save)
 	float_list=((Instance*)cd->inst)->items;
 	
 	// saving list to the file---------------     
-    if (save==0)
-    {    
+     
 		Eet_File *ef;
 		eet_init();
 		int i=1;
@@ -522,7 +521,7 @@ void e_clip_upload_completed(Clip_Data *cd, int save)
 		eet_write(ef, "MAX_ITEMS",  str, strlen(str) + 1, 0);
 		eet_close(ef);
 		eet_shutdown();
-	}
+	
 	//----------------------------------------
     
 }
