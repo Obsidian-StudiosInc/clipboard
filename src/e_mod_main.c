@@ -114,28 +114,24 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
 
    inst->check_timer = ecore_timer_add(TIMEOUT_1, _clipboard_cb, inst);
 
-    Clip_Data *cd = NULL;
-    cd = E_NEW(Clip_Data, 1);
-    
-    cd->inst = inst;
-    
     // file history reading, it will be in separate function later 
-    Eet_File *ef;
-    char *ret;
-    int size;
-    char buf[20];
-    int i;
-    char str[2];
-    int max_items; 
-    char *temp_buf;
+    Clip_Data *cd = NULL;
     
-    ef = eet_open("test.eet", EET_FILE_MODE_READ);
+    Eet_File *ef;
+    char *ret, *temp_buf;
+    int i, size, max_items;
+    char buf[20], str[2];
+    
+    ef = eet_open("clipboard.eet", EET_FILE_MODE_READ);
     if (!ef) return gcc;
     ret = eet_read(ef, "MAX_ITEMS", &size);
     max_items=atoi(ret);
 
     for (i=1;i<=max_items;i++)
 		{
+		cd = E_NEW(Clip_Data, 1);  //new instance for another struct
+		cd->inst = inst;
+		
 		sprintf(str, "%d", i);
 		ret = eet_read(ef,str, &size);
 		temp_buf = ret;
@@ -149,8 +145,7 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
 		((Instance*)cd->inst)->items = eina_list_append(((Instance*)cd->inst)->items, cd);
 		
 		//e_clip_upload_completed(cd,1); 
-		cd = E_NEW(Clip_Data, 1);  //new instance for another struct
-		cd->inst = inst;
+		
         }
     
     // inst->items = eina_list_reverse(inst->items);
@@ -516,7 +511,7 @@ void e_clip_upload_completed(Clip_Data *cd, int save)
 		eet_init();
 		int i=1;
 		char str[2];
-		ef = eet_open("test.eet", EET_FILE_MODE_WRITE);
+		ef = eet_open("clipboard.eet", EET_FILE_MODE_WRITE);
 				
 		EINA_LIST_FOREACH(((Instance*)cd->inst)->items, it, cd)
 		{
