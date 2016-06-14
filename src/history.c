@@ -131,7 +131,7 @@ _set_history_path(char *path)
  *
  */
 Eet_Error 
-read_history(Instance* inst) // FIXME item_num should not be needed
+read_history(Instance* inst)
 {
     Clip_Data *cd = NULL;
     char history_path[PATH_MAX];
