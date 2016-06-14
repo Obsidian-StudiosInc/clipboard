@@ -1,8 +1,5 @@
 #include "e_mod_main.h"
 #include <string.h>
-#include <Ecore.h>
-#include <Eet.h>
-
 
 #define __UNUSED__
 #define _(S) S
