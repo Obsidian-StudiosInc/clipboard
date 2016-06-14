@@ -131,13 +131,13 @@ _set_history_path(char *path)
  *
  */
 Eet_Error 
-read_history(Instance* inst, int item_num) // FIXME item_num should not be needed
+read_history(Instance* inst) // FIXME item_num should not be needed
 {
     Clip_Data *cd = NULL;
     char history_path[PATH_MAX];
     Eet_File *history_file;
     char *ret, *temp_buf;
-    int i, size;
+    int i, size, item_num;
     char buf[MAGIC_LABEL_SIZE + 1], str[3];
 
     // FIXME

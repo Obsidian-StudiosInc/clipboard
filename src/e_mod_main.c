@@ -94,7 +94,7 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
 
    inst->check_timer = ecore_timer_add(TIMEOUT_1, _clipboard_cb, inst);
 
-    read_history(inst, item_num);
+    read_history(inst);
     //eet_shutdown();
     return gcc;
 }
