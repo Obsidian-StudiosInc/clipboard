@@ -10,6 +10,7 @@ pkgdir = $(datadir)/$(MODULE_ARCH)
 pkg_LTLIBRARIES = module.la
 module_la_SOURCES = e_mod_main.c \
 		    e_mod_main.h \
+		    history.c \
 			utility.c
 			
 

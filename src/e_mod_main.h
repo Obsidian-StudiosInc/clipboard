@@ -1,14 +1,10 @@
 #ifndef E_MOD_MAIN_H
 #define E_MOD_MAIN_H
 
+#include "common.h"
+#include "history.h"
 #include "utility.h"
-#include <e.h>
 
-typedef struct _Clip_Data {
-    void *inst;
-    char *name;
-    char *content;
-} Clip_Data;
 
 EAPI extern E_Module_Api e_modapi;
 

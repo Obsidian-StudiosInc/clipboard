@@ -1,5 +1,4 @@
 #include "e_mod_main.h"
-#include <string.h>
 
 #define __UNUSED__
 #define _(S) S
@@ -8,22 +7,6 @@
     printf("[clipboard] "f "\n", __VA_ARGS__)
 
 #define TIMEOUT_1 1.0 // interval for timer
-
-/* actual module specifics */
-
-
-
-typedef struct _Instance Instance;
-struct _Instance
-{
-   E_Gadcon_Client *gcc;
-   E_Menu *menu;
-   Ecore_X_Window win;
-   Ecore_Timer  *check_timer;
-   Evas_Object *o_button;
-   Eina_List *handle;
-   Eina_List *items;
-};
 
 /* gadcon requirements */
 static E_Gadcon_Client *_gc_init(E_Gadcon * gc, const char *name, const char *id, const char *style);
@@ -77,7 +60,7 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
    Instance *inst = NULL;
    inst = E_NEW(Instance, 1);
 
-   ecore_x_selection_clipboard_clear();
+   //ecore_x_selection_clipboard_clear();
    
    /*
    char buf[PATH_MAX];
@@ -111,39 +94,8 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
 
    inst->check_timer = ecore_timer_add(TIMEOUT_1, _clipboard_cb, inst);
 
-    // file history reading, it will be in separate function later 
-    Clip_Data *cd = NULL;
-    
-    Eet_File *ef;
-    char *ret, *temp_buf;
-    int i, size;
-    char buf[20], str[3];
-    
-    ef = eet_open("clipboard.eet", EET_FILE_MODE_READ);
-    if (!ef) return gcc;
-    ret = eet_read(ef, "MAX_ITEMS", &size);
-    item_num=atoi(ret);
-    
-    for (i=1;i<=item_num;i++)
-	{
-		cd = E_NEW(Clip_Data, 1);  //new instance for another struct
-		cd->inst = inst;
-		
-		sprintf(str, "%d", i);
-		ret = eet_read(ef,str, &size);
-
-		asprintf(&cd->content, "%s",ret);
-		temp_buf = ret;
-		temp_buf = strip_whitespace(temp_buf);
-		strncpy(buf, temp_buf, 20);
-		asprintf(&cd->name, "%s", buf);
-		((Instance*)cd->inst)->items = eina_list_append(((Instance*)cd->inst)->items, cd);
-	}
-    
-    // inst->items = eina_list_reverse(inst->items);
-    free(ret);
-    eet_close(ef);
-    eet_shutdown();
+    read_history(inst, item_num);
+    //eet_shutdown();
     return gcc;
 }
 
@@ -402,7 +354,6 @@ _clip_button_cb_mouse_down(void *data, Evas *evas, Evas_Object *obj, Evas_Event_
 static Eina_Bool
 _clip_x_selection_notify_handler(Instance *instance, int type, void *event)
 {
-   
    Ecore_X_Event_Selection_Notify *ev;
    Clip_Data *cd = NULL;
   
@@ -424,7 +375,7 @@ _clip_x_selection_notify_handler(Instance *instance, int type, void *event)
             (text_data->text))
           {
 			  		  
-			  char buf[20];
+			  char buf[MAGIC_LABEL_SIZE + 1];
 			  char *temp_buf, *strip_buf;
 			  char str[2];
               if (text_data->data.length == 0)  return EINA_TRUE;
@@ -434,8 +385,9 @@ _clip_x_selection_notify_handler(Instance *instance, int type, void *event)
               asprintf(&cd->content, "%s", text_data->text);
 			  // get rid unwanted chars from string - spaces and tabs
 			  asprintf(&temp_buf,"%s",text_data->text);
+			  memset(buf, '\0', sizeof(buf));
               strip_buf = strip_whitespace(temp_buf);
-              strncpy(buf, strip_buf, 20);
+              strncpy(buf, strip_buf, MAGIC_LABEL_SIZE);
               asprintf(&cd->name, "%s", buf);
               free(temp_buf);
 
@@ -481,7 +433,7 @@ void e_clip_upload_completed(Clip_Data *cd)
            }
     
     //~ //adding item to the list
-    if (item_num<20) {
+    if (item_num < MAGIC_HIST_SIZE) {
     ((Instance*)cd->inst)->items = eina_list_prepend(((Instance*)cd->inst)->items, cd);   
 	item_num++;
 	}
@@ -495,23 +447,7 @@ void e_clip_upload_completed(Clip_Data *cd)
 	
 	// saving list to the file---------------     
      
-		Eet_File *ef;
-		eet_init();
-		int i=1;
-		char str[3];
-		ef = eet_open("clipboard.eet", EET_FILE_MODE_WRITE);
-				
-		EINA_LIST_FOREACH(((Instance*)cd->inst)->items, it, cd)
-		{
-			sprintf(str, "%d", i);
-			eet_write(ef, str,  cd->content, strlen(cd->content) + 1, 0);
-			i++;
-		}
-		eet_write(ef, "MAX_ITEMS",  str, strlen(str) + 1, 0);
-		eet_close(ef);
-		eet_shutdown();
-	
-	//----------------------------------------
+    save_history(((Instance*)cd->inst));
     
 }
 
@@ -526,6 +462,7 @@ void _e_clip_clear_list(Instance *inst)
     item_num = 0;
     inst->items = NULL;
     ecore_x_selection_clipboard_clear();
+    save_history(inst);
 }
 
 static Eina_Bool
