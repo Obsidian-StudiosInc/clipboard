@@ -126,7 +126,8 @@ _cb_action(void *data)
                 _clip_menu_post_cb, inst);
                 
         inst->items = float_list;
-        //~ read_history(inst);
+        if (!inst->items)
+          read_history(inst);
         
         if (inst->items){
             EINA_LIST_FOREACH(inst->items, it, clip)
