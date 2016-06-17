@@ -387,7 +387,6 @@ _clip_x_selection_notify_handler(Instance *instance, int type, void *event)
               cd->inst = instance;
               asprintf(&cd->content, "%s", text_data->text);
 			  // get rid unwanted chars from string - spaces and tabs
-			  memset(buf, '\0', sizeof(buf));
 			  asprintf(&temp_buf,"%s",text_data->text);
 			  memset(buf, '\0', sizeof(buf));
               strip_buf = strip_whitespace(temp_buf);
