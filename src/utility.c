@@ -18,18 +18,31 @@ char *
 strip_whitespace(char *str)
 {
   char *end;
-
-  while(isspace(*str)) str++;
+  char *middle;
+  
+  while(isspace(*str)) str++; // cleaning white chars before string 
 
   if(*str == 0)  // empty string ?
     return str;
+                     
+  end = str + strlen(str) - 1;  // finding end position
+   
+middle = calloc(strlen(str), sizeof(char));
+char *start=middle; //remember start position
 
-  end = str + strlen(str) - 1;
-  while(end > str && isspace(*end))
-    end--;
-
-  // Write new null terminator
-  *(end+1) = 0;
-
-  return str;
+while (str<end)             
+{
+	if (*str!='\t')
+	{
+		*middle=*str;
+		middle++;
+	}
+	else
+	{
+		*middle = ' ';
+		middle++;
+	}
+	str++;
+}
+  return start;
 }
