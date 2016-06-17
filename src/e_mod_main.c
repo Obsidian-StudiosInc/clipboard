@@ -18,7 +18,6 @@ static const char      *_gc_id_new(const E_Gadcon_Client_Class *client_class);
 
 static void e_clip_upload_completed(Clip_Data *clip_data);
 static void _e_clip_clear_list(Instance *inst);
-static void _clip_button_cb_mouse_down(void *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *ev);
 static Eina_Bool _clip_x_selection_notify_handler(Instance *instance, int type, void *event);
 static void _clip_menu_post_cb(void *data, E_Menu *menu);
 static void _menu_clip_request_click_cb(Instance *inst, E_Menu *m, E_Menu_Item *mi);
@@ -26,7 +25,7 @@ static Eina_Bool _clipboard_cb(void *data);
 static void _menu_clip_item_click_cb(Clip_Data *selected_clip);
 static void _free_clip_data(Clip_Data *cd);
 static Eina_Bool _selection_notify_cb(void *data, int type, void *event);
-static void _cb_show_menu(Instance *inst, void *event);
+static void _cb_show_menu(void *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *event);
 
 
 static E_Module *clipboard_module = NULL;
@@ -116,8 +115,9 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
  */
 
 static void
-_cb_show_menu(Instance *inst, void *event)
+_cb_show_menu(void *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *event)
 {
+  Instance *inst = (Instance*)data;
   Evas_Coord x, y, w, h;
   int cx, cy, dir, event_type = ecore_event_current_type_get();
   E_Container *con;
@@ -310,126 +310,6 @@ _gc_id_new (const E_Gadcon_Client_Class *client_class)
 }
 
 
-static void
-_clip_button_cb_mouse_down(void *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *ev)
-{
-    Instance *inst = (Instance*)data;
-   
-    Evas_Coord x, y, w, h;
-    int cx, cy;
-    int dir;
-    
-    E_Menu_Item *mi;
-    Eina_List *it;
-    Clip_Data *clip;
-    
-    int test =  ecore_event_current_type_get();
-
-    
-    printf("CLIPBOARD CALL BACK %d %d\n", test, ECORE_EVENT_MOUSE_BUTTON_DOWN);
-
-    if (!inst) return;
-
-
-
-    if ((ev->button == 1) && (!inst->menu))
-    {
-        /* Coordinates and sizing */
-        evas_object_geometry_get(inst->o_button, &x, &y, &w, &h);
-        e_gadcon_canvas_zone_geometry_get(inst->gcc->gadcon, &cx, &cy,
-                                          NULL, NULL);
-        x += cx;
-        y += cy;
-
-        inst->menu = e_menu_new();
-        
-        if (inst->items){
-            EINA_LIST_FOREACH(inst->items, it, clip)
-           {   mi = e_menu_item_new(inst->menu);
-                e_menu_item_label_set(mi, clip->name);
-                e_menu_item_callback_set(mi, (E_Menu_Cb)_menu_clip_item_click_cb, clip);
-           }
-       }
-
-			
-		mi = e_menu_item_new(inst->menu);
-        e_menu_item_separator_set(mi, EINA_TRUE);
-        
-        mi = e_menu_item_new(inst->menu);
-        e_menu_item_label_set(mi, _("Add clipboard content"));
-        e_util_menu_item_theme_icon_set(mi, "edit-paste");
-
-        e_menu_item_callback_set(mi, (E_Menu_Cb)_menu_clip_request_click_cb, inst);
-
-        mi = e_menu_item_new(inst->menu);
-        e_menu_item_separator_set(mi, EINA_TRUE);
-        
-         mi = e_menu_item_new(inst->menu);
-        e_menu_item_label_set(mi, _("Clear"));
-        e_util_menu_item_theme_icon_set(mi, "edit-clear");
-        e_menu_item_callback_set(mi, (E_Menu_Cb)_e_clip_clear_list, inst);
-
-		mi = e_menu_item_new(inst->menu);
-        e_menu_item_separator_set(mi, EINA_TRUE);
-        
-        mi = e_menu_item_new(inst->menu);
-        e_menu_item_label_set(mi, _("Settings"));
-        e_util_menu_item_theme_icon_set(mi, "preferences-system");
-        //~ e_menu_item_callback_set(mi, (E_Menu_Cb)_e_clip_clear_list, inst);
-        
-        e_menu_post_deactivate_callback_set(inst->menu,
-                _clip_menu_post_cb, inst);
-
-        /* Proper menu orientation */
-        switch (inst->gcc->gadcon->orient)
-        {
-            case E_GADCON_ORIENT_TOP:
-            case E_GADCON_ORIENT_CORNER_TL:
-            case E_GADCON_ORIENT_CORNER_TR:
-                dir = E_MENU_POP_DIRECTION_DOWN;
-                break;
-
-            case E_GADCON_ORIENT_BOTTOM:
-            case E_GADCON_ORIENT_CORNER_BL:
-            case E_GADCON_ORIENT_CORNER_BR:
-                dir = E_MENU_POP_DIRECTION_UP;
-                break;
-
-            case E_GADCON_ORIENT_LEFT:
-            case E_GADCON_ORIENT_CORNER_LT:
-            case E_GADCON_ORIENT_CORNER_LB:
-                dir = E_MENU_POP_DIRECTION_RIGHT;
-                break;
-
-            case E_GADCON_ORIENT_RIGHT:
-            case E_GADCON_ORIENT_CORNER_RT:
-            case E_GADCON_ORIENT_CORNER_RB:
-                dir = E_MENU_POP_DIRECTION_LEFT;
-                break;
-
-            case E_GADCON_ORIENT_FLOAT:
-            case E_GADCON_ORIENT_HORIZ:
-            case E_GADCON_ORIENT_VERT:
-            default:
-                dir = E_MENU_POP_DIRECTION_AUTO;
-                break;
-        }
-
-        e_gadcon_locked_set(inst->gcc->gadcon, EINA_TRUE);
-
-        /* We display not relatively to the gadget, but similarly to
-         * the start menu - thus the need for direction etc.
-         */
-        e_menu_activate_mouse(inst->menu,
-                e_util_zone_current_get
-                (e_manager_current_get()),
-                x, y, w, h, dir, ev->timestamp);
-    }
-}
-
-
-
-
 static Eina_Bool
 _clip_x_selection_notify_handler(Instance *instance, int type, void *event)
 {
@@ -456,7 +336,7 @@ _clip_x_selection_notify_handler(Instance *instance, int type, void *event)
 			  		  
 			  char buf[MAGIC_LABEL_SIZE + 1];
 			  char *temp_buf, *strip_buf;
-			  char str[2];
+
               if (text_data->data.length == 0)  return EINA_TRUE;
 
               cd = E_NEW(Clip_Data, 1);
