@@ -469,6 +469,8 @@ _clip_x_selection_notify_handler(Instance *instance, int type, void *event)
               strncpy(buf, strip_buf, MAGIC_LABEL_SIZE);
               asprintf(&cd->name, "%s", buf);
               free(temp_buf);
+              free(strip_buf);
+              
 
               if (strcmp(text_data->text,TMP_text)!=0)
               {
