@@ -26,7 +26,7 @@ static Eina_Bool _clipboard_cb(void *data);
 static void _menu_clip_item_click_cb(Clip_Data *selected_clip);
 static void _free_clip_data(Clip_Data *cd);
 static Eina_Bool _selection_notify_cb(void *data, int type, void *event);
-static void _cb_action(void *data);
+static void _cb_show_menu(Instance *inst, void *event);
 
 
 static E_Module *clipboard_module = NULL;
@@ -85,7 +85,7 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
 
    e_gadcon_client_util_menu_attach(gcc);
 
-   evas_object_event_callback_add(inst->o_button, EVAS_CALLBACK_MOUSE_DOWN, (Evas_Object_Event_Cb)_clip_button_cb_mouse_down, inst);
+   evas_object_event_callback_add(inst->o_button, EVAS_CALLBACK_MOUSE_DOWN, (Evas_Object_Event_Cb) _cb_show_menu, inst);
    
    E_LIST_HANDLER_APPEND(inst->handle, ECORE_X_EVENT_SELECTION_NOTIFY, _clip_x_selection_notify_handler, inst);
   
@@ -99,79 +99,152 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
     return gcc;
 }
 
+/**
+ * @brief  Generic call back function to Create Clipboard menu
+ *
+ * @param  inst, pointer to calling Instance 
+ *         event, pointer to Ecore Event which triggered call back
+ * 
+ * @return void
+ * 
+ *  Here we attempt to handle all Ecore events which trigger display of the
+ *  clipboard menu: either right clicking a Clipboard gadget or pressing a key 
+ *  or key combination bound to Clipboard Show Float menu. The generic nature
+ *  of this function is a preliminary atempt to avoid repeated code but at the
+ *  same time keep the logic relatively simple.
+ *
+ */
+
 static void
-_cb_action(void *data)
+_cb_show_menu(Instance *inst, void *event)
 {
-   
-   Instance *inst = (Instance*)data;
-   
-    Evas_Coord x, y;
-    E_Container *con;
-    E_Manager *man;
-    
-    E_Menu_Item *mi;
-    Eina_List *it;
-    Clip_Data *clip;
-    
-     if (!inst) return;
-     
-        /* Coordinates and sizing */
-        man = e_manager_current_get();
-        con = e_container_current_get(man);
-        ecore_x_pointer_xy_get(con->win, &x, &y);
-       
-        inst->menu = e_menu_new();
+  Evas_Coord x, y, w, h;
+  int cx, cy, dir, event_type = ecore_event_current_type_get();
+  E_Container *con;
+  E_Manager *man;
+  E_Menu_Item *mi;
+  Eina_List *it;
+  Clip_Data *clip;
+  Eina_Bool initialize;
 
-        e_menu_post_deactivate_callback_set(inst->menu,
-                _clip_menu_post_cb, inst);
-                
-        inst->items = float_list;
-        if (!inst->items)
-          read_history(inst);
-        
-        if (inst->items){
-            EINA_LIST_FOREACH(inst->items, it, clip)
-            {   mi = e_menu_item_new(inst->menu);
-                e_menu_item_label_set(mi, clip->name);
-                
-                e_menu_item_callback_set(mi, (E_Menu_Cb)_menu_clip_item_click_cb, clip);        
-            }
-        }
+  if (!inst)
+    return;
 
+  if (event_type == ECORE_EVENT_MOUSE_BUTTON_DOWN){
+    /* Ignore all mouse events but right clicks        */
+    if ((((Evas_Event_Mouse_Down *) event)->button) != 1)
+      return;
 
+    initialize = ((((Evas_Event_Mouse_Down *) event)->button) == 1) && (!inst->menu);
+  } else {
+    initialize = EINA_TRUE;
+  }
 
-		mi = e_menu_item_new(inst->menu);
-        e_menu_item_separator_set(mi, EINA_TRUE);
-        
+  if (initialize) {
+    if (event_type == ECORE_EVENT_MOUSE_BUTTON_DOWN){
+      /* Coordinates and sizing */
+      evas_object_geometry_get(inst->o_button, &x, &y, &w, &h);
+      e_gadcon_canvas_zone_geometry_get(inst->gcc->gadcon, &cx, &cy,
+                                          NULL, NULL);
+      x += cx;
+      y += cy;
+    } else {
+      /* Coordinates and sizing */
+      man = e_manager_current_get();
+      con = e_container_current_get(man);
+      ecore_x_pointer_xy_get(con->win, &x, &y);
+
+    }
+    inst->menu = e_menu_new();
+    if (event_type == ECORE_EVENT_KEY_DOWN){
+      e_menu_post_deactivate_callback_set(inst->menu, _clip_menu_post_cb, inst);
+      inst->items = float_list;
+    }
+    if (!inst->items)
+      read_history(inst);
+
+    if (inst->items){
+      EINA_LIST_FOREACH(inst->items, it, clip){
         mi = e_menu_item_new(inst->menu);
-        e_menu_item_label_set(mi, _("Add clipboard content"));
-        e_util_menu_item_theme_icon_set(mi, "edit-paste");
-        e_menu_item_callback_set(mi, (E_Menu_Cb)_clipboard_cb, inst);
+        e_menu_item_label_set(mi, clip->name);
+        e_menu_item_callback_set(mi, (E_Menu_Cb)_menu_clip_item_click_cb, clip);
+      }
+    }
 
-        mi = e_menu_item_new(inst->menu);
-        e_menu_item_separator_set(mi, EINA_TRUE);
-       
-       
-        
-         mi = e_menu_item_new(inst->menu);
-        e_menu_item_label_set(mi, _("Clear"));
-        e_util_menu_item_theme_icon_set(mi, "edit-clear");
-        e_menu_item_callback_set(mi, (E_Menu_Cb)_e_clip_clear_list, inst);
+    mi = e_menu_item_new(inst->menu);
+    e_menu_item_separator_set(mi, EINA_TRUE);
 
-		mi = e_menu_item_new(inst->menu);
-        e_menu_item_separator_set(mi, EINA_TRUE);
-        
-         mi = e_menu_item_new(inst->menu);
-        e_menu_item_label_set(mi, _("Settings"));
-        e_util_menu_item_theme_icon_set(mi, "preferences-system");
-        
-                 //~ e_gadcon_locked_set(inst->gcc->gadcon, EINA_TRUE);
+    mi = e_menu_item_new(inst->menu);
+    e_menu_item_label_set(mi, _("Add clipboard content"));
+    e_util_menu_item_theme_icon_set(mi, "edit-paste");
+    e_menu_item_callback_set(mi, (E_Menu_Cb)_clipboard_cb, inst);
+
+    mi = e_menu_item_new(inst->menu);
+    e_menu_item_separator_set(mi, EINA_TRUE);
+
+    mi = e_menu_item_new(inst->menu);
+    e_menu_item_label_set(mi, _("Clear"));
+    e_util_menu_item_theme_icon_set(mi, "edit-clear");
+    e_menu_item_callback_set(mi, (E_Menu_Cb)_e_clip_clear_list, inst);
+
+    mi = e_menu_item_new(inst->menu);
+    e_menu_item_separator_set(mi, EINA_TRUE);
+
+    mi = e_menu_item_new(inst->menu);
+    e_menu_item_label_set(mi, _("Settings"));
+    e_util_menu_item_theme_icon_set(mi, "preferences-system");
+
+    if (event_type == ECORE_EVENT_MOUSE_BUTTON_DOWN){
+      e_menu_post_deactivate_callback_set(inst->menu, _clip_menu_post_cb, inst);
+
+      /* Proper menu orientation */
+      switch (inst->gcc->gadcon->orient) {
+        case E_GADCON_ORIENT_TOP:
+        case E_GADCON_ORIENT_CORNER_TL:
+        case E_GADCON_ORIENT_CORNER_TR:
+          dir = E_MENU_POP_DIRECTION_DOWN;
+          break;
+        case E_GADCON_ORIENT_BOTTOM:
+        case E_GADCON_ORIENT_CORNER_BL:
+        case E_GADCON_ORIENT_CORNER_BR:
+          dir = E_MENU_POP_DIRECTION_UP;
+          break;
+
+        case E_GADCON_ORIENT_LEFT:
+        case E_GADCON_ORIENT_CORNER_LT:
+        case E_GADCON_ORIENT_CORNER_LB:
+          dir = E_MENU_POP_DIRECTION_RIGHT;
+          break;
+
+        case E_GADCON_ORIENT_RIGHT:
+        case E_GADCON_ORIENT_CORNER_RT:
+        case E_GADCON_ORIENT_CORNER_RB:
+          dir = E_MENU_POP_DIRECTION_LEFT;
+          break;
+
+        case E_GADCON_ORIENT_FLOAT:
+        case E_GADCON_ORIENT_HORIZ:
+        case E_GADCON_ORIENT_VERT:
+        default:
+          dir = E_MENU_POP_DIRECTION_AUTO;
+          break;
+      }
+      e_gadcon_locked_set(inst->gcc->gadcon, EINA_TRUE);
+
+      /* We display not relatively to the gadget, but similarly to
+       * the start menu - thus the need for direction etc.
+       */
+      e_menu_activate_mouse(inst->menu,
+                          e_util_zone_current_get(e_manager_current_get()),
+                    x, y, w, h, dir, ((Evas_Event_Mouse_Down *) event)->timestamp);
+    } else {
+      // e_gadcon_locked_set(inst->gcc->gadcon, EINA_TRUE);
        e_menu_activate_mouse(inst->menu, e_util_zone_current_get
-                (e_manager_current_get()),
-                x, y, 1, 1, 2, 1);         
-    //~ 
+                            (e_manager_current_get()),
+                    x, y, 1, 1, 2, 1);
+    }
+  }
 }
-
 
 
 static void
@@ -250,7 +323,10 @@ _clip_button_cb_mouse_down(void *data, Evas *evas, Evas_Object *obj, Evas_Event_
     Eina_List *it;
     Clip_Data *clip;
     
+    int test =  ecore_event_current_type_get();
+
     
+    printf("CLIPBOARD CALL BACK %d %d\n", test, ECORE_EVENT_MOUSE_BUTTON_DOWN);
 
     if (!inst) return;
 
@@ -380,7 +456,7 @@ _clip_x_selection_notify_handler(Instance *instance, int type, void *event)
 			  		  
 			  char buf[MAGIC_LABEL_SIZE + 1];
 			  char *temp_buf, *strip_buf;
-			  
+			  char str[2];
               if (text_data->data.length == 0)  return EINA_TRUE;
 
               cd = E_NEW(Clip_Data, 1);
@@ -530,7 +606,7 @@ e_modapi_init (E_Module * m)
   act = e_action_add("clipboard");
    if (act)
      {
-	act->func.go = (void *) _cb_action;
+	act->func.go = (void *) _cb_show_menu;
 	
 	e_action_predef_name_set("Clipboard","Show float menu", "clipboard", "<none>", NULL, 0);
      }
