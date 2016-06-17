@@ -380,13 +380,14 @@ _clip_x_selection_notify_handler(Instance *instance, int type, void *event)
 			  		  
 			  char buf[MAGIC_LABEL_SIZE + 1];
 			  char *temp_buf, *strip_buf;
-			  char str[2];
+			  
               if (text_data->data.length == 0)  return EINA_TRUE;
 
               cd = E_NEW(Clip_Data, 1);
               cd->inst = instance;
               asprintf(&cd->content, "%s", text_data->text);
 			  // get rid unwanted chars from string - spaces and tabs
+			  memset(buf, '\0', sizeof(buf));
 			  asprintf(&temp_buf,"%s",text_data->text);
 			  memset(buf, '\0', sizeof(buf));
               strip_buf = strip_whitespace(temp_buf);
