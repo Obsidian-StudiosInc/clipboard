@@ -26,7 +26,11 @@ strip_whitespace(char *str)
     return str;
                      
   end = str + strlen(str) - 1;  // finding end position
-   
+   while(end > str && isspace(*end)) end--;
+
+  // Write new null terminator
+  //~ *(end+1) = 0;
+  
 middle = calloc(strlen(str), sizeof(char));
 char *start=middle; //remember start position
 
