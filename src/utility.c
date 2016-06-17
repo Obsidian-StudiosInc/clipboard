@@ -30,7 +30,7 @@ strip_whitespace(char *str)
 middle = calloc(strlen(str), sizeof(char));
 char *start=middle; //remember start position
 
-while (str<end)             
+while (str<=end)             
 {
 	if (*str!='\t')
 	{
