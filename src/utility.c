@@ -36,7 +36,7 @@ char *start=middle; //remember start position
 
 while (str<=end)             
 {
-	if (*str!='\t' && *str!='\n')
+	if (!isspace(*str))
 	{
 		*middle=*str;
 		middle++;
