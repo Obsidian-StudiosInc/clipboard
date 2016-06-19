@@ -529,7 +529,7 @@ e_modapi_shutdown (E_Module * m)
     
   if (act)
      {
-	e_action_predef_name_del("Clipboard", "Show menu");
+	e_action_predef_name_del("Clipboard", "Show float menu");
 	e_action_del("clipboard");
 	act = NULL;
      }
