@@ -27,7 +27,6 @@ static void _free_clip_data(Clip_Data *cd);
 static Eina_Bool _selection_notify_cb(void *data, int type, void *event);
 static void _cb_show_menu(void *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *event);
 
-
 static E_Module *clipboard_module = NULL;
 static E_Action *act = NULL;
 static Eina_List *float_list = NULL;
@@ -36,6 +35,9 @@ static Eina_List *float_list = NULL;
 
 const char *TMP_text = " ";
 int item_num=0;
+
+/* Keep list of displayed gadgets */
+Eina_List *gadgets = NULL;
 
 
 /* and actually define the gadcon class that this module provides (just 1) */
@@ -54,8 +56,8 @@ static E_Gadcon_Client *
 _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
 {
    Evas_Object *o;
-   E_Gadcon_Client *gcc;
-   
+   E_Gadcon_Client *gcc, *last=NULL;
+
    Instance *inst = NULL;
    inst = E_NEW(Instance, 1);
 
@@ -76,6 +78,10 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
    evas_object_show(o);
 
    gcc = e_gadcon_client_new(gc, name, id, style, o);
+
+   if (gadgets)
+     last = (E_Gadcon_Client *) eina_list_data_get(gadgets);
+   gadgets = eina_list_append(gadgets, gcc);
    gcc->data = inst;
 
    inst->gcc = gcc;
@@ -93,8 +99,12 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
 
    inst->check_timer = ecore_timer_add(TIMEOUT_1, _clipboard_cb, inst);
 
+    if (last) 
+      inst->items = (Eina_List *)((Instance *)(last->data))->items;
+
     read_history(inst);
     //eet_shutdown();
+
     return gcc;
 }
 
@@ -137,6 +147,7 @@ _cb_show_menu(void *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *e
 
     initialize = ((((Evas_Event_Mouse_Down *) event)->button) == 1) && (!inst->menu);
   } else {
+    inst->gcc = NULL;
     initialize = EINA_TRUE;
   }
 
@@ -262,8 +273,10 @@ _gc_shutdown(E_Gadcon_Client *gcc)
         e_object_del(E_OBJECT(inst->menu));
         inst->menu = NULL;
      }
-
-   E_FREE_LIST(inst->items, _free_clip_data);
+   gadgets = eina_list_remove(gadgets, gcc);
+   /* Free gadget items only if no other gadget is using it */
+   if (!eina_list_count(gadgets))
+      E_FREE_LIST(inst->items, _free_clip_data);
    inst->items = NULL;
 
    evas_object_del(inst->o_button);
@@ -415,6 +428,9 @@ void e_clip_upload_completed(Clip_Data *cd)
 
 void _e_clip_clear_list(Instance *inst)
 { 
+	Eina_List *l;
+	E_Gadcon_Client *gadget;
+	
     if (!inst) 
         return;  
 
@@ -422,8 +438,17 @@ void _e_clip_clear_list(Instance *inst)
         E_FREE_LIST(inst->items, _free_clip_data); 
     item_num = 0;
     inst->items = NULL;
+
+    /* If called by float menu and 
+     *    gadgets are active be sure to Null gadgets item list */
+    if (eina_list_count(gadgets)){
+      EINA_LIST_FOREACH(gadgets, l, gadget)
+        ((Instance*)gadget->data)->items = NULL;
+    }
+
     ecore_x_selection_clipboard_clear();
     save_history(inst);
+    float_list = NULL;
 }
 
 static Eina_Bool
@@ -469,7 +494,6 @@ static void _free_clip_data(Clip_Data *cd)
     free(cd->name);
     free(cd->content);
     free(cd);
-    float_list = NULL;
 }
 
 /* module setup */
@@ -499,8 +523,10 @@ EAPI int
 e_modapi_shutdown (E_Module * m)
 {
 	Instance *inst;
- 
- 
+  // Do we need this?
+  if (gadgets)
+    gadgets = eina_list_free(gadgets);
+    
   if (act)
      {
 	e_action_predef_name_del("Clipboard", "Show menu");
@@ -518,5 +544,3 @@ e_modapi_save(E_Module * m)
 {
   return 1;
 }
-
-
