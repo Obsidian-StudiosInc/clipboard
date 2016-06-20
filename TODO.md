@@ -19,6 +19,10 @@ config.h config.ac to include __UNUSED
 
 use _UNUSED in all functions
 
+Ensure we have proper utf-8 support
+
+Ensure we have no memory leaks
+
 Add proper localization support 
 
 Github
