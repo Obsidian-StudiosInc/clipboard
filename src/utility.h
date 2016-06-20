@@ -2,6 +2,8 @@
 #define CLIPBOARD_UTILITY_H
 
 #include <string.h>
+#include <common.h>
+
 
 char *strip_whitespace(char *str);
 
