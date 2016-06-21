@@ -19,6 +19,8 @@ config.h config.ac to include __UNUSED
 
 use _UNUSED in all functions
 
+Add support for x-primary clipboard and clipboard sync
+
 Ensure we have proper utf-8 support
 
 Ensure we have no memory leaks
