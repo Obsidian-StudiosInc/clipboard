@@ -115,14 +115,16 @@ _gc_shutdown(E_Gadcon_Client *gcc)
     inst->menu = NULL;
   }
   gadgets = eina_list_remove(gadgets, gcc);
-  /* Free gadget items only if no other gadget is using it */
-  if (!eina_list_count(gadgets))
+  /* Free gadget items only if no other gadget is using it
+   *   Do not clear last gadget because float may use same pointer until
+   *   the module is unloaded */
+  if (eina_list_count(gadgets)>1)
     E_FREE_LIST(inst->items, _free_clip_data);
   inst->items = NULL;
 
   evas_object_del(inst->o_button);
   ecore_timer_del(inst->check_timer);
-  ecore_shutdown();
+  // ecore_shutdown();
   E_FREE(inst);
 }
 
@@ -492,6 +494,12 @@ EAPI int
 e_modapi_shutdown (E_Module * m)
 {
   Instance *inst;
+
+
+  if (float_list) {
+    E_FREE_LIST(float_list, _free_clip_data);
+    float_list = NULL;
+  }
   // Do we need this?
   if (gadgets)
     gadgets = eina_list_free(gadgets);
