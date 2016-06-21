@@ -20,6 +20,8 @@ Beta release
 - [ ] use _UNUSED in all functions
 
 - [ ] Add support for x-primary clipboard and clipboard sync
+ 
+- [ ] Implement a mutex lock on history file during reads and writes
 
 - [ ] Ensure we have proper utf-8 support
 
