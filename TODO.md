@@ -23,6 +23,8 @@ Beta release
  
 - [ ] Implement a mutex lock on history file during reads and writes
 
+- [ ] Implement a validate utf8 text and use during history read
+ 
 - [ ] Ensure we have proper utf-8 support
 
 - [ ] Ensure we have no memory leaks
