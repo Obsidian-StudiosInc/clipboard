@@ -67,3 +67,11 @@ e_modules-clipboard.spec
 module.desktop
 ], [
 ])
+echo
+cat << SUMMARY_EOF
+Summary:
+ * project.........: $PACKAGE $VERSION
+ * install.........: $datadir
+ * CFLAGS..........: $CFLAGS
+ * LDFLAGS.........: $LDFLAGS
+SUMMARY_EOF
