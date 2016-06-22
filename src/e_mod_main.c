@@ -28,6 +28,10 @@ static const E_Gadcon_Client_Class _gadcon_class = {
 };
 
 /* actual module specifics   */
+Config *clipboard_config = NULL;
+static E_Config_DD *conf_edd = NULL;
+static E_Config_DD *conf_item_edd = NULL;
+
 /*   First some call backs   */
 static Eina_Bool _cb_clipboard_request(void *data);
 static Eina_Bool _cb_event_selection(Instance *instance, int type, void *event);
@@ -160,7 +164,7 @@ _gc_icon(const E_Gadcon_Client_Class *client_class, Evas * evas)
 }
 
 /*
- * This function sets the id for the module, so it can be unique from other
+ * This function sets the id for the module, so it is unique from other
  * modules
  */
 static const char *
@@ -470,6 +474,18 @@ EAPI E_Module_Api e_modapi = {
   "Clipboard"
 };
 
+static Config_Item *
+_conf_item_get(const char *id)
+{
+  Config_Item *ci;
+
+  ci = E_NEW(Config_Item, 1);
+  ci->id = eina_stringshare_add(id);
+  clipboard_config->items = eina_list_append(clipboard_config->items, ci);
+  e_config_save_queue();
+  return ci;
+}
+
 /*
  * This is the first function called by e17 when you load the module
  */
@@ -477,6 +493,31 @@ EAPI void *
 e_modapi_init (E_Module * m)
 {
   e_gadcon_provider_register(&_gadcon_class);
+
+  e_configure_registry_item_add("preferences/clipboard", 10,
+            "Clipboard Settings", NULL,
+            "edit-paste", _config_clipboard_module);
+
+  conf_item_edd = E_CONFIG_DD_NEW("Clipboard_Config_Item", Config_Item);
+#undef T
+#undef D
+#define T Config_Item
+#define D conf_item_edd
+  E_CONFIG_VAL(D, T, id, STR);
+  conf_edd = E_CONFIG_DD_NEW("Config", Config);
+#undef T
+#undef D
+#define T Config
+#define D conf_edd
+  E_CONFIG_LIST(D, T, items, conf_item_edd);
+  E_CONFIG_VAL(D, T, persistence, INT);
+
+  clipboard_config = e_config_domain_load("module.clipboard", conf_edd);
+  if (!clipboard_config)
+    clipboard_config = E_NEW(Config, 1);
+  clipboard_config->module = m;
+  e_module_delayed_set(m, 1);
+  clipboard_config->module = m;
 
   act = e_action_add("clipboard");
   if (act) {
@@ -494,7 +535,27 @@ EAPI int
 e_modapi_shutdown (E_Module * m)
 {
   Instance *inst;
+  Config_Item *ci;
 
+  while((clipboard_config->cfd = e_config_dialog_get("E", "preferences/clipboard")))
+    e_object_del(E_OBJECT(clipboard_config->cfd));
+
+  e_configure_registry_item_del("preferences/clipboard");
+
+  if(clipboard_config->cfd)
+    e_object_del(E_OBJECT(clipboard_config->cfd));
+  E_FREE(clipboard_config->cfd);
+
+  if(clipboard_config){
+    EINA_LIST_FREE(clipboard_config->items, ci){
+      eina_stringshare_del(ci->id);
+      free(ci);
+    }
+    clipboard_config->module = NULL;
+    E_FREE(clipboard_config);
+  }
+  E_CONFIG_DD_FREE(conf_edd);
+  E_CONFIG_DD_FREE(conf_item_edd);
 
   if (float_list) {
     E_FREE_LIST(float_list, _free_clip_data);
@@ -520,5 +581,6 @@ e_modapi_shutdown (E_Module * m)
 EAPI int
 e_modapi_save(E_Module * m)
 {
+  e_config_domain_save("module.clipboard", conf_edd, clipboard_config);
   return EINA_TRUE;
 }

@@ -12,6 +12,7 @@ config.sub
 configure
 depcomp
 e-module-clipboard.edj
+e_modules-clipboard.spec
 install-sh
 libtool
 ltmain.sh
@@ -22,12 +23,15 @@ m4/ltversion.m4
 m4/lt~obsolete.m4
 missing
 module.desktop
+README
 src/.deps/
 src/.libs/
 src/Makefile
 src/Makefile.in
 src/e_mod_main.lo
 src/e_mod_main.o
+src/e_mod_config.lo
+src/e_mod_config.o
 src/history.lo
 src/history.o
 src/module.la
