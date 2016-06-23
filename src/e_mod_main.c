@@ -1,7 +1,6 @@
 #include "e_mod_main.h"
 #include "config_defaults.h"
 
-#define __UNUSED__
 #define _(S) S
 #define ENABLE_DEBUG 1
 #define DEBUG(f, ...) if (ENABLE_DEBUG) \

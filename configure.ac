@@ -3,19 +3,21 @@ dnl Process this file with autoconf to produce a configure script.
 # get rid of that stupid cache mechanism
 rm -f config.cache
 
-AC_INIT(clipboard, 0.0.1, enlightenment-devel@lists.sourceforge.net)
+AC_INIT(clipboard, 0.0.1, ylee@bodhilinux.com, clipboard, https://github.com/thewaiter/Clipboard)
 AC_PREREQ(2.52)
 AC_CONFIG_SRCDIR(configure.ac)
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
 AC_ISC_POSIX
 
-AM_INIT_AUTOMAKE(1.6)
+AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_HEADERS(config.h)
 
 AC_PROG_CC
 AC_HEADER_STDC
+AC_HEADER_STDC
 AC_C_CONST
+AC_C___ATTRIBUTE__
 
 define([AC_LIBTOOL_LANG_CXX_CONFIG], [:])dnl
 define([AC_LIBTOOL_LANG_F77_CONFIG], [:])dnl

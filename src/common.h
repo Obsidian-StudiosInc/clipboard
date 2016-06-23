@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include <e.h>
+#include "config.h"
 
 #define MAGIC_LABEL_SIZE 20
 #define MAGIC_HIST_SIZE  20
