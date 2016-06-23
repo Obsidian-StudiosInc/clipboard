@@ -1,4 +1,5 @@
 #include "e_mod_main.h"
+#include "config_defaults.h"
 
 #define __UNUSED__
 #define _(S) S
@@ -504,20 +505,38 @@ e_modapi_init (E_Module * m)
 #define T Config_Item
 #define D conf_item_edd
   E_CONFIG_VAL(D, T, id, STR);
-  conf_edd = E_CONFIG_DD_NEW("Config", Config);
+  conf_edd = E_CONFIG_DD_NEW("Clipboard_Config", Config);
 #undef T
 #undef D
 #define T Config
 #define D conf_edd
   E_CONFIG_LIST(D, T, items, conf_item_edd);
+  E_CONFIG_VAL(D, T, clip_copy, INT);
+  E_CONFIG_VAL(D, T, clip_select, INT);
   E_CONFIG_VAL(D, T, persistence, INT);
+  E_CONFIG_VAL(D, T, trim_ws, INT);
+  E_CONFIG_VAL(D, T, trim_nl, INT);
+  E_CONFIG_VAL(D, T, confirm_clear, INT);
 
   clipboard_config = e_config_domain_load("module.clipboard", conf_edd);
-  if (!clipboard_config)
+  if (!clipboard_config) {
     clipboard_config = E_NEW(Config, 1);
+    clipboard_config->clip_copy     = CONFIG_DEFAULT_CLIP_COPY;
+    clipboard_config->clip_select   = CONFIG_DEFAULT_CLIP_SELECT;
+    clipboard_config->persistence   = CONFIG_DEFAULT_CLIP_PERSISTANCE;
+    clipboard_config->trim_ws       = CONFIG_DEFAULT_CLIP_TRIM_WS;
+    clipboard_config->trim_nl       = CONFIG_DEFAULT_CLIP_NL;
+    clipboard_config->confirm_clear = CONFIG_DEFAULT_CLIP_COMFIRM_CLEAR;
+  }
+  E_CONFIG_LIMIT(clipboard_config->clip_copy, 0, 1);
+  E_CONFIG_LIMIT(clipboard_config->clip_select, 0, 1);
+  E_CONFIG_LIMIT(clipboard_config->persistence, 0, 1);
+  E_CONFIG_LIMIT(clipboard_config->trim_ws, 0, 1);
+  E_CONFIG_LIMIT(clipboard_config->trim_nl, 0, 1);
+  E_CONFIG_LIMIT(clipboard_config->confirm_clear, 0, 1);
+
   clipboard_config->module = m;
-  e_module_delayed_set(m, 1);
-  clipboard_config->module = m;
+  //e_module_delayed_set(m, 1);
 
   act = e_action_add("clipboard");
   if (act) {
@@ -537,14 +556,14 @@ e_modapi_shutdown (E_Module * m)
   Instance *inst;
   Config_Item *ci;
 
-  while((clipboard_config->cfd = e_config_dialog_get("E", "preferences/clipboard")))
-    e_object_del(E_OBJECT(clipboard_config->cfd));
+  while((clipboard_config->config_dialog = e_config_dialog_get("E", "preferences/clipboard")))
+    e_object_del(E_OBJECT(clipboard_config->config_dialog));
 
   e_configure_registry_item_del("preferences/clipboard");
 
-  if(clipboard_config->cfd)
-    e_object_del(E_OBJECT(clipboard_config->cfd));
-  E_FREE(clipboard_config->cfd);
+  if(clipboard_config->config_dialog)
+    e_object_del(E_OBJECT(clipboard_config->config_dialog));
+  E_FREE(clipboard_config->config_dialog);
 
   if(clipboard_config){
     EINA_LIST_FREE(clipboard_config->items, ci){
@@ -582,5 +601,5 @@ EAPI int
 e_modapi_save(E_Module * m)
 {
   e_config_domain_save("module.clipboard", conf_edd, clipboard_config);
-  return EINA_TRUE;
+  return 1;
 }

@@ -4,13 +4,18 @@ struct _E_Config_Dialog_Data
 {
   E_Config_Dialog *cfd;
   Evas_Object *obj;
+  int clip_copy;
+  int clip_select;
   int persistence;
+  int trim_ws;
+  int trim_nl;
+  int confirm_clear;
 };
 
 static int           _basic_apply_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata);
 static void *        _create_data(E_Config_Dialog *cfd);
 static void          _free_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata);
-static void          _cb_first_setting_change(void *data, Evas_Object *obj);
+static int           _basic_check_changed(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata);
 static void          _fill_data(E_Config_Dialog_Data *cfdata);
 static Evas_Object * _basic_create_widgets(E_Config_Dialog *cfd , Evas *evas, E_Config_Dialog_Data *cfdata);
 
@@ -30,39 +35,69 @@ _free_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
 {
   if (!clipboard_config)
     return;
+  clipboard_config->config_dialog = NULL;
   E_FREE(cfdata);
 }
 
 static void
 _fill_data(E_Config_Dialog_Data *cfdata)
 {
-  cfdata->persistence = clipboard_config->persistence;
+  cfdata->clip_copy     = clipboard_config->clip_copy;
+  cfdata->clip_select   = clipboard_config->clip_select;
+  cfdata->persistence   = clipboard_config->persistence;
+  cfdata->trim_ws       = clipboard_config->trim_ws;
+  cfdata->trim_nl       = clipboard_config->trim_nl;
+  cfdata->confirm_clear = clipboard_config->confirm_clear;
 }
 
 static int
 _basic_apply_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
 {
-   clipboard_config->persistence = cfdata->persistence;
-   e_config_save();
-   return 1;
+  clipboard_config->clip_copy     = cfdata->clip_copy;
+  clipboard_config->clip_select   = cfdata->clip_select;
+  clipboard_config->persistence   = cfdata->persistence;
+  clipboard_config->trim_ws       = cfdata->trim_ws;
+  clipboard_config->trim_nl       = cfdata->trim_nl;
+  clipboard_config->confirm_clear = cfdata->confirm_clear;
+
+  e_config_save_queue();
+  return 1;
 }
 
 static Evas_Object *
 _basic_create_widgets(E_Config_Dialog *cfd , Evas *evas, E_Config_Dialog_Data *cfdata)
 {
   Evas_Object *o, *ob, *of;
+  //  cfdata->cfd = cfd;
 
   o = e_widget_list_add(evas, 0, 0);
+  /* Clipboard Config Section     */
+  of = e_widget_framelist_add(evas, "Clipboards", 0);
+  ob = e_widget_check_add(evas, "Use Copy (Ctrl-C)", &(cfdata->clip_copy));
+  e_widget_framelist_object_append(of, ob);
 
+  ob = e_widget_check_add(evas, "Use Primary (Selection)", &(cfdata->clip_select));
+  e_widget_framelist_object_append(of, ob);
+
+  e_widget_list_object_append(o, of, 1, 0, 0.5);
+  /* History Config Section       */
   of = e_widget_framelist_add(evas, "History", 0);
   ob = e_widget_check_add(evas, "Save History", &(cfdata->persistence));
-
-  cfdata->obj = ob;
-  e_widget_on_change_hook_set(ob, _cb_first_setting_change, cfdata);
   e_widget_framelist_object_append(of, ob);
-  e_widget_list_object_append(o, of, 1, 0, 0.5);
 
-  e_dialog_resizable_set(cfd->dia, 0);
+  e_widget_list_object_append(o, of, 1, 0, 0.5);
+  /* Miscellaneous Config Section */
+  of = e_widget_framelist_add(evas, "Miscellaneous", 0);
+  ob = e_widget_check_add(evas, "Trim Whitespace", &(cfdata->trim_ws));
+  e_widget_framelist_object_append(of, ob);
+
+  ob = e_widget_check_add(evas, "Trim Newlines", &(cfdata->trim_nl));
+  e_widget_framelist_object_append(of, ob);
+
+  ob = e_widget_check_add(evas, "Confirm before clearing history", &(cfdata->confirm_clear));
+  e_widget_framelist_object_append(of, ob);
+
+  e_widget_list_object_append(o, of, 1, 0, 0.5);
   return o;
 }
 
@@ -79,25 +114,25 @@ _config_clipboard_module(E_Container *con, const char *params )
   v->free_cfdata = _free_data;
   v->basic.create_widgets = _basic_create_widgets;
   v->basic.apply_cfdata = _basic_apply_data;
+  v->basic.check_changed = _basic_check_changed;
 
   cfd = e_config_dialog_new(con, "Clipboard Settings",
             "E", "preferences/clipboard",
             "preferences-engine", 0, v, NULL);
-  e_dialog_resizable_set(cfd->dia, 1);
-  clipboard_config->cfd = cfd;
+  clipboard_config->config_dialog = cfd;
 
   return cfd;
 }
 
-static void
-_cb_first_setting_change(void *data, Evas_Object *obj)
+static int
+_basic_check_changed(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
 {
-  E_Config_Dialog_Data *cfdata;
-  int val;
-
-  cfdata = data;
-  val = e_widget_check_checked_get(obj);
-
-  cfdata->persistence = val;
-  e_widget_check_checked_set(cfdata->obj,val);
+  if (clipboard_config->clip_copy     != cfdata->clip_copy) return 1;
+  if (clipboard_config->clip_select   != cfdata->clip_select) return 1;
+  if (clipboard_config-> persistence  != cfdata-> persistence) return 1;
+  if (clipboard_config->trim_ws       != cfdata->trim_ws) return 1;
+  if (clipboard_config->trim_nl       != cfdata->trim_nl) return 1;
+  if (clipboard_config->confirm_clear != cfdata->confirm_clear) return 1;
+  return 0;
 }
+

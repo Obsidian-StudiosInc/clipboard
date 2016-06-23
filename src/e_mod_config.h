@@ -9,10 +9,14 @@ typedef struct _Config_Item Config_Item;
 struct _Config
 {
   Eina_List *items;
-  E_Config_Dialog *cfd;
   E_Module *module;
-  E_Config_Dialog *_config_dialog;
+  E_Config_Dialog *config_dialog;
+  int clip_copy;
+  int clip_select;
   int persistence;
+  int trim_ws;
+  int trim_nl;
+  int confirm_clear;
 };
 
 struct _Config_Item
