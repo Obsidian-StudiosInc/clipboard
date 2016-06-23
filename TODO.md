@@ -15,7 +15,7 @@ Beta release
 
 - [ ] .xsession-errors support
 
-- [ ] config.h config.ac to include __UNUSED
+- [x] config.h config.ac to include __UNUSED
 
 - [ ] use _UNUSED in all functions
 
