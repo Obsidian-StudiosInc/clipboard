@@ -48,6 +48,9 @@ _fill_data(E_Config_Dialog_Data *cfdata)
   cfdata->clip_copy     = clipboard_config->clip_copy;
   cfdata->clip_select   = clipboard_config->clip_select;
   cfdata->persistence   = clipboard_config->persistence;
+  cfdata->hist_reverse  = clipboard_config->hist_reverse;
+  cfdata->hist_items    = clipboard_config->hist_items;
+  cfdata->hist_length   = clipboard_config->hist_length;
   cfdata->trim_ws       = clipboard_config->trim_ws;
   cfdata->trim_nl       = clipboard_config->trim_nl;
   cfdata->confirm_clear = clipboard_config->confirm_clear;
@@ -59,6 +62,9 @@ _basic_apply_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
   clipboard_config->clip_copy     = cfdata->clip_copy;
   clipboard_config->clip_select   = cfdata->clip_select;
   clipboard_config->persistence   = cfdata->persistence;
+  clipboard_config->hist_reverse  = cfdata->hist_reverse;
+  clipboard_config->hist_items    = cfdata->hist_items;
+  clipboard_config->hist_length   = cfdata->hist_length;
   clipboard_config->trim_ws       = cfdata->trim_ws;
   clipboard_config->trim_nl       = cfdata->trim_nl;
   clipboard_config->confirm_clear = cfdata->confirm_clear;
