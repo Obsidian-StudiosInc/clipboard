@@ -538,7 +538,7 @@ e_modapi_init (E_Module * m)
   E_CONFIG_LIMIT(clipboard_config->persistence, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->hist_reverse, 0, 0);
   //~ E_CONFIG_LIMIT(clipboard_config->hist_items, 5, 50); FIXME
-  //~ E_CONFIG_LIMIT(clipboard_config->hist_length, 5, 50);
+  //~ E_CONFIG_LIMIT(clipboard_config->hist_length, 5, 50); FIXME
   
   E_CONFIG_LIMIT(clipboard_config->trim_ws, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->trim_nl, 0, 1);

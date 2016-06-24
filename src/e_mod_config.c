@@ -187,6 +187,9 @@ _basic_check_changed(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
   if (clipboard_config->clip_copy     != cfdata->clip_copy) return 1;
   if (clipboard_config->clip_select   != cfdata->clip_select) return 1;
   if (clipboard_config-> persistence  != cfdata-> persistence) return 1;
+  if (clipboard_config-> hist_reverse != cfdata-> hist_reverse) return 1;
+  if (clipboard_config-> hist_items   != cfdata-> hist_items) return 1;
+  if (clipboard_config-> hist_length  != cfdata-> hist_length) return 1;
   if (clipboard_config->trim_ws       != cfdata->trim_ws) return 1;
   if (clipboard_config->trim_nl       != cfdata->trim_nl) return 1;
   if (clipboard_config->confirm_clear != cfdata->confirm_clear) return 1;
