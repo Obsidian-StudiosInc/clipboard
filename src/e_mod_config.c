@@ -49,9 +49,9 @@ _fill_data(E_Config_Dialog_Data *cfdata)
   cfdata->clip_select   = clipboard_config->clip_select;
   cfdata->persistence   = clipboard_config->persistence;
   cfdata->hist_reverse  = clipboard_config->hist_reverse;
-  if (cfdata->hist_items)
+  if (clipboard_config->hist_items)
       cfdata->hist_items    = strdup(clipboard_config->hist_items);
-  if (cfdata->hist_length) 
+  if (clipboard_config->hist_length) 
       cfdata->hist_length   = strdup(clipboard_config->hist_length);
   cfdata->trim_ws       = clipboard_config->trim_ws;
   cfdata->trim_nl       = clipboard_config->trim_nl;
