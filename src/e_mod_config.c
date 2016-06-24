@@ -77,11 +77,11 @@ _basic_apply_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
      eina_stringshare_del(clipboard_config->hist_items);
      
    char *t;
-    t = strdup(clipboard_config->hist_items);
+    t = strdup(cfdata->hist_items);
    *t = toupper(*t);
    clipboard_config->hist_items = eina_stringshare_add(t);  
 
-//---------------------------------------------------------
+//~ //---------------------------------------------------------
    if (!cfdata->hist_length)
      return 0;
 
@@ -91,7 +91,8 @@ _basic_apply_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
    if (clipboard_config->hist_length)
      eina_stringshare_del(clipboard_config->hist_length);
      
-    t = strdup(clipboard_config->hist_length);
+  
+    t = strdup(cfdata->hist_length);
    *t = toupper(*t);
    clipboard_config->hist_length = eina_stringshare_add(t);  
 //---------------------------------------------------------
@@ -101,7 +102,7 @@ _basic_apply_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
   clipboard_config->confirm_clear = cfdata->confirm_clear;
 
   e_config_save_queue();
-  return 1;
+   return 1;
 }
 
 static Evas_Object *
