@@ -49,8 +49,10 @@ _fill_data(E_Config_Dialog_Data *cfdata)
   cfdata->clip_select   = clipboard_config->clip_select;
   cfdata->persistence   = clipboard_config->persistence;
   cfdata->hist_reverse  = clipboard_config->hist_reverse;
-  cfdata->hist_items    = clipboard_config->hist_items;
-  cfdata->hist_length   = clipboard_config->hist_length;
+  if (cfdata->hist_items)
+      cfdata->hist_items    = strdup(clipboard_config->hist_items);
+  if (cfdata->hist_length) 
+      cfdata->hist_length   = strdup(clipboard_config->hist_length);
   cfdata->trim_ws       = clipboard_config->trim_ws;
   cfdata->trim_nl       = clipboard_config->trim_nl;
   cfdata->confirm_clear = clipboard_config->confirm_clear;
@@ -63,8 +65,37 @@ _basic_apply_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
   clipboard_config->clip_select   = cfdata->clip_select;
   clipboard_config->persistence   = cfdata->persistence;
   clipboard_config->hist_reverse  = cfdata->hist_reverse;
-  clipboard_config->hist_items    = cfdata->hist_items;
-  clipboard_config->hist_length   = cfdata->hist_length;
+   
+//--------------------------------------------------------
+   if (!cfdata->hist_items)
+     return 0;
+
+   if (!strlen(cfdata->hist_items))
+     return 0;
+   
+   if (clipboard_config->hist_items)
+     eina_stringshare_del(clipboard_config->hist_items);
+     
+   char *t;
+    t = strdup(clipboard_config->hist_items);
+   *t = toupper(*t);
+   clipboard_config->hist_items = eina_stringshare_add(t);  
+
+//---------------------------------------------------------
+   if (!cfdata->hist_length)
+     return 0;
+
+   if (!strlen(cfdata->hist_length))
+     return 0;
+   
+   if (clipboard_config->hist_length)
+     eina_stringshare_del(clipboard_config->hist_length);
+     
+    t = strdup(clipboard_config->hist_length);
+   *t = toupper(*t);
+   clipboard_config->hist_length = eina_stringshare_add(t);  
+//---------------------------------------------------------
+  
   clipboard_config->trim_ws       = cfdata->trim_ws;
   clipboard_config->trim_nl       = cfdata->trim_nl;
   clipboard_config->confirm_clear = cfdata->confirm_clear;
