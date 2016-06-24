@@ -6,6 +6,9 @@ struct _E_Config_Dialog_Data
   Evas_Object *obj;
   int clip_copy;
   int clip_select;
+  int hist_reverse;
+  char *hist_length;
+  char *hist_items;
   int persistence;
   int trim_ws;
   int trim_nl;
@@ -84,8 +87,25 @@ _basic_create_widgets(E_Config_Dialog *cfd , Evas *evas, E_Config_Dialog_Data *c
   of = e_widget_framelist_add(evas, "History", 0);
   ob = e_widget_check_add(evas, "Save History", &(cfdata->persistence));
   e_widget_framelist_object_append(of, ob);
+  
+  ob = e_widget_check_add(evas, "Reverse order", &(cfdata->hist_reverse));
+  e_widget_framelist_object_append(of, ob);
+
+   ob = e_widget_label_add(evas, "Items in history: ");
+   e_widget_framelist_object_append(of, ob);
+   ob = e_widget_entry_add(evas, &cfdata->hist_items, NULL, NULL, NULL);
+   e_widget_size_min_set(ob, 30, 28);
+   e_widget_framelist_object_append(of, ob);
+
+   ob = e_widget_label_add(evas, "Items label length: ");
+   e_widget_framelist_object_append(of, ob);
+   ob = e_widget_entry_add(evas, &cfdata->hist_length, NULL, NULL, NULL);
+   e_widget_size_min_set(ob, 30, 28);
+   e_widget_framelist_object_append(of, ob);
+
 
   e_widget_list_object_append(o, of, 1, 0, 0.5);
+
   /* Miscellaneous Config Section */
   of = e_widget_framelist_add(evas, "Miscellaneous", 0);
   ob = e_widget_check_add(evas, "Trim Whitespace", &(cfdata->trim_ws));
