@@ -31,6 +31,12 @@ Beta release
 
 - [ ] Add proper localization support 
 
+
+Research
+--------
+
+- [ ] e_widget spin button like [Elementary Spinner](https://docs.enlightenment.org/elementary/1.15.0/group__Spinner.html)
+
 Github
 ------
 
