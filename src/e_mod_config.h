@@ -14,6 +14,9 @@ struct _Config
   int clip_copy;
   int clip_select;
   int persistence;
+  int hist_reverse;
+  char *hist_items; 
+  char *hist_length;
   int trim_ws;
   int trim_nl;
   int confirm_clear;
