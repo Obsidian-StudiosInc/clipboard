@@ -15,8 +15,8 @@ struct _Config
   int clip_select;
   int persistence;
   int hist_reverse;
-  const char *hist_items; 
-  const char *hist_length;
+  int hist_items; 
+  int hist_length;
   int trim_ws;
   int trim_nl;
   int confirm_clear;
