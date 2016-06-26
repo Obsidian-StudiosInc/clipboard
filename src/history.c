@@ -130,7 +130,7 @@ _set_history_path(char *path)
  *          Eet error identifier of error otherwise.
  *
  */
-Eet_Error 
+Eet_Error
 read_history(Instance* inst)
 {
     Clip_Data *cd = NULL;
@@ -144,7 +144,7 @@ read_history(Instance* inst)
     if(!_set_history_path(history_path))
       return EET_ERROR_BAD_OBJECT;
     history_file = eet_open(history_path, EET_FILE_MODE_READ);
-    if (!history_file) 
+    if (!history_file)
       return EET_ERROR_BAD_OBJECT;
     ret = eet_read(history_file, "MAX_ITEMS", &size);
     item_num=atoi(ret);

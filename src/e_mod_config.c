@@ -7,7 +7,7 @@ struct _E_Config_Dialog_Data
   int clip_copy;
   int clip_select;
   int hist_reverse;
-  char *hist_length;
+  char *label_length;
   char *hist_items;
   int persistence;
   int trim_ws;
@@ -47,15 +47,15 @@ static void
 _fill_data(E_Config_Dialog_Data *cfdata)
 {
   char buf[1024];
-  
+
   cfdata->clip_copy     = clipboard_config->clip_copy;
   cfdata->clip_select   = clipboard_config->clip_select;
   cfdata->persistence   = clipboard_config->persistence;
   cfdata->hist_reverse  = clipboard_config->hist_reverse;
   snprintf (buf,sizeof (buf), "%d",clipboard_config->hist_items );
   cfdata->hist_items = strdup (buf);
-  snprintf (buf,sizeof (buf), "%d",clipboard_config->hist_length );
-  cfdata->hist_length = strdup (buf);
+  snprintf (buf,sizeof (buf), "%d",clipboard_config->label_length );
+  cfdata->label_length = strdup (buf);
   cfdata->trim_ws       = clipboard_config->trim_ws;
   cfdata->trim_nl       = clipboard_config->trim_nl;
   cfdata->confirm_clear = clipboard_config->confirm_clear;
@@ -69,7 +69,7 @@ _basic_apply_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
   clipboard_config->persistence   = cfdata->persistence;
   clipboard_config->hist_reverse  = cfdata->hist_reverse;
   clipboard_config->hist_items    = atoi(cfdata->hist_items);
-  clipboard_config->hist_length   = atoi(cfdata->hist_length);
+  clipboard_config->label_length   = atoi(cfdata->label_length);
   clipboard_config->trim_ws       = cfdata->trim_ws;
   clipboard_config->trim_nl       = cfdata->trim_nl;
   clipboard_config->confirm_clear = cfdata->confirm_clear;
@@ -98,7 +98,7 @@ _basic_create_widgets(E_Config_Dialog *cfd , Evas *evas, E_Config_Dialog_Data *c
   of = e_widget_framelist_add(evas, "History", 0);
   ob = e_widget_check_add(evas, "Save History", &(cfdata->persistence));
   e_widget_framelist_object_append(of, ob);
-  
+
   ob = e_widget_check_add(evas, "Reverse order", &(cfdata->hist_reverse));
   e_widget_framelist_object_append(of, ob);
 
@@ -107,10 +107,10 @@ _basic_create_widgets(E_Config_Dialog *cfd , Evas *evas, E_Config_Dialog_Data *c
    ob = e_widget_entry_add(evas, &(cfdata->hist_items), NULL, NULL, NULL);
    e_widget_size_min_set(ob, 30, 28);
    e_widget_framelist_object_append(of, ob);
-  
+
    ob = e_widget_label_add(evas, "Items label length (5-50):");
    e_widget_framelist_object_append(of, ob);
-   ob = e_widget_entry_add(evas, &(cfdata->hist_length), NULL, NULL, NULL);
+   ob = e_widget_entry_add(evas, &(cfdata->label_length), NULL, NULL, NULL);
    e_widget_size_min_set(ob, 30, 28);
    e_widget_framelist_object_append(of, ob);
 
@@ -163,7 +163,7 @@ _basic_check_changed(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
   if (clipboard_config-> persistence  != cfdata-> persistence) return 1;
   if (clipboard_config-> hist_reverse != cfdata-> hist_reverse) return 1;
   if (clipboard_config-> hist_items   != atoi(cfdata-> hist_items)) return 1;
-  if (clipboard_config-> hist_length  != atoi(cfdata-> hist_length)) return 1;
+  if (clipboard_config-> label_length  != atoi(cfdata-> label_length)) return 1;
   if (clipboard_config->trim_ws       != cfdata->trim_ws) return 1;
   if (clipboard_config->trim_nl       != cfdata->trim_nl) return 1;
   if (clipboard_config->confirm_clear != cfdata->confirm_clear) return 1;

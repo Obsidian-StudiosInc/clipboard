@@ -515,7 +515,7 @@ e_modapi_init (E_Module * m)
   E_CONFIG_VAL(D, T, persistence, INT);
   E_CONFIG_VAL(D, T, hist_reverse, INT);
   E_CONFIG_VAL(D, T, hist_items, INT);
-  E_CONFIG_VAL(D, T, hist_length, INT);
+  E_CONFIG_VAL(D, T, label_length, INT);
   E_CONFIG_VAL(D, T, trim_ws, INT);
   E_CONFIG_VAL(D, T, trim_nl, INT);
   E_CONFIG_VAL(D, T, confirm_clear, INT);
@@ -528,7 +528,7 @@ e_modapi_init (E_Module * m)
     clipboard_config->persistence   = CONFIG_DEFAULT_CLIP_PERSISTANCE;
     clipboard_config->hist_reverse  = CONFIG_DEFAULT_CLIP_HIST_REVERSE;
     clipboard_config->hist_items    = CONFIG_DEFAULT_CLIP_HIST_ITEMS;
-    clipboard_config->hist_length   = CONFIG_DEFAULT_CLIP_HIST_LENGTH;
+    clipboard_config->label_length  = CONFIG_DEFAULT_CLIP_LABEL_LENGTH;
     clipboard_config->trim_ws       = CONFIG_DEFAULT_CLIP_TRIM_WS;
     clipboard_config->trim_nl       = CONFIG_DEFAULT_CLIP_NL;
     clipboard_config->confirm_clear = CONFIG_DEFAULT_CLIP_COMFIRM_CLEAR;
@@ -537,8 +537,8 @@ e_modapi_init (E_Module * m)
   E_CONFIG_LIMIT(clipboard_config->clip_select, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->persistence, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->hist_reverse, 0, 1);
-  E_CONFIG_LIMIT(clipboard_config->hist_items, 5, 50); 
-  E_CONFIG_LIMIT(clipboard_config->hist_length, 5, 50); 
+  E_CONFIG_LIMIT(clipboard_config->hist_items, 5, 50);
+  E_CONFIG_LIMIT(clipboard_config->label_length, 5, 50);
   E_CONFIG_LIMIT(clipboard_config->trim_ws, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->trim_nl, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->confirm_clear, 0, 1);
