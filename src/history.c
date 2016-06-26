@@ -137,7 +137,7 @@ read_history(Instance* inst)
     char history_path[PATH_MAX];
     Eet_File *history_file;
     char *ret, *temp_buf;
-    int i, size, item_num;
+    int i, size;
     char buf[MAGIC_LABEL_SIZE + 1], str[3];
 
     // FIXME

@@ -1,5 +1,6 @@
 #include "e_mod_main.h"
 #include "config_defaults.h"
+#include "history.h"
 
 #define _(S) S
 #define ENABLE_DEBUG 1
@@ -49,7 +50,7 @@ static void      _x_clipboard_update(const char *text, const Instance *inst);
 static E_Action *act = NULL;
 static Eina_List *float_list = NULL;
 const char *TMP_text = " ";
-int item_num=0;
+
 Eina_List *gadgets = NULL; /* Keep list of displayed gadgets */
 
 /*
@@ -388,11 +389,13 @@ void _clipboard_add_item(Clip_Data *cd)
     return;
   /* Remove duplicate items in Eina list */
   EINA_LIST_FOREACH(((Instance*)cd->inst)->items, it, clip) {
-    if (strcmp(cd->content, clip->content)==0)
+    if (strcmp(cd->content, clip->content)==0){
       ((Instance*)cd->inst)->items = eina_list_remove(((Instance*)cd->inst)->items,clip);
+      item_num--;
+    }
   }
   /* adding item to the list */
-  if (item_num < MAGIC_HIST_SIZE+ 1) {
+  if (item_num < MAGIC_HIST_SIZE) {
     ((Instance*)cd->inst)->items = eina_list_prepend(((Instance*)cd->inst)->items, cd);
     item_num++;
   }
@@ -543,6 +546,7 @@ e_modapi_init (E_Module * m)
   E_CONFIG_LIMIT(clipboard_config->trim_nl, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->confirm_clear, 0, 1);
 
+  item_num=0;
   clipboard_config->module = m;
   //e_module_delayed_set(m, 1);
 

@@ -6,7 +6,7 @@
 #include "config.h"
 
 #define MAGIC_LABEL_SIZE 20
-#define MAGIC_HIST_SIZE  20
+#define MAGIC_HIST_SIZE  3
 
 typedef struct _Clip_Data {
     void *inst;
