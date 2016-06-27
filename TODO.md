@@ -7,9 +7,13 @@ Beta release
 
 - [ ] Serious testing to find and fix all issues
 
-- [ ] Add Config dialog
+- [x] Add Config Dialog to e17 settings menu
 
-- [ ] Decide on Config options and functionality needed for beta release
+- [ ] Add Config Dialog to gadget context menu
+
+- [x] Decide on Config options and functionality needed for beta release
+ 
+- [ ] Actually use Config options in code
 
 - [ ] Proper fix for whitespace issue in menu labels
 
@@ -21,7 +25,7 @@ Beta release
 
 - [ ] Add support for x-primary clipboard and clipboard sync
  
-- [ ] Implement a mutex lock on history file during reads and writes
+- [ ] Implement a file lock on history file during file writes
 
 - [ ] Implement a validate utf8 text and use during history read
  
@@ -36,6 +40,8 @@ Research
 --------
 
 - [ ] e_widget spin button like [Elementary Spinner](https://docs.enlightenment.org/elementary/1.15.0/group__Spinner.html)
+ 
+- [ ] Automatic pasting 
 
 Github
 ------
