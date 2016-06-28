@@ -6,7 +6,7 @@
 
 int item_num;
 
-Eet_Error read_history(Instance* inst);
-Eet_Error save_history(Instance* inst);
+Eet_Error read_history(Eina_List **items);
+Eet_Error save_history(Eina_List *items);
 
 #endif

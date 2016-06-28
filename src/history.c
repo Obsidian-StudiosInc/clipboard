@@ -131,7 +131,7 @@ _set_history_path(char *path)
  *
  */
 Eet_Error
-read_history(Instance* inst)
+read_history(Eina_List **items)
 {
     Clip_Data *cd = NULL;
     char history_path[PATH_MAX];
@@ -139,6 +139,7 @@ read_history(Instance* inst)
     char *ret, *temp_buf;
     int i, size;
     char buf[MAGIC_LABEL_SIZE + 1], str[3];
+    Eina_List *l=NULL;
 
     // FIXME
     if(!_set_history_path(history_path))
@@ -149,10 +150,9 @@ read_history(Instance* inst)
     ret = eet_read(history_file, "MAX_ITEMS", &size);
     item_num=atoi(ret);
 
-    for (i=1;i<=item_num;i++)
-    {
+    for (i=1;i<=item_num;i++){
+
         cd = E_NEW(Clip_Data, 1);  //new instance for another struct
-        cd->inst = inst;
 
         sprintf(str, "%d", i);
         ret = eet_read(history_file,str, &size);
@@ -163,10 +163,11 @@ read_history(Instance* inst)
         memset(buf, '\0', sizeof(buf));
         strncpy(buf, temp_buf, MAGIC_LABEL_SIZE);
         asprintf(&(cd->name), "%s", buf);
-        ((Instance*)cd->inst)->items = eina_list_append(((Instance*)cd->inst)->items, cd);
+        l = eina_list_append(l, cd);
     }
     free(ret);
-    //eet_shutdown();
+    *items = l;
+
     return eet_close(history_file);
 }
 
@@ -184,18 +185,18 @@ read_history(Instance* inst)
  *
  */
 Eet_Error
-save_history(Instance* inst)
+save_history(Eina_List *items)
 {
-    Eina_List *l, *list = inst->items;
+    Eina_List *l;
     int i=1;
     char str[3];
     Clip_Data *cd;
     char history_path[PATH_MAX];
     Eet_Error ret;
-    //eet_init();
+
     if(!_set_history_path(history_path))
       return  EET_ERROR_BAD_OBJECT;
-    if(!list){
+    if(!items) {
       // FIXME: should just write empty data here
       ecore_file_remove(history_path);
       return EET_ERROR_BAD_OBJECT;
@@ -204,7 +205,7 @@ save_history(Instance* inst)
     Eet_File *history_file = eet_open(history_path, EET_FILE_MODE_WRITE);
 
     if (history_file) {
-        EINA_LIST_FOREACH(list, l, cd) {
+        EINA_LIST_FOREACH(items, l, cd) {
             sprintf(str, "%d", i++);
             eet_write(history_file, str,  cd->content, strlen(cd->content) + 1, 0);
         }

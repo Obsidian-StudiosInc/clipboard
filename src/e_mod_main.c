@@ -32,6 +32,7 @@ static const E_Gadcon_Client_Class _gadcon_class = {
 Config *clipboard_config = NULL;
 static E_Config_DD *conf_edd = NULL;
 static E_Config_DD *conf_item_edd = NULL;
+static Mod_Inst *clip_inst = NULL;
 
 /*   First some call backs   */
 static Eina_Bool _cb_clipboard_request(void *data);
@@ -43,15 +44,12 @@ static void      _cb_show_menu(void *data, Evas *evas, Evas_Object *obj, Evas_Ev
 static void      _clipboard_add_item(Clip_Data *clip_data);
 static void      _clear_history(Instance *inst);
 static void      _free_clip_data(Clip_Data *cd);
-static void      _x_clipboard_update(const char *text, const Instance *inst);
+static void      _x_clipboard_update(const char *text);
 
 /* Globals needed for convenience
  *   Probably should find a more 'acceptable solution' */
 static E_Action *act = NULL;
-static Eina_List *float_list = NULL;
 const char *TMP_text = " ";
-
-Eina_List *gadgets = NULL; /* Keep list of displayed gadgets */
 
 /*
  * This function is called when you add the Module to a Shelf or Gadgets, it
@@ -71,31 +69,13 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
   evas_object_show(o);
 
   gcc = e_gadcon_client_new(gc, name, id, style, o);
-
-  if (gadgets)
-    last = (E_Gadcon_Client *) eina_list_data_get(gadgets);
-  gadgets = eina_list_append(gadgets, gcc);
   gcc->data = inst;
 
   inst->gcc = gcc;
-  inst->win = ecore_evas_window_get(gc->ecore_evas);
   inst->o_button = o;
 
   e_gadcon_client_util_menu_attach(gcc);
-
   evas_object_event_callback_add(inst->o_button, EVAS_CALLBACK_MOUSE_DOWN, (Evas_Object_Event_Cb) _cb_show_menu, inst);
-
-  E_LIST_HANDLER_APPEND(inst->handle, ECORE_X_EVENT_SELECTION_NOTIFY, _cb_event_selection, inst);
-
-  /* Ensure our gadget is initialized to current clipboard contents */
-  ecore_x_selection_clipboard_request(inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
-
-  inst->check_timer = ecore_timer_add(TIMEOUT_1, _cb_clipboard_request, inst);
-
-   if (last)
-     inst->items = (Eina_List *)((Instance *)(last->data))->items;
-
-  read_history(inst);
 
   return gcc;
 }
@@ -108,28 +88,16 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
 static void
 _gc_shutdown(E_Gadcon_Client *gcc)
 {
-  Instance *inst;
+  Instance *inst = gcc->data;
 
-  inst = gcc->data;
-  E_FREE_LIST(inst->handle, ecore_event_handler_del);
-  inst->handle = NULL;
-
-  if (inst->menu){
+  if (inst->menu) {
     e_menu_post_deactivate_callback_set(inst->menu, NULL, NULL);
     e_object_del(E_OBJECT(inst->menu));
     inst->menu = NULL;
   }
-  gadgets = eina_list_remove(gadgets, gcc);
-  /* Free gadget items only if no other gadget is using it
-   *   Do not clear last gadget because float may use same pointer until
-   *   the module is unloaded */
-  if (eina_list_count(gadgets)>1)
-    E_FREE_LIST(inst->items, _free_clip_data);
-  inst->items = NULL;
 
   evas_object_del(inst->o_button);
-  ecore_timer_del(inst->check_timer);
-  // ecore_shutdown();
+
   E_FREE(inst);
 }
 
@@ -236,13 +204,12 @@ _cb_show_menu(void *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *e
     inst->menu = e_menu_new();
     if (event_type == ECORE_EVENT_KEY_DOWN){
       e_menu_post_deactivate_callback_set(inst->menu, _cb_menu_post_deactivate, inst);
-      inst->items = float_list;
     }
-    if (!inst->items)
-      read_history(inst);
+    if (!clip_inst->items)
+      printf("FUCK \n");
 
-    if (inst->items){
-      EINA_LIST_FOREACH(inst->items, it, clip){
+    if (clip_inst->items){
+      EINA_LIST_FOREACH(clip_inst->items, it, clip){
         mi = e_menu_item_new(inst->menu);
         e_menu_item_label_set(mi, clip->name);
         e_menu_item_callback_set(mi, (E_Menu_Cb)_cb_menu_item, clip);
@@ -350,7 +317,6 @@ _cb_event_selection(Instance *instance, int type, void *event)
         return EINA_TRUE;
 
       cd = E_NEW(Clip_Data, 1);
-      cd->inst = instance;
       asprintf(&cd->content, "%s", text_data->text);
       // get rid unwanted chars from string - spaces and tabs
       asprintf(&temp_buf,"%s",text_data->text);
@@ -372,13 +338,12 @@ _cb_event_selection(Instance *instance, int type, void *event)
 
 /* Updates clipboard content with the selected text of the modules Menu */
 void
-_x_clipboard_update(const char *text, const Instance *inst)
+_x_clipboard_update(const char *text)
 {
-  EINA_SAFETY_ON_NULL_RETURN(inst);
+  EINA_SAFETY_ON_NULL_RETURN(clip_inst);
   EINA_SAFETY_ON_NULL_RETURN(text);
 
-  ecore_x_selection_clipboard_set(inst->win, text, strlen(text) + 1);
-  //~ e_util_dialog_internal ("Pišta",text);
+  ecore_x_selection_clipboard_set(clip_inst->win, text, strlen(text) + 1);
 }
 
 void _clipboard_add_item(Clip_Data *cd)
@@ -388,26 +353,25 @@ void _clipboard_add_item(Clip_Data *cd)
   if (!cd)
     return;
   /* Remove duplicate items in Eina list */
-  EINA_LIST_FOREACH(((Instance*)cd->inst)->items, it, clip) {
+  EINA_LIST_FOREACH(clip_inst->items, it, clip) {
     if (strcmp(cd->content, clip->content)==0){
-      ((Instance*)cd->inst)->items = eina_list_remove(((Instance*)cd->inst)->items,clip);
+      clip_inst->items = eina_list_remove(clip_inst->items, clip);
       item_num--;
     }
   }
   /* adding item to the list */
   if (item_num < MAGIC_HIST_SIZE) {
-    ((Instance*)cd->inst)->items = eina_list_prepend(((Instance*)cd->inst)->items, cd);
+    clip_inst->items = eina_list_prepend(clip_inst->items, cd);
     item_num++;
   }
   else {
     /* remove last item from the list */
-    ((Instance*)cd->inst)->items = eina_list_remove_list(((Instance*)cd->inst)->items, eina_list_last(((Instance*)cd->inst)->items));
+    clip_inst->items = eina_list_remove_list(clip_inst->items, eina_list_last(clip_inst->items));
     /*  add clipboard data stored in cd to the list as a first item */
-    ((Instance*)cd->inst)->items = eina_list_prepend(((Instance*)cd->inst)->items, cd);
+    clip_inst->items = eina_list_prepend(clip_inst->items, cd);
   }
-  float_list=((Instance*)cd->inst)->items;
   /* saving list to the file */
-  save_history(((Instance*)cd->inst));
+  save_history(clip_inst->items);
 }
 
 void _clear_history(Instance *inst)
@@ -415,40 +379,29 @@ void _clear_history(Instance *inst)
   Eina_List *l;
   E_Gadcon_Client *gadget;
 
-  if (!inst)
+  if (!clip_inst)
     return;
-  if (inst->items)
-    E_FREE_LIST(inst->items, _free_clip_data);
+  if (clip_inst->items)
+    E_FREE_LIST(clip_inst->items, _free_clip_data);
   item_num = 0;
-  inst->items = NULL;
+  clip_inst->items = NULL;
 
-  /* If called by float menu and
-   *    gadgets are active be sure to Null gadgets item list */
-  if (eina_list_count(gadgets)){
-    EINA_LIST_FOREACH(gadgets, l, gadget)
-      ((Instance*)gadget->data)->items = NULL;
-  }
-  /* Also Null float_list */
-  float_list = NULL;
   /* Ensure clipboard is clear and save history */
   ecore_x_selection_clipboard_clear();
-  save_history(inst);
+  save_history(clip_inst->items);
 }
 
 static Eina_Bool
 _cb_clipboard_request(void *data)
 {
-  Instance *inst = data;
-  if (!inst)
-    return;
-  ecore_x_selection_clipboard_request(inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
+  ecore_x_selection_clipboard_request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
   return EINA_TRUE;
 }
 
 static void
 _cb_menu_item(Clip_Data *selected_clip)
 {
-  _x_clipboard_update(selected_clip->content, selected_clip->inst);
+  _x_clipboard_update(selected_clip->content);
 }
 
 
@@ -476,18 +429,6 @@ EAPI E_Module_Api e_modapi = {
   E_MODULE_API_VERSION,
   "Clipboard"
 };
-
-static Config_Item *
-_conf_item_get(const char *id)
-{
-  Config_Item *ci;
-
-  ci = E_NEW(Config_Item, 1);
-  ci->id = eina_stringshare_add(id);
-  clipboard_config->items = eina_list_append(clipboard_config->items, ci);
-  e_config_save_queue();
-  return ci;
-}
 
 /*
  * This is the first function called by e17 when you load the module
@@ -550,6 +491,16 @@ e_modapi_init (E_Module * m)
   clipboard_config->module = m;
   //e_module_delayed_set(m, 1);
 
+  clip_inst = E_NEW(Mod_Inst, 1);
+  /* Create an invisible window for clipboard input purposes
+   *   It is my understanding this should not displayed.*/
+  clip_inst->win = ecore_x_window_input_new(0, 10, 10, 100, 100);
+
+  E_LIST_HANDLER_APPEND(clip_inst->handle, ECORE_X_EVENT_SELECTION_NOTIFY, _cb_event_selection, clip_inst);
+  ecore_x_selection_clipboard_request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
+  clip_inst->check_timer = ecore_timer_add(TIMEOUT_1, _cb_clipboard_request, clip_inst);
+  read_history(&(clip_inst->items));
+
   act = e_action_add("clipboard");
   if (act) {
     act->func.go = (void *) _cb_show_menu;
@@ -588,20 +539,22 @@ e_modapi_shutdown (E_Module * m)
   E_CONFIG_DD_FREE(conf_edd);
   E_CONFIG_DD_FREE(conf_item_edd);
 
-  if (float_list) {
-    E_FREE_LIST(float_list, _free_clip_data);
-    float_list = NULL;
-  }
-  // Do we need this?
-  if (gadgets)
-    gadgets = eina_list_free(gadgets);
-
   if (act) {
     e_action_predef_name_del("Clipboard", "Show float menu");
     e_action_del("clipboard");
     act = NULL;
   }
+
+  if (clip_inst->win)
+    ecore_x_window_free(clip_inst->win);
+  E_FREE_LIST(clip_inst->handle, ecore_event_handler_del);
+  clip_inst->handle = NULL;
+  ecore_timer_del(clip_inst->check_timer);
+  clip_inst->check_timer = NULL;
+  E_FREE_LIST(clip_inst->items, _free_clip_data);
+
   e_gadcon_provider_unregister(&_gadcon_class);
+
   return 1;
 }
 
