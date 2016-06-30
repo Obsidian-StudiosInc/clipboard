@@ -501,7 +501,9 @@ e_modapi_init (E_Module * m)
   E_LIST_HANDLER_APPEND(clip_inst->handle, ECORE_X_EVENT_SELECTION_NOTIFY, _cb_event_selection, clip_inst);
   ecore_x_selection_clipboard_request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
   clip_inst->check_timer = ecore_timer_add(TIMEOUT_1, _cb_clipboard_request, clip_inst);
-  read_history(&(clip_inst->items));
+  /* Read History file and set clipboard */
+  if (read_history(&(clip_inst->items)) == EET_ERROR_NONE && eina_list_count(clip_inst->items))
+    _cb_menu_item(eina_list_data_get(clip_inst->items));
 
   act = e_action_add("clipboard");
   if (act) {
