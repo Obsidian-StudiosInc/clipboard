@@ -9,9 +9,13 @@ Beta release
 
 - [x] Add Config Dialog to e17 settings menu
 
+- [x] Decide on Config options and functionality needed for beta release
+
 - [ ] Add Config Dialog to gadget context menu
 
-- [x] Decide on Config options and functionality needed for beta release
+- [ ] Add key binding support for Configuration settings 
+
+- [ ] Add key binding support for Clear clipboard
  
 - [ ] Actually use Config options in code
 
