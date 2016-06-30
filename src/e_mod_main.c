@@ -205,8 +205,6 @@ _cb_show_menu(void *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *e
     if (event_type == ECORE_EVENT_KEY_DOWN){
       e_menu_post_deactivate_callback_set(inst->menu, _cb_menu_post_deactivate, inst);
     }
-    if (!clip_inst->items)
-      printf("FUCK \n");
 
     if (clip_inst->items){
       EINA_LIST_FOREACH(clip_inst->items, it, clip){
