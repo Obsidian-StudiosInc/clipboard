@@ -372,6 +372,8 @@ void _clipboard_add_item(Clip_Data *cd)
   }
   /* saving list to the file */
   save_history(clip_inst->items);
+  /* gain ownership of clipboard item in case we lose current owner */
+  _cb_menu_item(eina_list_data_get(clip_inst->items));
 }
 
 void _clear_history(Instance *inst)
