@@ -33,6 +33,7 @@ Config *clipboard_config = NULL;
 static E_Config_DD *conf_edd = NULL;
 static E_Config_DD *conf_item_edd = NULL;
 static Mod_Inst *clip_inst = NULL;
+static E_Action *act = NULL;
 
 /*   First some call backs   */
 static Eina_Bool _cb_clipboard_request(void *data);
@@ -45,11 +46,6 @@ static void      _clipboard_add_item(Clip_Data *clip_data);
 static void      _clear_history(Instance *inst);
 static void      _free_clip_data(Clip_Data *cd);
 static void      _x_clipboard_update(const char *text);
-
-/* Globals needed for convenience
- *   Probably should find a more 'acceptable solution' */
-static E_Action *act = NULL;
-const char *TMP_text = " ";
 
 /*
  * This function is called when you add the Module to a Shelf or Gadgets, it
@@ -324,11 +320,9 @@ _cb_event_selection(Instance *instance, int type, void *event)
       asprintf(&cd->name, "%s", buf);
       free(temp_buf);
       free(strip_buf);
+      _clipboard_add_item(cd);
 
-      if (strcmp(text_data->text,TMP_text)!=0) {
-        _clipboard_add_item(cd);
-          asprintf(&TMP_text, "%s", text_data->text);
-      }
+    
     }
   }
   return ECORE_CALLBACK_DONE;
