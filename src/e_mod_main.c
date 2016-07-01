@@ -10,11 +10,11 @@
 #define TIMEOUT_1 1.0 // interval for timer
 
 /* gadcon requirements */
-static     Evas_Object *_gc_icon(const E_Gadcon_Client_Class *client_class, Evas * evas);
+static     Evas_Object *_gc_icon(const E_Gadcon_Client_Class *client_class __UNUSED__, Evas * evas);
 static const char      *_gc_id_new(const E_Gadcon_Client_Class *client_class);
 static E_Gadcon_Client *_gc_init(E_Gadcon * gc, const char *name, const char *id, const char *style);
-static void             _gc_orient(E_Gadcon_Client * gcc, E_Gadcon_Orient orient);
-static const char      *_gc_label(const E_Gadcon_Client_Class *client_class);
+static void             _gc_orient(E_Gadcon_Client * gcc, E_Gadcon_Orient orient __UNUSED__);
+static const char      *_gc_label(const E_Gadcon_Client_Class *client_class __UNUSED__);
 static void             _gc_shutdown(E_Gadcon_Client * gcc);
 
 /* and actually define the gadcon class that this module provides (just 1) */
@@ -36,11 +36,11 @@ static Mod_Inst *clip_inst = NULL;
 static E_Action *act = NULL;
 
 /*   First some call backs   */
-static Eina_Bool _cb_clipboard_request(void *data);
-static Eina_Bool _cb_event_selection(Instance *instance, int type, void *event);
+static Eina_Bool _cb_clipboard_request(void *data __UNUSED__);
+static Eina_Bool _cb_event_selection(Instance *instance, int type __UNUSED__, void *event);
 static void      _cb_menu_item(Clip_Data *selected_clip);
-static void      _cb_menu_post_deactivate(void *data, E_Menu *menu);
-static void      _cb_show_menu(void *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *event);
+static void      _cb_menu_post_deactivate(void *data, E_Menu *menu __UNUSED__);
+static void      _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Evas_Event_Mouse_Down *event);
 /*   And then some auxillary functions */
 static void      _clipboard_add_item(Clip_Data *clip_data);
 static void      _clear_history(Instance *inst);
@@ -98,7 +98,7 @@ _gc_shutdown(E_Gadcon_Client *gcc)
 }
 
 static void
-_gc_orient(E_Gadcon_Client *gcc, E_Gadcon_Orient orient)
+_gc_orient(E_Gadcon_Client *gcc, E_Gadcon_Orient orient __UNUSED__)
 {
   e_gadcon_client_aspect_set (gcc, 16, 16);
   e_gadcon_client_min_size_set (gcc, 16, 16);
@@ -109,7 +109,7 @@ _gc_orient(E_Gadcon_Client *gcc, E_Gadcon_Orient orient)
  *  do not confuse this with E_Module_Api
  */
 static const char *
-_gc_label (const E_Gadcon_Client_Class *client_class)
+_gc_label (const E_Gadcon_Client_Class *client_class __UNUSED__)
 {
   return "Clipboard";
 }
@@ -119,12 +119,10 @@ _gc_label (const E_Gadcon_Client_Class *client_class)
  * the module to a Shelf or Gadgets.
  */
 static Evas_Object *
-_gc_icon(const E_Gadcon_Client_Class *client_class, Evas * evas)
+_gc_icon(const E_Gadcon_Client_Class *client_class __UNUSED__, Evas * evas)
 {
-  Evas_Object *o;
-  o = e_icon_add(evas);
+  Evas_Object *o = e_icon_add(evas);
   e_icon_fdo_icon_set(o, "edit-paste");
-
   return o;
 }
 
@@ -133,7 +131,7 @@ _gc_icon(const E_Gadcon_Client_Class *client_class, Evas * evas)
  * modules
  */
 static const char *
-_gc_id_new (const E_Gadcon_Client_Class *client_class)
+_gc_id_new (const E_Gadcon_Client_Class *client_class __UNUSED__)
 {
   return _gadcon_class.name;
 }
@@ -156,9 +154,9 @@ _gc_id_new (const E_Gadcon_Client_Class *client_class)
  */
 
 static void
-_cb_show_menu(void *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *event)
+_cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Evas_Event_Mouse_Down *event)
 {
-  Instance *inst = (Instance*)data;
+  Instance *inst = data;
   Evas_Coord x, y, w, h;
   int cx, cy, dir, event_type = ecore_event_current_type_get();
   E_Container *con;
@@ -168,8 +166,7 @@ _cb_show_menu(void *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *e
   Clip_Data *clip;
   Eina_Bool initialize;
 
-  if (!inst)
-    return;
+  EINA_SAFETY_ON_NULL_RETURN(inst);
 
   if (event_type == ECORE_EVENT_MOUSE_BUTTON_DOWN){
     /* Ignore all mouse events but right clicks        */
@@ -286,14 +283,13 @@ _cb_show_menu(void *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *e
 }
 
 static Eina_Bool
-_cb_event_selection(Instance *instance, int type, void *event)
+_cb_event_selection(Instance *instance, int type __UNUSED__, void *event)
 {
   Ecore_X_Event_Selection_Notify *ev;
   Clip_Data *cd = NULL;
   const char *data;
 
-  if (!instance)
-    return EINA_TRUE;
+  EINA_SAFETY_ON_NULL_RETURN_VAL(instance, EINA_TRUE);
   ev = event;
 
   if ((ev->selection == ECORE_X_SELECTION_CLIPBOARD) &&
@@ -321,8 +317,6 @@ _cb_event_selection(Instance *instance, int type, void *event)
       free(temp_buf);
       free(strip_buf);
       _clipboard_add_item(cd);
-
-    
     }
   }
   return ECORE_CALLBACK_DONE;
@@ -342,8 +336,8 @@ void _clipboard_add_item(Clip_Data *cd)
 {
   Eina_List *it;
   Clip_Data *clip;
-  if (!cd)
-    return;
+  EINA_SAFETY_ON_NULL_RETURN(cd);
+
   /* Remove duplicate items in Eina list */
   EINA_LIST_FOREACH(clip_inst->items, it, clip) {
     if (strcmp(cd->content, clip->content)==0){
@@ -373,12 +367,10 @@ void _clear_history(Instance *inst)
   Eina_List *l;
   E_Gadcon_Client *gadget;
 
-  if (!clip_inst)
-    return;
+  EINA_SAFETY_ON_NULL_RETURN(clip_inst);
   if (clip_inst->items)
     E_FREE_LIST(clip_inst->items, _free_clip_data);
   item_num = 0;
-  clip_inst->items = NULL;
 
   /* Ensure clipboard is clear and save history */
   ecore_x_selection_clipboard_clear();
@@ -386,7 +378,7 @@ void _clear_history(Instance *inst)
 }
 
 static Eina_Bool
-_cb_clipboard_request(void *data)
+_cb_clipboard_request(void *data __UNUSED__)
 {
   ecore_x_selection_clipboard_request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
   return EINA_TRUE;
@@ -400,12 +392,10 @@ _cb_menu_item(Clip_Data *selected_clip)
 
 
 static void
-_cb_menu_post_deactivate(void *data, E_Menu *menu)
+_cb_menu_post_deactivate(void *data, E_Menu *menu __UNUSED__)
 {
-  Instance *inst = data;
-
-  if (!inst) return;
-  inst->menu = NULL;
+  EINA_SAFETY_ON_NULL_RETURN(data);
+  ((Instance *) data)->menu = NULL;
 }
 
 static void _free_clip_data(Clip_Data *cd)
@@ -510,9 +500,8 @@ e_modapi_init (E_Module * m)
  * here you should try to free all resources used while the module was enabled.
  */
 EAPI int
-e_modapi_shutdown (E_Module * m)
+e_modapi_shutdown (E_Module *m __UNUSED__)
 {
-  Instance *inst;
   Config_Item *ci;
 
   while((clipboard_config->config_dialog = e_config_dialog_get("E", "preferences/clipboard")))
@@ -559,7 +548,7 @@ e_modapi_shutdown (E_Module * m)
  * storage
  */
 EAPI int
-e_modapi_save(E_Module * m)
+e_modapi_save(E_Module *m __UNUSED__)
 {
   e_config_domain_save("module.clipboard", conf_edd, clipboard_config);
   return 1;

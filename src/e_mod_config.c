@@ -15,30 +15,26 @@ struct _E_Config_Dialog_Data
   int confirm_clear;
 };
 
-static int           _basic_apply_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata);
-static void *        _create_data(E_Config_Dialog *cfd);
-static void          _free_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata);
-static int           _basic_check_changed(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata);
+static int           _basic_apply_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata);
+static void         *_create_data(E_Config_Dialog *cfd __UNUSED__);
+static void          _free_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata);
+static int           _basic_check_changed(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata);
 static void          _fill_data(E_Config_Dialog_Data *cfdata);
-static Evas_Object * _basic_create_widgets(E_Config_Dialog *cfd , Evas *evas, E_Config_Dialog_Data *cfdata);
+static Evas_Object  *_basic_create_widgets(E_Config_Dialog *cfd __UNUSED__, Evas *evas, E_Config_Dialog_Data *cfdata);
 
 
 static void *
-_create_data(E_Config_Dialog *cfd)
+_create_data(E_Config_Dialog *cfd __UNUSED__)
 {
-  E_Config_Dialog_Data *cfdata;
-
-  cfdata = E_NEW(E_Config_Dialog_Data, 1);
-
+  E_Config_Dialog_Data *cfdata = E_NEW(E_Config_Dialog_Data, 1);
   _fill_data(cfdata);
   return cfdata;
 }
 
 static void
-_free_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
+_free_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
 {
-  if (!clipboard_config)
-    return;
+  EINA_SAFETY_ON_NULL_RETURN(clipboard_config);
   clipboard_config->config_dialog = NULL;
   E_FREE(cfdata);
 }
@@ -62,7 +58,7 @@ _fill_data(E_Config_Dialog_Data *cfdata)
 }
 
 static int
-_basic_apply_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
+_basic_apply_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
 {
   clipboard_config->clip_copy     = cfdata->clip_copy;
   clipboard_config->clip_select   = cfdata->clip_select;
@@ -79,10 +75,9 @@ _basic_apply_data(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
 }
 
 static Evas_Object *
-_basic_create_widgets(E_Config_Dialog *cfd , Evas *evas, E_Config_Dialog_Data *cfdata)
+_basic_create_widgets(E_Config_Dialog *cfd __UNUSED__, Evas *evas, E_Config_Dialog_Data *cfdata)
 {
   Evas_Object *o, *ob, *of;
-  //~ cfdata->cfd = cfd;
 
   o = e_widget_list_add(evas, 0, 0);
   /* Clipboard Config Section     */
@@ -133,7 +128,7 @@ _basic_create_widgets(E_Config_Dialog *cfd , Evas *evas, E_Config_Dialog_Data *c
 }
 
 E_Config_Dialog *
-_config_clipboard_module(E_Container *con, const char *params )
+_config_clipboard_module(E_Container *con, const char *params __UNUSED__)
 {
   E_Config_Dialog *cfd;
   E_Config_Dialog_View *v;
@@ -156,14 +151,14 @@ _config_clipboard_module(E_Container *con, const char *params )
 }
 
 static int
-_basic_check_changed(E_Config_Dialog *cfd, E_Config_Dialog_Data *cfdata)
+_basic_check_changed(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
 {
   if (clipboard_config->clip_copy     != cfdata->clip_copy) return 1;
   if (clipboard_config->clip_select   != cfdata->clip_select) return 1;
   if (clipboard_config-> persistence  != cfdata-> persistence) return 1;
   if (clipboard_config-> hist_reverse != cfdata-> hist_reverse) return 1;
   if (clipboard_config-> hist_items   != atoi(cfdata-> hist_items)) return 1;
-  if (clipboard_config-> label_length  != atoi(cfdata-> label_length)) return 1;
+  if (clipboard_config-> label_length != atoi(cfdata-> label_length)) return 1;
   if (clipboard_config->trim_ws       != cfdata->trim_ws) return 1;
   if (clipboard_config->trim_nl       != cfdata->trim_nl) return 1;
   if (clipboard_config->confirm_clear != cfdata->confirm_clear) return 1;

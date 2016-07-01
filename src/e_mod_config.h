@@ -27,7 +27,7 @@ struct _Config_Item
   const char *id;
 };
 
-E_Config_Dialog *_config_clipboard_module(E_Container *con, const char *params);
+E_Config_Dialog *_config_clipboard_module(E_Container *con, const char *params __UNUSED__);
 
 extern Config *clipboard_config;
 
