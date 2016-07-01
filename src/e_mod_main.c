@@ -7,7 +7,7 @@
 #define DEBUG(f, ...) if (ENABLE_DEBUG) \
           printf("[clipboard] "f "\n", __VA_ARGS__)
 
-#define TIMEOUT_1 1.0 // interval for timer
+#define TIMEOUT_1 1.0 /* interval for timer */
 
 /* gadcon requirements */
 static     Evas_Object *_gc_icon(const E_Gadcon_Client_Class *client_class __UNUSED__, Evas * evas);
@@ -17,7 +17,7 @@ static void             _gc_orient(E_Gadcon_Client * gcc, E_Gadcon_Orient orient
 static const char      *_gc_label(const E_Gadcon_Client_Class *client_class __UNUSED__);
 static void             _gc_shutdown(E_Gadcon_Client * gcc);
 
-/* and actually define the gadcon class that this module provides (just 1) */
+/* Define the gadcon class that this module provides (just 1) */
 static const E_Gadcon_Client_Class _gadcon_class = {
    GADCON_CLIENT_CLASS_VERSION,
    "clipboard",
@@ -27,6 +27,11 @@ static const E_Gadcon_Client_Class _gadcon_class = {
    },
    E_GADCON_CLIENT_STYLE_PLAIN
 };
+
+/* Set the version and the name IN the code (not just the .desktop file)
+ * but more specifically the api version it was compiled for so E can skip
+ * modules that are compiled for an incorrect API version safely */
+EAPI E_Module_Api e_modapi = { E_MODULE_API_VERSION, "Clipboard"};
 
 /* actual module specifics   */
 Config *clipboard_config = NULL;
@@ -42,14 +47,48 @@ static void      _cb_menu_item(Clip_Data *selected_clip);
 static void      _cb_menu_post_deactivate(void *data, E_Menu *menu __UNUSED__);
 static void      _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Evas_Event_Mouse_Down *event);
 /*   And then some auxillary functions */
+static void      _clipboard_conf_new(E_Module *m);
 static void      _clipboard_add_item(Clip_Data *clip_data);
 static void      _clear_history(Instance *inst);
 static void      _free_clip_data(Clip_Data *cd);
 static void      _x_clipboard_update(const char *text);
 
+/* new module needs a new config :), or config too old and we need one anyway */
+static void
+_clipboard_conf_new(E_Module *m)
+{
+  /* setup defaults */
+  if (!clipboard_config) {
+    clipboard_config = E_NEW(Config, 1);
+    clipboard_config->clip_copy     = CONFIG_DEFAULT_CLIP_COPY;
+    clipboard_config->clip_select   = CONFIG_DEFAULT_CLIP_SELECT;
+    clipboard_config->persistence   = CONFIG_DEFAULT_CLIP_PERSISTANCE;
+    clipboard_config->hist_reverse  = CONFIG_DEFAULT_CLIP_HIST_REVERSE;
+    clipboard_config->hist_items    = CONFIG_DEFAULT_CLIP_HIST_ITEMS;
+    clipboard_config->label_length  = CONFIG_DEFAULT_CLIP_LABEL_LENGTH;
+    clipboard_config->trim_ws       = CONFIG_DEFAULT_CLIP_TRIM_WS;
+    clipboard_config->trim_nl       = CONFIG_DEFAULT_CLIP_NL;
+    clipboard_config->confirm_clear = CONFIG_DEFAULT_CLIP_COMFIRM_CLEAR;
+  }
+  E_CONFIG_LIMIT(clipboard_config->clip_copy, 0, 1);
+  E_CONFIG_LIMIT(clipboard_config->clip_select, 0, 1);
+  E_CONFIG_LIMIT(clipboard_config->persistence, 0, 1);
+  E_CONFIG_LIMIT(clipboard_config->hist_reverse, 0, 1);
+  E_CONFIG_LIMIT(clipboard_config->hist_items, 5, 50);
+  E_CONFIG_LIMIT(clipboard_config->label_length, 5, 50);
+  E_CONFIG_LIMIT(clipboard_config->trim_ws, 0, 1);
+  E_CONFIG_LIMIT(clipboard_config->trim_nl, 0, 1);
+  E_CONFIG_LIMIT(clipboard_config->confirm_clear, 0, 1);
+
+  item_num=0;
+  clipboard_config->module = m;
+  /* save the config to disk */
+  e_config_save_queue();
+}
+
 /*
- * This function is called when you add the Module to a Shelf or Gadgets, it
- * this is where you want to add functions to do things.
+ * This function is called when you add the Module to a Shelf or Gadgets,
+ *   this is where you want to add functions to do things.
  */
 static E_Gadcon_Client *
 _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
@@ -405,23 +444,14 @@ static void _free_clip_data(Clip_Data *cd)
   free(cd);
 }
 
-/* This is needed to advertise a label for the module IN the code (not just
- * the .desktop file) but more specifically the api version it was compiled
- * for so E can skip modules that are compiled for an incorrect API version
- * safely) */
-EAPI E_Module_Api e_modapi = {
-  E_MODULE_API_VERSION,
-  "Clipboard"
-};
-
 /*
  * This is the first function called by e17 when you load the module
  */
 EAPI void *
-e_modapi_init (E_Module * m)
+e_modapi_init (E_Module *m)
 {
-  e_gadcon_provider_register(&_gadcon_class);
-
+  /* Display this Modules config info in the main Config Panel
+   * Under Preferences catogory */
   e_configure_registry_item_add("preferences/clipboard", 10,
             "Clipboard Settings", NULL,
             "edit-paste", _config_clipboard_module);
@@ -448,88 +478,62 @@ e_modapi_init (E_Module * m)
   E_CONFIG_VAL(D, T, trim_nl, INT);
   E_CONFIG_VAL(D, T, confirm_clear, INT);
 
+  /* Tell E to find any existing module data. First run ? */
   clipboard_config = e_config_domain_load("module.clipboard", conf_edd);
-  if (!clipboard_config) {
-    clipboard_config = E_NEW(Config, 1);
-    clipboard_config->clip_copy     = CONFIG_DEFAULT_CLIP_COPY;
-    clipboard_config->clip_select   = CONFIG_DEFAULT_CLIP_SELECT;
-    clipboard_config->persistence   = CONFIG_DEFAULT_CLIP_PERSISTANCE;
-    clipboard_config->hist_reverse  = CONFIG_DEFAULT_CLIP_HIST_REVERSE;
-    clipboard_config->hist_items    = CONFIG_DEFAULT_CLIP_HIST_ITEMS;
-    clipboard_config->label_length  = CONFIG_DEFAULT_CLIP_LABEL_LENGTH;
-    clipboard_config->trim_ws       = CONFIG_DEFAULT_CLIP_TRIM_WS;
-    clipboard_config->trim_nl       = CONFIG_DEFAULT_CLIP_NL;
-    clipboard_config->confirm_clear = CONFIG_DEFAULT_CLIP_COMFIRM_CLEAR;
-  }
-  E_CONFIG_LIMIT(clipboard_config->clip_copy, 0, 1);
-  E_CONFIG_LIMIT(clipboard_config->clip_select, 0, 1);
-  E_CONFIG_LIMIT(clipboard_config->persistence, 0, 1);
-  E_CONFIG_LIMIT(clipboard_config->hist_reverse, 0, 1);
-  E_CONFIG_LIMIT(clipboard_config->hist_items, 5, 50);
-  E_CONFIG_LIMIT(clipboard_config->label_length, 5, 50);
-  E_CONFIG_LIMIT(clipboard_config->trim_ws, 0, 1);
-  E_CONFIG_LIMIT(clipboard_config->trim_nl, 0, 1);
-  E_CONFIG_LIMIT(clipboard_config->confirm_clear, 0, 1);
 
-  item_num=0;
-  clipboard_config->module = m;
+  /* If we don't have a config yet, or it got erased above,
+   * then create a default one */
+  if (!clipboard_config)
+    _clipboard_conf_new(m);
+
   //e_module_delayed_set(m, 1);
 
-  clip_inst = E_NEW(Mod_Inst, 1);
-  /* Create an invisible window for clipboard input purposes
-   *   It is my understanding this should not displayed.*/
-  clip_inst->win = ecore_x_window_input_new(0, 10, 10, 100, 100);
-
-  E_LIST_HANDLER_APPEND(clip_inst->handle, ECORE_X_EVENT_SELECTION_NOTIFY, _cb_event_selection, clip_inst);
-  ecore_x_selection_clipboard_request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
-  clip_inst->check_timer = ecore_timer_add(TIMEOUT_1, _cb_clipboard_request, clip_inst);
-  /* Read History file and set clipboard */
-  if (read_history(&(clip_inst->items)) == EET_ERROR_NONE && eina_list_count(clip_inst->items))
-    _cb_menu_item(eina_list_data_get(clip_inst->items));
-
+  /* Add Module Key Binding actions */
   act = e_action_add("clipboard");
   if (act) {
     act->func.go = (void *) _cb_show_menu;
     e_action_predef_name_set("Clipboard","Show float menu", "clipboard", "<none>", NULL, 0);
   }
+
+  /* Create a global clip_inst for our module
+   *   complete with a hidden window for event notification purposes
+   */
+  clip_inst = E_NEW(Mod_Inst, 1);
+
+  /* Create an invisible window for clipboard input purposes
+   *   It is my understanding this should not displayed.*/
+  clip_inst->win = ecore_x_window_input_new(0, 10, 10, 100, 100);
+
+  /* Now add some callbacks to handle clipboard events */
+  E_LIST_HANDLER_APPEND(clip_inst->handle, ECORE_X_EVENT_SELECTION_NOTIFY, _cb_event_selection, clip_inst);
+  ecore_x_selection_clipboard_request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
+  clip_inst->check_timer = ecore_timer_add(TIMEOUT_1, _cb_clipboard_request, clip_inst);
+
+  /* Read History file and set clipboard */
+  if (read_history(&(clip_inst->items)) == EET_ERROR_NONE && eina_list_count(clip_inst->items))
+    _cb_menu_item(eina_list_data_get(clip_inst->items));
+
+  /* Tell any gadget containers (shelves, etc) that we provide a module */
+  e_gadcon_provider_register(&_gadcon_class);
+
+  /* Give E the module */
   return m;
 }
 
 /*
  * This function is called by e17 when you unload the module,
- * here you should try to free all resources used while the module was enabled.
+ * here you should free all resources used while the module was enabled.
  */
 EAPI int
 e_modapi_shutdown (E_Module *m __UNUSED__)
 {
   Config_Item *ci;
 
-  while((clipboard_config->config_dialog = e_config_dialog_get("E", "preferences/clipboard")))
-    e_object_del(E_OBJECT(clipboard_config->config_dialog));
+  /* The 2 following EINA SAFETY checks should never happen
+   *  and I usually avoid gotos but here I feel their use is harmless */
+  EINA_SAFETY_ON_NULL_GOTO(clip_inst, noclip);
 
-  e_configure_registry_item_del("preferences/clipboard");
-
-  if(clipboard_config->config_dialog)
-    e_object_del(E_OBJECT(clipboard_config->config_dialog));
-  E_FREE(clipboard_config->config_dialog);
-
-  if(clipboard_config){
-    EINA_LIST_FREE(clipboard_config->items, ci){
-      eina_stringshare_del(ci->id);
-      free(ci);
-    }
-    clipboard_config->module = NULL;
-    E_FREE(clipboard_config);
-  }
-  E_CONFIG_DD_FREE(conf_edd);
-  E_CONFIG_DD_FREE(conf_item_edd);
-
-  if (act) {
-    e_action_predef_name_del("Clipboard", "Show float menu");
-    e_action_del("clipboard");
-    act = NULL;
-  }
-
+  /* Kill our clip_inst window and cleanup */
   if (clip_inst->win)
     ecore_x_window_free(clip_inst->win);
   E_FREE_LIST(clip_inst->handle, ecore_event_handler_del);
@@ -538,8 +542,45 @@ e_modapi_shutdown (E_Module *m __UNUSED__)
   clip_inst->check_timer = NULL;
   E_FREE_LIST(clip_inst->items, _free_clip_data);
 
+noclip:
+  EINA_SAFETY_ON_NULL_GOTO(clipboard_config, noconfig);
+
+  /* Kill the config dialog */
+  while((clipboard_config->config_dialog = e_config_dialog_get("E", "preferences/clipboard")))
+    e_object_del(E_OBJECT(clipboard_config->config_dialog));
+
+  if(clipboard_config->config_dialog)
+    e_object_del(E_OBJECT(clipboard_config->config_dialog));
+  E_FREE(clipboard_config->config_dialog);
+
+  /* Cleanup our item list */
+  EINA_LIST_FREE(clipboard_config->items, ci){
+    eina_stringshare_del(ci->id);
+    free(ci);
+  }
+  clipboard_config->module = NULL;
+  /* keep the planet green */
+  E_FREE(clipboard_config);
+
+noconfig:
+  /* Unregister the config dialog from the main panel */
+  e_configure_registry_item_del("preferences/clipboard");
+
+  /* Clean up all key binding actions */
+  if (act) {
+    e_action_predef_name_del("Clipboard", "Show float menu");
+    e_action_del("clipboard");
+    act = NULL;
+  }
+
+  /* Clean EET */
+  E_CONFIG_DD_FREE(conf_edd);
+  E_CONFIG_DD_FREE(conf_item_edd);
+
+  /* Tell E the module is now unloaded. Gets removed from shelves, etc. */
   e_gadcon_provider_unregister(&_gadcon_class);
 
+  /* So long and thanks for all the fish */
   return 1;
 }
 
