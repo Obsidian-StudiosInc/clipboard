@@ -52,6 +52,7 @@ static void      _clipboard_add_item(Clip_Data *clip_data);
 static void      _clear_history(Instance *inst);
 static void      _free_clip_data(Clip_Data *cd);
 static void      _x_clipboard_update(const char *text);
+static void      _menu_cb_configure(void *data, E_Menu *m, E_Menu_Item *mi);
 
 /* new module needs a new config :), or config too old and we need one anyway */
 static void
@@ -268,6 +269,7 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
     mi = e_menu_item_new(inst->menu);
     e_menu_item_label_set(mi, _("Settings"));
     e_util_menu_item_theme_icon_set(mi, "preferences-system");
+    e_menu_item_callback_set(mi, _menu_cb_configure, NULL);
 
     if (event_type == ECORE_EVENT_MOUSE_BUTTON_DOWN){
       e_menu_post_deactivate_callback_set(inst->menu, _cb_menu_post_deactivate, inst);
@@ -518,6 +520,18 @@ e_modapi_init (E_Module *m)
 
   /* Give E the module */
   return m;
+}
+
+static void
+_menu_cb_configure(void *data, E_Menu *m, E_Menu_Item *mi)
+{
+
+   Instance *inst = NULL;
+
+   inst = data;
+   if (!clipboard_config) return;
+   if (clipboard_config->config_dialog) return;
+   _config_clipboard_module(m->zone->container, NULL);
 }
 
 /*
