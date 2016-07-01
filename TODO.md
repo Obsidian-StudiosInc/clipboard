@@ -25,7 +25,7 @@ Beta release
 
 - [x] config.h config.ac to include __UNUSED
 
-- [ ] use _UNUSED in all functions
+- [x] use _UNUSED in all functions
 
 - [ ] Add support for x-primary clipboard and clipboard sync
  
