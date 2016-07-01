@@ -124,7 +124,7 @@ _set_history_path(char *path)
  * @brief  Reads clipboard Instantance history  from a binary file with location
  *           specified by FreeDesktop XDG specifications
  *
- * @param  inst, a pointer to clipboard instance
+ * @param  items, the address of an Eina_List to read from the history file
  *
  * @return  EET_ERROR_NONE on success
  *          Eet error identifier of error otherwise.
@@ -175,7 +175,7 @@ read_history(Eina_List **items)
  * @brief  Saves clipboard Instantance history  in a binary file with location
  *           specified by FreeDesktop XDG specifications
  *
- * @param  inst, a pointer to clipboard instance
+ * @param  items, the Eina_List to save to the history file
  *
  * @return  EET_ERROR_NONE on success
  *          Eet error identifier of error otherwise.
