@@ -47,7 +47,8 @@ static void      _cb_menu_item(Clip_Data *selected_clip);
 static void      _cb_menu_post_deactivate(void *data, E_Menu *menu __UNUSED__);
 static void      _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Evas_Event_Mouse_Down *event);
 /*   And then some auxillary functions */
-static void      _clipboard_conf_new(E_Module *m);
+static void      _clipboard_config_new(E_Module *m);
+static void      _clipboard_config_free(void);
 static void      _clipboard_add_item(Clip_Data *clip_data);
 static void      _clear_history(Instance *inst);
 static void      _free_clip_data(Clip_Data *cd);
@@ -56,7 +57,7 @@ static void      _menu_cb_configure(void *data, E_Menu *m, E_Menu_Item *mi);
 
 /* new module needs a new config :), or config too old and we need one anyway */
 static void
-_clipboard_conf_new(E_Module *m)
+_clipboard_config_new(E_Module *m)
 {
   /* setup defaults */
   if (!clipboard_config) {
@@ -81,10 +82,28 @@ _clipboard_conf_new(E_Module *m)
   E_CONFIG_LIMIT(clipboard_config->trim_nl, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->confirm_clear, 0, 1);
 
+  /* update the version */
+  clipboard_config->version = MOD_CONFIG_FILE_VERSION;
+  
   item_num=0;
   clipboard_config->module = m;
   /* save the config to disk */
   e_config_save_queue();
+}
+
+/* This is called when we need to cleanup the actual configuration,
+ * for example when our configuration is too old */
+static void
+_clipboard_config_free(void)
+{
+  Config_Item *ci;
+
+  EINA_LIST_FREE(clipboard_config->items, ci){
+    eina_stringshare_del(ci->id);
+    free(ci);
+  }
+  clipboard_config->module = NULL;
+  E_FREE(clipboard_config);
 }
 
 /*
@@ -470,6 +489,7 @@ e_modapi_init (E_Module *m)
 #define T Config
 #define D conf_edd
   E_CONFIG_LIST(D, T, items, conf_item_edd);
+  E_CONFIG_VAL(D, T, version, INT);
   E_CONFIG_VAL(D, T, clip_copy, INT);
   E_CONFIG_VAL(D, T, clip_select, INT);
   E_CONFIG_VAL(D, T, persistence, INT);
@@ -483,10 +503,16 @@ e_modapi_init (E_Module *m)
   /* Tell E to find any existing module data. First run ? */
   clipboard_config = e_config_domain_load("module.clipboard", conf_edd);
 
+   if (clipboard_config) {
+     /* Check config version */
+     if (!e_util_module_config_check("Clipboard", clipboard_config->version, MOD_CONFIG_FILE_VERSION))
+       _clipboard_config_free();
+   }
+
   /* If we don't have a config yet, or it got erased above,
    * then create a default one */
   if (!clipboard_config)
-    _clipboard_conf_new(m);
+    _clipboard_config_new(m);
 
   //e_module_delayed_set(m, 1);
 
@@ -525,13 +551,12 @@ e_modapi_init (E_Module *m)
 static void
 _menu_cb_configure(void *data, E_Menu *m, E_Menu_Item *mi)
 {
+  Instance *inst = NULL;
 
-   Instance *inst = NULL;
-
-   inst = data;
-   if (!clipboard_config) return;
-   if (clipboard_config->config_dialog) return;
-   _config_clipboard_module(m->zone->container, NULL);
+  inst = data;
+  if (!clipboard_config) return;
+  if (clipboard_config->config_dialog) return;
+  _config_clipboard_module(m->zone->container, NULL);
 }
 
 /*

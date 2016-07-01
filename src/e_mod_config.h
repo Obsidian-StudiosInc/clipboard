@@ -3,6 +3,8 @@
 #ifndef E_MOD_CONFIG_H
 #define E_MOD_CONFIG_H
 
+/* We create a structure config for our module, and also a config structure
+ * for every item element (you can have multiple gadgets for the same module) */
 typedef struct _Config Config;
 typedef struct _Config_Item Config_Item;
 
@@ -11,6 +13,8 @@ struct _Config
   Eina_List *items;
   E_Module *module;
   E_Config_Dialog *config_dialog;
+  
+  int version;
   int clip_copy;
   int clip_select;
   int persistence;
