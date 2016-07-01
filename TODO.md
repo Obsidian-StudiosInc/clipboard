@@ -13,7 +13,7 @@ Beta release
 
 - [ ] Add Config Dialog to gadget context menu
 
-- [ ] Add Config version checks for development and future releases
+- [x] Add Config version checks for development and future releases
 
 - [ ] Add key binding support for Configuration settings 
 
