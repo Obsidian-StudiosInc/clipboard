@@ -433,9 +433,6 @@ void _clipboard_add_item(Clip_Data *cd)
 
 void _clear_history(Instance *inst)
 {
-  Eina_List *l;
-  E_Gadcon_Client *gadget;
-
   EINA_SAFETY_ON_NULL_RETURN(clip_inst);
   if (clip_inst->items)
     E_FREE_LIST(clip_inst->items, _free_clip_data);
