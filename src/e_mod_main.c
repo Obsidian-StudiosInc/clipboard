@@ -50,6 +50,7 @@ static void      _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *o
 static void      _clipboard_config_new(E_Module *m);
 static void      _clipboard_config_free(void);
 static void      _clipboard_add_item(Clip_Data *clip_data);
+static int       _menu_fill(Instance *inst, int event_type);
 static void      _clear_history(Instance *inst);
 static void      _free_clip_data(Clip_Data *cd);
 static void      _x_clipboard_update(const char *text);
@@ -84,7 +85,7 @@ _clipboard_config_new(E_Module *m)
 
   /* update the version */
   clipboard_config->version = MOD_CONFIG_FILE_VERSION;
-  
+
   item_num=0;
   clipboard_config->module = m;
   /* save the config to disk */
@@ -220,9 +221,6 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
   int cx, cy, dir, event_type = ecore_event_current_type_get();
   E_Container *con;
   E_Manager *man;
-  E_Menu_Item *mi;
-  Eina_List *it;
-  Clip_Data *clip;
   Eina_Bool initialize;
 
   EINA_SAFETY_ON_NULL_RETURN(inst);
@@ -251,109 +249,115 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
       man = e_manager_current_get();
       con = e_container_current_get(man);
       ecore_x_pointer_xy_get(con->win, &x, &y);
-
     }
-    inst->menu = e_menu_new();
-    if (event_type == ECORE_EVENT_KEY_DOWN){
-      e_menu_post_deactivate_callback_set(inst->menu, _cb_menu_post_deactivate, inst);
-    }
-
-    if (clip_inst->items){
-      EINA_LIST_FOREACH(clip_inst->items, it, clip){
-        mi = e_menu_item_new(inst->menu);
-        e_menu_item_label_set(mi, clip->name);
-        e_menu_item_callback_set(mi, (E_Menu_Cb)_cb_menu_item, clip);
-      }
-    }
-    else {
-      mi = e_menu_item_new(inst->menu);
-      e_menu_item_label_set(mi, "Empty");
-      e_menu_item_disabled_set(mi, EINA_TRUE);
-    }
-
-    mi = e_menu_item_new(inst->menu);
-    e_menu_item_separator_set(mi, EINA_TRUE);
-
-    mi = e_menu_item_new(inst->menu);
-    e_menu_item_label_set(mi, _("Add clipboard content"));
-    e_util_menu_item_theme_icon_set(mi, "edit-paste");
-    e_menu_item_callback_set(mi, (E_Menu_Cb)_cb_clipboard_request, inst);
-
-    mi = e_menu_item_new(inst->menu);
-    e_menu_item_separator_set(mi, EINA_TRUE);
-
-    mi = e_menu_item_new(inst->menu);
-    e_menu_item_label_set(mi, _("Clear"));
-    e_util_menu_item_theme_icon_set(mi, "edit-clear");
-    e_menu_item_callback_set(mi, (E_Menu_Cb)_clear_history, inst);
-    /* FIXME: This will need to be changed if we ever get around to not deleting
-     *   history file and clip_inst->items on clear and allow a 'empty' history
-     *   file and corresponding eina_list with no elements. 
-     * 
-     * Is this even possible?      */
-    if (clip_inst->items)
-      e_menu_item_disabled_set(mi, EINA_FALSE);
-    else
-      e_menu_item_disabled_set(mi, EINA_TRUE);
-
-    mi = e_menu_item_new(inst->menu);
-    e_menu_item_separator_set(mi, EINA_TRUE);
-
-    mi = e_menu_item_new(inst->menu);
-    e_menu_item_label_set(mi, _("Settings"));
-    e_util_menu_item_theme_icon_set(mi, "preferences-system");
-    e_menu_item_callback_set(mi, _menu_cb_configure, NULL);
-
+    
+    dir = _menu_fill(inst, event_type);
     if (event_type == ECORE_EVENT_MOUSE_BUTTON_DOWN){
-      e_menu_post_deactivate_callback_set(inst->menu, _cb_menu_post_deactivate, inst);
-
-      /* Proper menu orientation */
-      switch (inst->gcc->gadcon->orient) {
-        case E_GADCON_ORIENT_TOP:
-        case E_GADCON_ORIENT_CORNER_TL:
-        case E_GADCON_ORIENT_CORNER_TR:
-          dir = E_MENU_POP_DIRECTION_DOWN;
-          break;
-        case E_GADCON_ORIENT_BOTTOM:
-        case E_GADCON_ORIENT_CORNER_BL:
-        case E_GADCON_ORIENT_CORNER_BR:
-          dir = E_MENU_POP_DIRECTION_UP;
-          break;
-
-        case E_GADCON_ORIENT_LEFT:
-        case E_GADCON_ORIENT_CORNER_LT:
-        case E_GADCON_ORIENT_CORNER_LB:
-          dir = E_MENU_POP_DIRECTION_RIGHT;
-          break;
-
-        case E_GADCON_ORIENT_RIGHT:
-        case E_GADCON_ORIENT_CORNER_RT:
-        case E_GADCON_ORIENT_CORNER_RB:
-          dir = E_MENU_POP_DIRECTION_LEFT;
-          break;
-
-        case E_GADCON_ORIENT_FLOAT:
-        case E_GADCON_ORIENT_HORIZ:
-        case E_GADCON_ORIENT_VERT:
-        default:
-          dir = E_MENU_POP_DIRECTION_AUTO;
-          break;
-      }
       e_gadcon_locked_set(inst->gcc->gadcon, EINA_TRUE);
-
-      /* We display not relatively to the gadget, but similarly to
-       * the start menu - thus the need for direction etc.
-       */
       e_menu_activate_mouse(inst->menu,
-                          e_util_zone_current_get(e_manager_current_get()),
-                    x, y, w, h, dir, ((Evas_Event_Mouse_Down *) event)->timestamp);
+                      e_util_zone_current_get(e_manager_current_get()),
+                 x, y, w, h, dir, ((Evas_Event_Mouse_Down *) event)->timestamp);
     } else {
       // e_gadcon_locked_set(inst->gcc->gadcon, EINA_TRUE);
-       e_menu_activate_mouse(inst->menu, e_util_zone_current_get
-                            (e_manager_current_get()),
-                    x, y, 1, 1, 2, 1);
+      e_menu_activate_mouse(inst->menu,
+                      e_util_zone_current_get(e_manager_current_get()),
+                 x, y, 1, 1, dir, 1);
     }
   }
+}
+
+static int
+_menu_fill(Instance *inst, int event_type)
+{
+  E_Menu_Item *mi;
+  /* Default Orientation of menu for float list */
+  int dir = E_GADCON_ORIENT_VERT;
+
+  inst->menu = e_menu_new();
+  if (event_type == ECORE_EVENT_KEY_DOWN){
+    e_menu_post_deactivate_callback_set(inst->menu, _cb_menu_post_deactivate, inst);
+  }
+
+  if (clip_inst->items){
+    Eina_List *it;
+    Clip_Data *clip;
+
+    EINA_LIST_FOREACH(clip_inst->items, it, clip){
+      mi = e_menu_item_new(inst->menu);
+      e_menu_item_label_set(mi, clip->name);
+      e_menu_item_callback_set(mi, (E_Menu_Cb)_cb_menu_item, clip);
+    }
+  }
+  else {
+    mi = e_menu_item_new(inst->menu);
+    e_menu_item_label_set(mi, "Empty");
+    e_menu_item_disabled_set(mi, EINA_TRUE);
+  }
+
+  mi = e_menu_item_new(inst->menu);
+  e_menu_item_separator_set(mi, EINA_TRUE);
+
+  mi = e_menu_item_new(inst->menu);
+  e_menu_item_label_set(mi, _("Clear"));
+  e_util_menu_item_theme_icon_set(mi, "edit-clear");
+  e_menu_item_callback_set(mi, (E_Menu_Cb)_clear_history, inst);
+  /* FIXME: This will need to be changed if we ever get around to not deleting
+   *   history file and clip_inst->items on clear and allow a 'empty' history
+   *   file and corresponding eina_list with no elements.
+   *
+   * Is this even possible?      */
+  if (clip_inst->items)
+    e_menu_item_disabled_set(mi, EINA_FALSE);
+  else
+    e_menu_item_disabled_set(mi, EINA_TRUE);
+
+  mi = e_menu_item_new(inst->menu);
+  e_menu_item_separator_set(mi, EINA_TRUE);
+
+  mi = e_menu_item_new(inst->menu);
+  e_menu_item_label_set(mi, _("Settings"));
+  e_util_menu_item_theme_icon_set(mi, "preferences-system");
+  e_menu_item_callback_set(mi, _menu_cb_configure, NULL);
+
+  if (event_type == ECORE_EVENT_MOUSE_BUTTON_DOWN) {
+    e_menu_post_deactivate_callback_set(inst->menu, _cb_menu_post_deactivate, inst);
+    /* Proper menu orientation
+     *  We display not relatively to the gadget, but similarly to
+     *  the start menu - thus the need for direction etc.
+     */
+    switch (inst->gcc->gadcon->orient) {
+      case E_GADCON_ORIENT_TOP:
+      case E_GADCON_ORIENT_CORNER_TL:
+      case E_GADCON_ORIENT_CORNER_TR:
+        dir = E_MENU_POP_DIRECTION_DOWN;
+        break;
+      case E_GADCON_ORIENT_BOTTOM:
+      case E_GADCON_ORIENT_CORNER_BL:
+      case E_GADCON_ORIENT_CORNER_BR:
+        dir = E_MENU_POP_DIRECTION_UP;
+        break;
+
+      case E_GADCON_ORIENT_LEFT:
+      case E_GADCON_ORIENT_CORNER_LT:
+      case E_GADCON_ORIENT_CORNER_LB:
+        dir = E_MENU_POP_DIRECTION_RIGHT;
+        break;
+
+      case E_GADCON_ORIENT_RIGHT:
+      case E_GADCON_ORIENT_CORNER_RT:
+      case E_GADCON_ORIENT_CORNER_RB:
+        dir = E_MENU_POP_DIRECTION_LEFT;
+        break;
+
+      case E_GADCON_ORIENT_FLOAT:
+      case E_GADCON_ORIENT_HORIZ:
+      case E_GADCON_ORIENT_VERT:
+      default:
+        dir = E_MENU_POP_DIRECTION_AUTO;
+        break;
+    }
+  }
+  return dir;
 }
 
 static Eina_Bool
