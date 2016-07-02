@@ -281,6 +281,15 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
     e_menu_item_label_set(mi, _("Clear"));
     e_util_menu_item_theme_icon_set(mi, "edit-clear");
     e_menu_item_callback_set(mi, (E_Menu_Cb)_clear_history, inst);
+    /* FIXME: This will need to be changed if we ever get around to not deleting
+     *   history file and clip_inst->items on clear and allow a 'empty' history
+     *   file and corresponding eina_list with no elements. 
+     * 
+     * Is this even possible?      */
+    if (clip_inst->items)
+      e_menu_item_disabled_set(mi, EINA_FALSE);
+    else
+      e_menu_item_disabled_set(mi, EINA_TRUE);
 
     mi = e_menu_item_new(inst->menu);
     e_menu_item_separator_set(mi, EINA_TRUE);
