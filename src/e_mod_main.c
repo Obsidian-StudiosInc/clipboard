@@ -265,6 +265,11 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
         e_menu_item_callback_set(mi, (E_Menu_Cb)_cb_menu_item, clip);
       }
     }
+    else {
+      mi = e_menu_item_new(inst->menu);
+      e_menu_item_label_set(mi, "Empty");
+      e_menu_item_disabled_set(mi, EINA_TRUE);
+    }
 
     mi = e_menu_item_new(inst->menu);
     e_menu_item_separator_set(mi, EINA_TRUE);
