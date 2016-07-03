@@ -447,6 +447,10 @@ _clipboard_add_item(Clip_Data *cd)
 static Eina_List *
 _item_in_history(Clip_Data *cd)
 {
+  /* Safety checks: should never happen */
+  EINA_SAFETY_ON_NULL_RETURN_VAL(cd, NULL);
+  EINA_SAFETY_ON_NULL_RETURN_VAL(clip_inst->items, NULL);
+
   return eina_list_search_unsorted_list(clip_inst->items, (Eina_Compare_Cb) _clip_compare, cd->content);
 }
 
