@@ -250,7 +250,7 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
       con = e_container_current_get(man);
       ecore_x_pointer_xy_get(con->win, &x, &y);
     }
-    
+
     dir = _menu_fill(inst, event_type);
     if (event_type == ECORE_EVENT_MOUSE_BUTTON_DOWN){
       e_gadcon_locked_set(inst->gcc->gadcon, EINA_TRUE);
@@ -365,9 +365,12 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, void *event)
 {
   Ecore_X_Event_Selection_Notify *ev;
   Clip_Data *cd = NULL;
-  const char *data;
+  char *last="";
 
   EINA_SAFETY_ON_NULL_RETURN_VAL(instance, EINA_TRUE);
+
+  if (clip_inst->items)
+    last =  ((Clip_Data *) eina_list_data_get (clip_inst->items))->content;
   ev = event;
 
   if ((ev->selection == ECORE_X_SELECTION_CLIPBOARD) &&
@@ -377,7 +380,7 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, void *event)
     text_data = ev->data;
 
     if ((text_data->data.content == ECORE_X_SELECTION_CONTENT_TEXT) &&
-        (text_data->text)){
+        (text_data->text) && (strcmp(last, text_data->text ) != 0)) {
       char buf[MAGIC_LABEL_SIZE + 1];
       char *temp_buf, *strip_buf;
 
