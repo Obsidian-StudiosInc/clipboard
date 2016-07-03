@@ -56,6 +56,9 @@ static void      _free_clip_data(Clip_Data *cd);
 static void      _x_clipboard_update(const char *text);
 static void      _menu_cb_configure(void *data, E_Menu *m, E_Menu_Item *mi);
 
+static Eina_List *     _item_in_history(Clip_Data *cd);
+static int             _clip_compare(Clip_Data *cd, char *text);
+
 /* new module needs a new config :), or config too old and we need one anyway */
 static void
 _clipboard_config_new(E_Module *m)
@@ -413,29 +416,27 @@ _x_clipboard_update(const char *text)
   ecore_x_selection_clipboard_set(clip_inst->win, text, strlen(text) + 1);
 }
 
-void _clipboard_add_item(Clip_Data *cd)
+static void
+_clipboard_add_item(Clip_Data *cd)
 {
   Eina_List *it;
-  Clip_Data *clip;
   EINA_SAFETY_ON_NULL_RETURN(cd);
 
-  /* Remove duplicate items in Eina list */
-  EINA_LIST_FOREACH(clip_inst->items, it, clip) {
-    if (strcmp(cd->content, clip->content)==0){
-      clip_inst->items = eina_list_remove(clip_inst->items, clip);
-      item_num--;
+  if (it = _item_in_history(cd)) {
+    /* Move to top of list */
+    clip_inst->items = eina_list_promote_list(clip_inst->items, it);
+  } else {
+    /* add item to the list */
+    if (item_num < MAGIC_HIST_SIZE) {
+      clip_inst->items = eina_list_prepend(clip_inst->items, cd);
+      item_num++;
     }
-  }
-  /* adding item to the list */
-  if (item_num < MAGIC_HIST_SIZE) {
-    clip_inst->items = eina_list_prepend(clip_inst->items, cd);
-    item_num++;
-  }
-  else {
-    /* remove last item from the list */
-    clip_inst->items = eina_list_remove_list(clip_inst->items, eina_list_last(clip_inst->items));
-    /*  add clipboard data stored in cd to the list as a first item */
-    clip_inst->items = eina_list_prepend(clip_inst->items, cd);
+    else {
+      /* remove last item from the list */
+      clip_inst->items = eina_list_remove_list(clip_inst->items, eina_list_last(clip_inst->items));
+      /*  add clipboard data stored in cd to the list as a first item */
+      clip_inst->items = eina_list_prepend(clip_inst->items, cd);
+    }
   }
   /* saving list to the file */
   save_history(clip_inst->items);
@@ -443,7 +444,20 @@ void _clipboard_add_item(Clip_Data *cd)
   _cb_menu_item(eina_list_data_get(clip_inst->items));
 }
 
-void _clear_history(Instance *inst)
+static Eina_List *
+_item_in_history(Clip_Data *cd)
+{
+  return eina_list_search_unsorted_list(clip_inst->items, (Eina_Compare_Cb) _clip_compare, cd->content);
+}
+
+static int
+_clip_compare(Clip_Data *cd, char *text)
+{
+  return strcmp(cd->content, text);
+}
+
+static void
+_clear_history(Instance *inst)
 {
   EINA_SAFETY_ON_NULL_RETURN(clip_inst);
   if (clip_inst->items)
