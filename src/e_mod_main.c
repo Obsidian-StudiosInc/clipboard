@@ -46,15 +46,20 @@ static Eina_Bool _cb_event_selection(Instance *instance, int type __UNUSED__, vo
 static void      _cb_menu_item(Clip_Data *selected_clip);
 static void      _cb_menu_post_deactivate(void *data, E_Menu *menu __UNUSED__);
 static void      _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Evas_Event_Mouse_Down *event);
+static void      _cb_clear_history(Instance *inst);
+static void      _cb_dialog_delete(void *data __UNUSED__);
+static void      _cb_dialog_keep(void *data __UNUSED__);
+
+static void      _menu_cb_configure(void *data, E_Menu *m, E_Menu_Item *mi);
+
 /*   And then some auxillary functions */
 static void      _clipboard_config_new(E_Module *m);
 static void      _clipboard_config_free(void);
 static void      _clipboard_add_item(Clip_Data *clip_data);
 static int       _menu_fill(Instance *inst, int event_type);
-static void      _clear_history(Instance *inst);
+static void      _clear_history(void);
 static void      _free_clip_data(Clip_Data *cd);
 static void      _x_clipboard_update(const char *text);
-static void      _menu_cb_configure(void *data, E_Menu *m, E_Menu_Item *mi);
 
 static Eina_List *     _item_in_history(Clip_Data *cd);
 static int             _clip_compare(Clip_Data *cd, char *text);
@@ -303,7 +308,7 @@ _menu_fill(Instance *inst, int event_type)
   mi = e_menu_item_new(inst->menu);
   e_menu_item_label_set(mi, _("Clear"));
   e_util_menu_item_theme_icon_set(mi, "edit-clear");
-  e_menu_item_callback_set(mi, (E_Menu_Cb)_clear_history, inst);
+  e_menu_item_callback_set(mi, (E_Menu_Cb) _cb_clear_history, inst);
   /* FIXME: This will need to be changed if we ever get around to not deleting
    *   history file and clip_inst->items on clear and allow a 'empty' history
    *   file and corresponding eina_list with no elements.
@@ -462,7 +467,7 @@ _clip_compare(Clip_Data *cd, char *text)
 }
 
 static void
-_clear_history(Instance *inst)
+_clear_history(void)
 {
   EINA_SAFETY_ON_NULL_RETURN(clip_inst);
   if (clip_inst->items)
@@ -472,6 +477,37 @@ _clear_history(Instance *inst)
   /* Ensure clipboard is clear and save history */
   ecore_x_selection_clipboard_clear();
   save_history(clip_inst->items);
+}
+
+static void
+_cb_clear_history(Instance *inst __UNUSED__)
+{
+  EINA_SAFETY_ON_NULL_RETURN(clipboard_config);
+
+  if (clipboard_config->confirm_clear) {
+    e_confirm_dialog_show(_("Confirm History Deletion"),
+                          "application-exit",
+                          _("You wish to delete the clipboards history.<br>"
+                          "<br>"
+                          "Are you sure you want to delete it?"),
+                          _("Delete"), _("Keep"),
+                          _cb_dialog_delete, NULL, NULL, NULL,
+                          _cb_dialog_keep, NULL);
+  }
+  else
+    _clear_history();
+}
+
+static void
+_cb_dialog_keep(void *data __UNUSED__)
+{
+  return;
+}
+
+static void
+_cb_dialog_delete(void *data __UNUSED__)
+{
+  _clear_history();
 }
 
 static Eina_Bool
@@ -487,7 +523,6 @@ _cb_menu_item(Clip_Data *selected_clip)
   _x_clipboard_update(selected_clip->content);
 }
 
-
 static void
 _cb_menu_post_deactivate(void *data, E_Menu *menu __UNUSED__)
 {
@@ -497,6 +532,7 @@ _cb_menu_post_deactivate(void *data, E_Menu *menu __UNUSED__)
 
 static void _free_clip_data(Clip_Data *cd)
 {
+  EINA_SAFETY_ON_NULL_RETURN(cd);
   free(cd->name);
   free(cd->content);
   free(cd);
