@@ -237,8 +237,8 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
 
   if (event_type == ECORE_EVENT_MOUSE_BUTTON_DOWN){
     /* Ignore all mouse events but right clicks        */
-    //~ if ((((Evas_Event_Mouse_Down *) event)->button) != 1)
-      //~ return;
+    if ((((Evas_Event_Mouse_Down *) event)->button) != 1 && (((Evas_Event_Mouse_Down *) event)->button) != 3)
+      return;
 
     initialize = ((((Evas_Event_Mouse_Down *) event)->button) == 1) && (!inst->menu);
   } else {
@@ -272,8 +272,10 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
       e_menu_activate_mouse(inst->menu,
                       e_util_zone_current_get(e_manager_current_get()),
                  x, y, 1, 1, dir, 1);
+      return;
     }
   }
+  
   /* Adding settings item for gadget right mouse click */
   initialize = ((((Evas_Event_Mouse_Down *) event)->button) == 3) && (!inst->menu);
   if (initialize) {
@@ -288,19 +290,18 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
         /* Each Gadget Client has a utility menu from the Container */
         inst->menu = e_gadcon_client_util_menu_items_append(inst->gcc, inst->menu, 0);
         e_menu_post_deactivate_callback_set(inst->menu, _clipboard_cb_menu_post, inst);
-        
 
-        e_gadcon_canvas_zone_geometry_get(inst->gcc->gadcon, &x, &y, 
-                                          NULL, NULL);
+        e_gadcon_canvas_zone_geometry_get(inst->gcc->gadcon, &x, &y, NULL, NULL);
 
         /* show the menu relative to gadgets position */
-        e_menu_activate_mouse(inst->menu, e_util_zone_current_get(e_manager_current_get()), (x + ((Evas_Event_Mouse_Down *) event)->output.x), 
+        e_menu_activate_mouse(inst->menu, e_util_zone_current_get(e_manager_current_get()), 
+                              (x + ((Evas_Event_Mouse_Down *) event)->output.x), 
                               (y + ((Evas_Event_Mouse_Down *) event)->output.y), 1, 1, 
                               E_MENU_POP_DIRECTION_AUTO, ((Evas_Event_Mouse_Down *) event)->timestamp);
         evas_event_feed_mouse_up(inst->gcc->gadcon->evas, ((Evas_Event_Mouse_Down *) event)->button, 
-                                 EVAS_BUTTON_NONE, ((Evas_Event_Mouse_Down *) event)->timestamp, NULL);
+                              EVAS_BUTTON_NONE, ((Evas_Event_Mouse_Down *) event)->timestamp, NULL);
      }
-}
+  }
 
 
 static int
