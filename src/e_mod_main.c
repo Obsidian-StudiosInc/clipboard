@@ -261,12 +261,15 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
 
     dir = _menu_fill(inst, event_type);
     if (event_type == ECORE_EVENT_MOUSE_BUTTON_DOWN){
+      /* this activates gadget menu*/
       e_gadcon_locked_set(inst->gcc->gadcon, EINA_TRUE);
       e_menu_activate_mouse(inst->menu,
                       e_util_zone_current_get(e_manager_current_get()),
                  x, y, w, h, dir, ((Evas_Event_Mouse_Down *) event)->timestamp);
     } else {
       // e_gadcon_locked_set(inst->gcc->gadcon, EINA_TRUE);
+      
+      /* this activates float menu*/
       e_menu_activate_mouse(inst->menu,
                       e_util_zone_current_get(e_manager_current_get()),
                  x, y, 1, 1, dir, 1);
@@ -274,7 +277,7 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
     }
   }
   
-  /* Adding settings item for gadget right mouse click */
+  /* Settings item in gadget context menu */
   initialize = ((((Evas_Event_Mouse_Down *) event)->button) == 3) && (!inst->menu);
   if (initialize) {
         E_Menu_Item *mi;
@@ -298,8 +301,8 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
                               E_MENU_POP_DIRECTION_AUTO, ((Evas_Event_Mouse_Down *) event)->timestamp);
         evas_event_feed_mouse_up(inst->gcc->gadcon->evas, ((Evas_Event_Mouse_Down *) event)->button, 
                               EVAS_BUTTON_NONE, ((Evas_Event_Mouse_Down *) event)->timestamp, NULL);
-     }
   }
+}
 
 
 static int
