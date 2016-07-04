@@ -256,6 +256,8 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
       y += cy;
     } else {
       /* Coordinates and sizing */
+      man = e_manager_current_get();
+      con = e_container_current_get(man);
       ecore_x_pointer_xy_get(con->win, &x, &y);
     }
 
