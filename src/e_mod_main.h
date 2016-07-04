@@ -34,4 +34,8 @@ EAPI void *e_modapi_init     (E_Module *m);
 EAPI int   e_modapi_shutdown (E_Module *m __UNUSED__);
 EAPI int   e_modapi_save     (E_Module *m __UNUSED__);
 
+/* Needed elsewhere */
+Eet_Error   clip_save(Eina_List *items);
+void        free_clip_data(Clip_Data *cd);
+
 #endif

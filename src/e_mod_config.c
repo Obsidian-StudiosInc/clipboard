@@ -4,24 +4,26 @@ struct _E_Config_Dialog_Data
 {
   E_Config_Dialog *cfd;
   Evas_Object *obj;
-  int clip_copy;
-  int clip_select;
-  int hist_reverse;
-  char *label_length;
-  char *hist_items;
-  int persistence;
-  int trim_ws;
-  int trim_nl;
-  int confirm_clear;
+  int   clip_copy;     /* Clipboard to use                                */
+  int   clip_select;   /* Clipboard to use                                */
+  int   persistence;   /* History file persistance                        */
+  int   hist_reverse;  /* Order to display History                        */
+  char *hist_items;    /* Number of history items to store                */
+  char *label_length;  /* Number of characters of item to display         */
+  int   trim_ws;       /* Should we trim White space from selection       */
+  int   trim_nl;       /* Should we trim new lines from selection         */
+  int   confirm_clear; /* Display history confirmation dialog on deletion */
 };
 
 static int           _basic_apply_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata);
 static void         *_create_data(E_Config_Dialog *cfd __UNUSED__);
-static void          _free_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata);
 static int           _basic_check_changed(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata);
 static void          _fill_data(E_Config_Dialog_Data *cfdata);
+void                _free_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata);
 static Evas_Object  *_basic_create_widgets(E_Config_Dialog *cfd __UNUSED__, Evas *evas, E_Config_Dialog_Data *cfdata);
-
+static Eet_Error     _truncate_history(const unsigned int n);
+/* Found in e_mod_main.c */
+extern Mod_Inst *clip_inst;
 
 static void *
 _create_data(E_Config_Dialog *cfd __UNUSED__)
@@ -31,7 +33,7 @@ _create_data(E_Config_Dialog *cfd __UNUSED__)
   return cfdata;
 }
 
-static void
+void
 _free_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
 {
   EINA_SAFETY_ON_NULL_RETURN(clipboard_config);
@@ -64,6 +66,10 @@ _basic_apply_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
   clipboard_config->clip_select   = cfdata->clip_select;
   clipboard_config->persistence   = cfdata->persistence;
   clipboard_config->hist_reverse  = cfdata->hist_reverse;
+
+  if (clipboard_config-> hist_items   != atoi(cfdata-> hist_items))
+    _truncate_history(atoi(cfdata-> hist_items));
+
   clipboard_config->hist_items    = atoi(cfdata->hist_items);
   clipboard_config->label_length   = atoi(cfdata->label_length);
   clipboard_config->trim_ws       = cfdata->trim_ws;
@@ -165,3 +171,23 @@ _basic_check_changed(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfda
   return 0;
 }
 
+static Eet_Error
+_truncate_history(const unsigned int n)
+{
+  Eet_Error err = EET_ERROR_NONE;
+  
+  EINA_SAFETY_ON_NULL_RETURN_VAL(clip_inst, EET_ERROR_BAD_OBJECT);
+  if (clip_inst->items) {
+    if (eina_list_count(clip_inst->items) > n) {
+      Eina_List *last, *discard;
+      last = eina_list_nth_list(clip_inst->items, n-1);
+      clip_inst->items = eina_list_split_list(clip_inst->items, last, &discard);
+      if (discard)
+        E_FREE_LIST(discard, free_clip_data);
+      err = clip_save(clip_inst->items);
+    }
+  }
+  else
+    err = EET_ERROR_EMPTY;
+  return err;
+}

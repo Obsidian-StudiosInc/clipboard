@@ -14,16 +14,16 @@ struct _Config
   E_Module *module;
   E_Config_Dialog *config_dialog;
   
-  int version;
-  int clip_copy;
-  int clip_select;
-  int persistence;
-  int hist_reverse;
-  int hist_items;
-  int label_length;
-  int trim_ws;
-  int trim_nl;
-  int confirm_clear;
+  int version;       /* Configuration version                           */
+  int clip_copy;     /* Clipboard to use                                */
+  int clip_select;   /* Clipboard to use                                */
+  int persistence;   /* History file persistance                        */
+  int hist_reverse;  /* Order to display History                        */
+  int hist_items;    /* Number of history items to store                */
+  int label_length;  /* Number of characters of item to display         */
+  int trim_ws;       /* Should we trim White space from selection       */
+  int trim_nl;       /* Should we trim new lines from selection         */
+  int confirm_clear; /* Display history confirmation dialog on deletion */
 };
 
 struct _Config_Item

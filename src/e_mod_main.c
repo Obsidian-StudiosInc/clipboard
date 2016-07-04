@@ -37,7 +37,7 @@ EAPI E_Module_Api e_modapi = { E_MODULE_API_VERSION, "Clipboard"};
 Config *clipboard_config = NULL;
 static E_Config_DD *conf_edd = NULL;
 static E_Config_DD *conf_item_edd = NULL;
-static Mod_Inst *clip_inst = NULL;
+Mod_Inst *clip_inst = NULL; /* Need by e_mod_config.c */
 static E_Action *act = NULL;
 
 /*   First some call backs   */
@@ -60,8 +60,6 @@ static void      _clipboard_config_free(void);
 static void      _clipboard_add_item(Clip_Data *clip_data);
 static int       _menu_fill(Instance *inst, int event_type);
 static void      _clear_history(void);
-Eet_Error        _clip_save(Eina_List *items);
-static void      _free_clip_data(Clip_Data *cd);
 static void      _x_clipboard_update(const char *text);
 
 static Eina_List *     _item_in_history(Clip_Data *cd);
@@ -88,8 +86,8 @@ _clipboard_config_new(E_Module *m)
   E_CONFIG_LIMIT(clipboard_config->clip_select, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->persistence, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->hist_reverse, 0, 1);
-  E_CONFIG_LIMIT(clipboard_config->hist_items, 5, 50);
-  E_CONFIG_LIMIT(clipboard_config->label_length, 5, 50);
+  E_CONFIG_LIMIT(clipboard_config->hist_items, 5, MAGIC_HIST_SIZE);
+  E_CONFIG_LIMIT(clipboard_config->label_length, 5, MAGIC_LABEL_SIZE);
   E_CONFIG_LIMIT(clipboard_config->trim_ws, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->trim_nl, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->confirm_clear, 0, 1);
@@ -97,7 +95,6 @@ _clipboard_config_new(E_Module *m)
   /* update the version */
   clipboard_config->version = MOD_CONFIG_FILE_VERSION;
 
-  item_num=0;
   clipboard_config->module = m;
   /* save the config to disk */
   e_config_save_queue();
@@ -325,8 +322,8 @@ _menu_fill(Instance *inst, int event_type)
 
     /*revert list if selected*/    
     if (clipboard_config->hist_reverse)
-    clip_inst->items=eina_list_reverse(clip_inst->items);
-
+      clip_inst->items=eina_list_reverse(clip_inst->items);
+     printf("CLIPBOARD menu  %d\n",  eina_list_count(clip_inst->items));
     /*show list in history menu*/    
     EINA_LIST_FOREACH(clip_inst->items, it, clip){
       mi = e_menu_item_new(inst->menu);
@@ -335,7 +332,7 @@ _menu_fill(Instance *inst, int event_type)
     }
     /*revert list back if selected*/    
     if (clipboard_config->hist_reverse)
-    clip_inst->items=eina_list_reverse(clip_inst->items);
+      clip_inst->items=eina_list_reverse(clip_inst->items);
   }
   else {
     mi = e_menu_item_new(inst->menu);
@@ -473,9 +470,8 @@ _clipboard_add_item(Clip_Data *cd)
     clip_inst->items = eina_list_promote_list(clip_inst->items, it);
   } else {
     /* add item to the list */
-    if (item_num < MAGIC_HIST_SIZE) {
+    if (eina_list_count(clip_inst->items) < clipboard_config->hist_items) {
       clip_inst->items = eina_list_prepend(clip_inst->items, cd);
-      item_num++;
     }
     else {
       /* remove last item from the list */
@@ -485,7 +481,7 @@ _clipboard_add_item(Clip_Data *cd)
     }
   }
   /* saving list to the file */
-  _clip_save(clip_inst->items);
+  clip_save(clip_inst->items);
   /* gain ownership of clipboard item in case we lose current owner */
   _cb_menu_item(eina_list_data_get(clip_inst->items));
 }
@@ -512,16 +508,15 @@ _clear_history(void)
 {
   EINA_SAFETY_ON_NULL_RETURN(clip_inst);
   if (clip_inst->items)
-    E_FREE_LIST(clip_inst->items, _free_clip_data);
-  item_num = 0;
+    E_FREE_LIST(clip_inst->items, free_clip_data);
 
   /* Ensure clipboard is clear and save history */
   ecore_x_selection_clipboard_clear();
-  _clip_save(clip_inst->items);
+  clip_save(clip_inst->items);
 }
 
 Eet_Error
-_clip_save(Eina_List *items)
+clip_save(Eina_List *items)
 {
   if(clipboard_config->persistence)
     return save_history(items);
@@ -580,7 +575,8 @@ _cb_menu_post_deactivate(void *data, E_Menu *menu __UNUSED__)
   ((Instance *) data)->menu = NULL;
 }
 
-static void _free_clip_data(Clip_Data *cd)
+void
+free_clip_data(Clip_Data *cd)
 {
   EINA_SAFETY_ON_NULL_RETURN(cd);
   free(cd->name);
@@ -713,7 +709,7 @@ e_modapi_shutdown (E_Module *m __UNUSED__)
   clip_inst->handle = NULL;
   ecore_timer_del(clip_inst->check_timer);
   clip_inst->check_timer = NULL;
-  E_FREE_LIST(clip_inst->items, _free_clip_data);
+  E_FREE_LIST(clip_inst->items, free_clip_data);
 
 noclip:
   EINA_SAFETY_ON_NULL_GOTO(clipboard_config, noconfig);

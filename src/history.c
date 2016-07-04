@@ -140,6 +140,7 @@ read_history(Eina_List **items)
     int i, size;
     char buf[MAGIC_LABEL_SIZE + 1], str[3];
     Eina_List *l=NULL;
+    unsigned int item_num;
 
     // FIXME
     if(!_set_history_path(history_path))
@@ -148,9 +149,9 @@ read_history(Eina_List **items)
     if (!history_file)
       return EET_ERROR_BAD_OBJECT;
     ret = eet_read(history_file, "MAX_ITEMS", &size);
-    item_num=atoi(ret);
+    item_num = atoi(ret);
 
-    for (i=1;i<=item_num;i++){
+    for (i=1; i<=item_num; i++){
 
         cd = E_NEW(Clip_Data, 1);  //new instance for another struct
 
