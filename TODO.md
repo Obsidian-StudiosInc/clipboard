@@ -11,7 +11,7 @@ Beta release
 
 - [x] Decide on Config options and functionality needed for beta release
 
-- [ ] Add Config Dialog to gadget context menu
+- [x] Add Config Dialog to gadget context menu
 
 - [x] Add Config version checks for development and future releases
 
