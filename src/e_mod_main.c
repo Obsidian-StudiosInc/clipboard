@@ -323,11 +323,19 @@ _menu_fill(Instance *inst, int event_type)
     Eina_List *it;
     Clip_Data *clip;
 
+    /*revert list if selected*/    
+    if (clipboard_config->hist_reverse)
+    clip_inst->items=eina_list_reverse(clip_inst->items);
+
+    /*show list in history menu*/    
     EINA_LIST_FOREACH(clip_inst->items, it, clip){
       mi = e_menu_item_new(inst->menu);
       e_menu_item_label_set(mi, clip->name);
       e_menu_item_callback_set(mi, (E_Menu_Cb)_cb_menu_item, clip);
     }
+    /*revert list back if selected*/    
+    if (clipboard_config->hist_reverse)
+    clip_inst->items=eina_list_reverse(clip_inst->items);
   }
   else {
     mi = e_menu_item_new(inst->menu);
