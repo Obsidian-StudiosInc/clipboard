@@ -124,7 +124,7 @@ static E_Gadcon_Client *
 _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
 {
   Evas_Object *o;
-  E_Gadcon_Client *gcc, *last=NULL;
+  E_Gadcon_Client *gcc;
 
   Instance *inst = NULL;
   inst = E_NEW(Instance, 1);
