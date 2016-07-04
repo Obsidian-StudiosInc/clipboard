@@ -51,6 +51,8 @@ static void      _cb_dialog_delete(void *data __UNUSED__);
 static void      _cb_dialog_keep(void *data __UNUSED__);
 
 static void      _menu_cb_configure(void *data, E_Menu *m, E_Menu_Item *mi);
+static void      _clipboard_cb_menu_post(void *data, E_Menu *menu);
+
 
 /*   And then some auxillary functions */
 static void      _clipboard_config_new(E_Module *m);
@@ -235,8 +237,8 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
 
   if (event_type == ECORE_EVENT_MOUSE_BUTTON_DOWN){
     /* Ignore all mouse events but right clicks        */
-    if ((((Evas_Event_Mouse_Down *) event)->button) != 1)
-      return;
+    //~ if ((((Evas_Event_Mouse_Down *) event)->button) != 1)
+      //~ return;
 
     initialize = ((((Evas_Event_Mouse_Down *) event)->button) == 1) && (!inst->menu);
   } else {
@@ -272,7 +274,34 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
                  x, y, 1, 1, dir, 1);
     }
   }
+  /* Adding settings item for gadget right mouse click */
+  initialize = ((((Evas_Event_Mouse_Down *) event)->button) == 3) && (!inst->menu);
+  if (initialize) {
+        E_Menu_Item *mi;
+        /* create popup menu */
+        inst->menu = e_menu_new();
+        mi = e_menu_item_new(inst->menu);
+        e_menu_item_label_set(mi, _("Settings"));
+        e_util_menu_item_theme_icon_set(mi, "preferences-system");
+        e_menu_item_callback_set(mi, _menu_cb_configure, inst);
+
+        /* Each Gadget Client has a utility menu from the Container */
+        inst->menu = e_gadcon_client_util_menu_items_append(inst->gcc, inst->menu, 0);
+        e_menu_post_deactivate_callback_set(inst->menu, _clipboard_cb_menu_post, inst);
+        
+
+        e_gadcon_canvas_zone_geometry_get(inst->gcc->gadcon, &x, &y, 
+                                          NULL, NULL);
+
+        /* show the menu relative to gadgets position */
+        e_menu_activate_mouse(inst->menu, e_util_zone_current_get(e_manager_current_get()), (x + ((Evas_Event_Mouse_Down *) event)->output.x), 
+                              (y + ((Evas_Event_Mouse_Down *) event)->output.y), 1, 1, 
+                              E_MENU_POP_DIRECTION_AUTO, ((Evas_Event_Mouse_Down *) event)->timestamp);
+        evas_event_feed_mouse_up(inst->gcc->gadcon->evas, ((Evas_Event_Mouse_Down *) event)->button, 
+                                 EVAS_BUTTON_NONE, ((Evas_Event_Mouse_Down *) event)->timestamp, NULL);
+     }
 }
+
 
 static int
 _menu_fill(Instance *inst, int event_type)
@@ -639,6 +668,17 @@ _menu_cb_configure(void *data, E_Menu *m, E_Menu_Item *mi)
   if (!clipboard_config) return;
   if (clipboard_config->config_dialog) return;
   _config_clipboard_module(m->zone->container, NULL);
+}
+
+static void 
+_clipboard_cb_menu_post(void *data, E_Menu *menu) 
+{
+   Instance *inst = NULL;
+
+   if (!(inst = data)) return;
+   if (!inst->menu) return;
+   e_object_del(E_OBJECT(inst->menu));
+   inst->menu = NULL;
 }
 
 /*
