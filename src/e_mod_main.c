@@ -58,6 +58,7 @@ static void      _clipboard_config_free(void);
 static void      _clipboard_add_item(Clip_Data *clip_data);
 static int       _menu_fill(Instance *inst, int event_type);
 static void      _clear_history(void);
+Eet_Error        _clip_save(Eina_List *items);
 static void      _free_clip_data(Clip_Data *cd);
 static void      _x_clipboard_update(const char *text);
 
@@ -123,7 +124,7 @@ static E_Gadcon_Client *
 _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
 {
   Evas_Object *o;
-  E_Gadcon_Client *gcc;
+  E_Gadcon_Client *gcc, *last=NULL;
 
   Instance *inst = NULL;
   inst = E_NEW(Instance, 1);
@@ -203,7 +204,6 @@ _gc_id_new (const E_Gadcon_Client_Class *client_class __UNUSED__)
 {
   return _gadcon_class.name;
 }
-
 
 /**
  * @brief  Generic call back function to Create Clipboard menu
@@ -444,7 +444,7 @@ _clipboard_add_item(Clip_Data *cd)
     }
   }
   /* saving list to the file */
-  save_history(clip_inst->items);
+  _clip_save(clip_inst->items);
   /* gain ownership of clipboard item in case we lose current owner */
   _cb_menu_item(eina_list_data_get(clip_inst->items));
 }
@@ -476,7 +476,16 @@ _clear_history(void)
 
   /* Ensure clipboard is clear and save history */
   ecore_x_selection_clipboard_clear();
-  save_history(clip_inst->items);
+  _clip_save(clip_inst->items);
+}
+
+Eet_Error
+_clip_save(Eina_List *items)
+{
+  if(clipboard_config->persistence)
+    return save_history(items);
+  else
+    return EET_ERROR_NONE;
 }
 
 static void
