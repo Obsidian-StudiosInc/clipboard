@@ -323,7 +323,7 @@ _menu_fill(Instance *inst, int event_type)
     /*revert list if selected*/    
     if (clipboard_config->hist_reverse)
       clip_inst->items=eina_list_reverse(clip_inst->items);
-     printf("CLIPBOARD menu  %d\n",  eina_list_count(clip_inst->items));
+
     /*show list in history menu*/    
     EINA_LIST_FOREACH(clip_inst->items, it, clip){
       mi = e_menu_item_new(inst->menu);
