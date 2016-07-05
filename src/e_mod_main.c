@@ -520,6 +520,8 @@ _clear_history(void)
 
   /* Ensure clipboard is clear and save history */
   ecore_x_selection_clipboard_clear();
+  ecore_x_selection_primary_clear();
+  
   clip_save(clip_inst->items);
 }
 
