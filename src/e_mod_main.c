@@ -419,8 +419,9 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, void *event)
     last =  ((Clip_Data *) eina_list_data_get (clip_inst->items))->content;
   ev = event;
 
-  if ((ev->selection == ECORE_X_SELECTION_CLIPBOARD) &&
-      (strcmp(ev->target, ECORE_X_SELECTION_TARGET_UTF8_STRING) == 0)) {
+  if (((ev->selection == ECORE_X_SELECTION_CLIPBOARD) ||
+       (ev->selection == ECORE_X_SELECTION_PRIMARY)) &&
+       (strcmp(ev->target, ECORE_X_SELECTION_TARGET_UTF8_STRING) == 0)) {
 
     Ecore_X_Selection_Data_Text *text_data;
     text_data = ev->data;
@@ -456,7 +457,11 @@ _x_clipboard_update(const char *text)
   EINA_SAFETY_ON_NULL_RETURN(clip_inst);
   EINA_SAFETY_ON_NULL_RETURN(text);
 
-  ecore_x_selection_clipboard_set(clip_inst->win, text, strlen(text) + 1);
+  if (clipboard_config->clip_copy)
+    ecore_x_selection_clipboard_set(clip_inst->win, text, strlen(text) + 1);
+
+  if (clipboard_config->clip_select)
+    ecore_x_selection_primary_set(clip_inst->win, text, strlen(text) + 1);
 }
 
 static void
@@ -480,10 +485,13 @@ _clipboard_add_item(Clip_Data *cd)
       clip_inst->items = eina_list_prepend(clip_inst->items, cd);
     }
   }
+    
   /* saving list to the file */
   clip_save(clip_inst->items);
-  /* gain ownership of clipboard item in case we lose current owner */
-  _cb_menu_item(eina_list_data_get(clip_inst->items));
+
+/* gain ownership of clipboard item in case we lose current owner */
+  if ((clipboard_config->clip_copy) && (!clipboard_config->clip_select))
+    _cb_menu_item(eina_list_data_get(clip_inst->items)); 
 }
 
 static Eina_List *
@@ -558,7 +566,12 @@ _cb_dialog_delete(void *data __UNUSED__)
 static Eina_Bool
 _cb_clipboard_request(void *data __UNUSED__)
 {
-  ecore_x_selection_clipboard_request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
+  if (clipboard_config->clip_copy)
+    ecore_x_selection_clipboard_request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
+  
+  if (clipboard_config->clip_select)
+    ecore_x_selection_primary_request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
+
   return EINA_TRUE;
 }
 
