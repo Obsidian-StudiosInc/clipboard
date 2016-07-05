@@ -465,7 +465,7 @@ _clipboard_add_item(Clip_Data *cd)
   Eina_List *it;
   EINA_SAFETY_ON_NULL_RETURN(cd);
 
-  if (it = _item_in_history(cd)) {
+  if ((it = _item_in_history(cd))) {
     /* Move to top of list */
     clip_inst->items = eina_list_promote_list(clip_inst->items, it);
   } else {
