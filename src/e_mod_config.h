@@ -13,6 +13,7 @@ struct _Config
   Eina_List *items;
   E_Module *module;
   E_Config_Dialog *config_dialog;
+  const char *log_name;
   
   int version;       /* Configuration version                           */
   int clip_copy;     /* Clipboard to use                                */

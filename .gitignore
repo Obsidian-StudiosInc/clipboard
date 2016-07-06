@@ -37,4 +37,6 @@ src/history.o
 src/module.la
 src/utility.lo
 src/utility.o
+src/clip_log.lo
+src/clip_log.o
 stamp-h1

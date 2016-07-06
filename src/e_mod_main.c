@@ -3,9 +3,6 @@
 #include "history.h"
 
 #define _(S) S
-#define ENABLE_DEBUG 1
-#define DEBUG(f, ...) if (ENABLE_DEBUG) \
-          printf("[clipboard] "f "\n", __VA_ARGS__)
 
 #define TIMEOUT_1 1.0 /* interval for timer */
 
@@ -485,7 +482,7 @@ _clipboard_add_item(Clip_Data *cd)
       clip_inst->items = eina_list_prepend(clip_inst->items, cd);
     }
   }
-    
+
   /* saving list to the file */
   clip_save(clip_inst->items);
 
