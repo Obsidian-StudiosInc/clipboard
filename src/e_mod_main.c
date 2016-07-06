@@ -86,8 +86,8 @@ _clipboard_config_new(E_Module *m)
   E_CONFIG_LIMIT(clipboard_config->clip_select, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->persistence, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->hist_reverse, 0, 1);
-  //~ E_CONFIG_LIMIT(clipboard_config->hist_items, 5, MAGIC_HIST_SIZE);
-  //~ E_CONFIG_LIMIT(clipboard_config->label_length, 5, MAGIC_LABEL_SIZE);
+  E_CONFIG_LIMIT(clipboard_config->hist_items, 5.0, MAGIC_HIST_SIZE);
+  E_CONFIG_LIMIT(clipboard_config->label_length, 5.0, MAGIC_LABEL_SIZE);
   E_CONFIG_LIMIT(clipboard_config->trim_ws, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->trim_nl, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->confirm_clear, 0, 1);
