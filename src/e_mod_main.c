@@ -645,6 +645,13 @@ e_modapi_init (E_Module *m)
   if (!clipboard_config)
     _clipboard_config_new(m);
 
+  clipboard_config->log_name = eina_stringshare_add("MOD:CLIP");
+
+  _clipboard_log = eina_log_domain_register(clipboard_config->log_name, EINA_COLOR_CYAN);
+  eina_log_domain_level_set(clipboard_config->log_name, EINA_LOG_LEVEL_DBG);
+  INF("Initialized Clipboard Module");
+
+
   //e_module_delayed_set(m, 1);
 
   /* Add Module Key Binding actions */
@@ -757,6 +764,10 @@ noconfig:
   /* Clean EET */
   E_CONFIG_DD_FREE(conf_edd);
   E_CONFIG_DD_FREE(conf_item_edd);
+
+  INF("Shutting down Clipboard Module");
+  eina_log_domain_unregister(_clipboard_log);
+  _clipboard_log = -1;
 
   /* Tell E the module is now unloaded. Gets removed from shelves, etc. */
   e_gadcon_provider_unregister(&_gadcon_class);
