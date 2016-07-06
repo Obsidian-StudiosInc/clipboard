@@ -36,6 +36,7 @@ static E_Config_DD *conf_edd = NULL;
 static E_Config_DD *conf_item_edd = NULL;
 Mod_Inst *clip_inst = NULL; /* Need by e_mod_config.c */
 static E_Action *act = NULL;
+int _clipboard_log;
 
 /*   First some call backs   */
 static Eina_Bool _cb_clipboard_request(void *data __UNUSED__);
