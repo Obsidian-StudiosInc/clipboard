@@ -8,8 +8,8 @@ struct _E_Config_Dialog_Data
   int   clip_select;   /* Clipboard to use                                */
   int   persistence;   /* History file persistance                        */
   int   hist_reverse;  /* Order to display History                        */
-  char *hist_items;    /* Number of history items to store                */
-  char *label_length;  /* Number of characters of item to display         */
+  double hist_items;    /* Number of history items to store                */
+  double label_length;  /* Number of characters of item to display         */
   int   trim_ws;       /* Should we trim White space from selection       */
   int   trim_nl;       /* Should we trim new lines from selection         */
   int   confirm_clear; /* Display history confirmation dialog on deletion */
@@ -44,16 +44,12 @@ _free_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
 static void
 _fill_data(E_Config_Dialog_Data *cfdata)
 {
-  char buf[1024];
-
   cfdata->clip_copy     = clipboard_config->clip_copy;
   cfdata->clip_select   = clipboard_config->clip_select;
   cfdata->persistence   = clipboard_config->persistence;
   cfdata->hist_reverse  = clipboard_config->hist_reverse;
-  snprintf (buf,sizeof (buf), "%d",clipboard_config->hist_items );
-  cfdata->hist_items = strdup (buf);
-  snprintf (buf,sizeof (buf), "%d",clipboard_config->label_length );
-  cfdata->label_length = strdup (buf);
+  cfdata->hist_items    = clipboard_config->hist_items;
+  cfdata->label_length  = clipboard_config->label_length;
   cfdata->trim_ws       = clipboard_config->trim_ws;
   cfdata->trim_nl       = clipboard_config->trim_nl;
   cfdata->confirm_clear = clipboard_config->confirm_clear;
@@ -67,11 +63,11 @@ _basic_apply_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
   clipboard_config->persistence   = cfdata->persistence;
   clipboard_config->hist_reverse  = cfdata->hist_reverse;
 
-  if (clipboard_config-> hist_items   != atoi(cfdata-> hist_items))
-    _truncate_history(atoi(cfdata-> hist_items));
+  if (clipboard_config-> hist_items   != cfdata-> hist_items)
+    _truncate_history(cfdata-> hist_items);
 
-  clipboard_config->hist_items    = atoi(cfdata->hist_items);
-  clipboard_config->label_length   = atoi(cfdata->label_length);
+  clipboard_config->hist_items    = cfdata->hist_items;
+  clipboard_config->label_length  = cfdata->label_length;
   clipboard_config->trim_ws       = cfdata->trim_ws;
   clipboard_config->trim_nl       = cfdata->trim_nl;
   clipboard_config->confirm_clear = cfdata->confirm_clear;
@@ -105,14 +101,12 @@ _basic_create_widgets(E_Config_Dialog *cfd __UNUSED__, Evas *evas, E_Config_Dial
 
    ob = e_widget_label_add(evas, "Items in history (5-50):");
    e_widget_framelist_object_append(of, ob);
-   ob = e_widget_entry_add(evas, &(cfdata->hist_items), NULL, NULL, NULL);
-   e_widget_size_min_set(ob, 30, 28);
+   ob = e_widget_slider_add(evas, 1, 0, "%2.0f", 5.0, 50.0, 1.0, 0, &(cfdata->hist_items), NULL, 40);
    e_widget_framelist_object_append(of, ob);
 
    ob = e_widget_label_add(evas, "Items label length (5-50):");
    e_widget_framelist_object_append(of, ob);
-   ob = e_widget_entry_add(evas, &(cfdata->label_length), NULL, NULL, NULL);
-   e_widget_size_min_set(ob, 30, 28);
+   ob = e_widget_slider_add(evas, 1, 0, "%2.0f", 5.0, 50.0, 1.0, 0, &(cfdata->label_length), NULL, 40);
    e_widget_framelist_object_append(of, ob);
 
 
@@ -163,8 +157,8 @@ _basic_check_changed(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfda
   if (clipboard_config->clip_select   != cfdata->clip_select) return 1;
   if (clipboard_config-> persistence  != cfdata-> persistence) return 1;
   if (clipboard_config-> hist_reverse != cfdata-> hist_reverse) return 1;
-  if (clipboard_config-> hist_items   != atoi(cfdata-> hist_items)) return 1;
-  if (clipboard_config-> label_length != atoi(cfdata-> label_length)) return 1;
+  if (clipboard_config-> hist_items   != cfdata-> hist_items) return 1;
+  if (clipboard_config-> label_length != cfdata-> label_length) return 1;
   if (clipboard_config->trim_ws       != cfdata->trim_ws) return 1;
   if (clipboard_config->trim_nl       != cfdata->trim_nl) return 1;
   if (clipboard_config->confirm_clear != cfdata->confirm_clear) return 1;
