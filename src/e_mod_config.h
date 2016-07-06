@@ -19,8 +19,8 @@ struct _Config
   int clip_select;   /* Clipboard to use                                */
   int persistence;   /* History file persistance                        */
   int hist_reverse;  /* Order to display History                        */
-  int hist_items;    /* Number of history items to store                */
-  int label_length;  /* Number of characters of item to display         */
+  double hist_items;    /* Number of history items to store                */
+  double label_length;  /* Number of characters of item to display         */
   int trim_ws;       /* Should we trim White space from selection       */
   int trim_nl;       /* Should we trim new lines from selection         */
   int confirm_clear; /* Display history confirmation dialog on deletion */
