@@ -29,7 +29,7 @@ Beta release
 
 - [x] use _UNUSED in all functions
 
-- [ ] Add support for x-primary clipboard and clipboard sync
+- [x] Add support for x-primary clipboard and clipboard sync. *Mostly done I hope ...*
  
 - [ ] Implement a file lock on history file during file writes
 
