@@ -63,7 +63,6 @@ static void      _x_clipboard_update(const char *text);
 static Eina_List *     _item_in_history(Clip_Data *cd);
 static int             _clip_compare(Clip_Data *cd, char *text);
 
-/* new module needs a new config :), or config too old and we need one anyway */
 static void
 _clipboard_config_new(E_Module *m)
 {
@@ -72,6 +71,7 @@ _clipboard_config_new(E_Module *m)
     clipboard_config = E_NEW(Config, 1);
     clipboard_config->clip_copy     = CONFIG_DEFAULT_CLIP_COPY;
     clipboard_config->clip_select   = CONFIG_DEFAULT_CLIP_SELECT;
+    clipboard_config->sync          = CONFIG_DEFAULT_CLIP_SYNC;
     clipboard_config->persistence   = CONFIG_DEFAULT_CLIP_PERSISTANCE;
     clipboard_config->hist_reverse  = CONFIG_DEFAULT_CLIP_HIST_REVERSE;
     clipboard_config->hist_items    = CONFIG_DEFAULT_CLIP_HIST_ITEMS;
@@ -82,6 +82,7 @@ _clipboard_config_new(E_Module *m)
   }
   E_CONFIG_LIMIT(clipboard_config->clip_copy, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->clip_select, 0, 1);
+  E_CONFIG_LIMIT(clipboard_config->sync, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->persistence, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->hist_reverse, 0, 1);
   E_CONFIG_LIMIT(clipboard_config->hist_items, 5.0, MAGIC_HIST_SIZE);
@@ -97,6 +98,7 @@ _clipboard_config_new(E_Module *m)
   /* save the config to disk */
   e_config_save_queue();
 }
+
 
 /* This is called when we need to cleanup the actual configuration,
  * for example when our configuration is too old */
@@ -265,7 +267,7 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
                  x, y, w, h, dir, ((Evas_Event_Mouse_Down *) event)->timestamp);
     } else {
       // e_gadcon_locked_set(inst->gcc->gadcon, EINA_TRUE);
-      
+
       /* this activates float menu*/
       e_menu_activate_mouse(inst->menu,
                       e_util_zone_current_get(e_manager_current_get()),
@@ -273,7 +275,7 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
       return;
     }
   }
-  
+
   /* Settings item in gadget context menu */
   initialize = ((((Evas_Event_Mouse_Down *) event)->button) == 3) && (!inst->menu);
   if (initialize) {
@@ -292,11 +294,11 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
         e_gadcon_canvas_zone_geometry_get(inst->gcc->gadcon, &x, &y, NULL, NULL);
 
         /* show the menu relative to gadgets position */
-        e_menu_activate_mouse(inst->menu, e_util_zone_current_get(e_manager_current_get()), 
-                              (x + ((Evas_Event_Mouse_Down *) event)->output.x), 
-                              (y + ((Evas_Event_Mouse_Down *) event)->output.y), 1, 1, 
+        e_menu_activate_mouse(inst->menu, e_util_zone_current_get(e_manager_current_get()),
+                              (x + ((Evas_Event_Mouse_Down *) event)->output.x),
+                              (y + ((Evas_Event_Mouse_Down *) event)->output.y), 1, 1,
                               E_MENU_POP_DIRECTION_AUTO, ((Evas_Event_Mouse_Down *) event)->timestamp);
-        evas_event_feed_mouse_up(inst->gcc->gadcon->evas, ((Evas_Event_Mouse_Down *) event)->button, 
+        evas_event_feed_mouse_up(inst->gcc->gadcon->evas, ((Evas_Event_Mouse_Down *) event)->button,
                               EVAS_BUTTON_NONE, ((Evas_Event_Mouse_Down *) event)->timestamp, NULL);
   }
 }
@@ -318,17 +320,17 @@ _menu_fill(Instance *inst, int event_type)
     Eina_List *it;
     Clip_Data *clip;
 
-    /*revert list if selected*/    
+    /*revert list if selected*/
     if (clipboard_config->hist_reverse)
       clip_inst->items=eina_list_reverse(clip_inst->items);
 
-    /*show list in history menu*/    
+    /*show list in history menu*/
     EINA_LIST_FOREACH(clip_inst->items, it, clip){
       mi = e_menu_item_new(inst->menu);
       e_menu_item_label_set(mi, clip->name);
       e_menu_item_callback_set(mi, (E_Menu_Cb)_cb_menu_item, clip);
     }
-    /*revert list back if selected*/    
+    /*revert list back if selected*/
     if (clipboard_config->hist_reverse)
       clip_inst->items=eina_list_reverse(clip_inst->items);
   }
@@ -489,7 +491,7 @@ _clipboard_add_item(Clip_Data *cd)
 
 /* gain ownership of clipboard item in case we lose current owner */
   if ((clipboard_config->clip_copy) && (!clipboard_config->clip_select))
-    _cb_menu_item(eina_list_data_get(clip_inst->items)); 
+    _cb_menu_item(eina_list_data_get(clip_inst->items));
 }
 
 static Eina_List *
@@ -519,7 +521,7 @@ _clear_history(void)
   /* Ensure clipboard is clear and save history */
   ecore_x_selection_clipboard_clear();
   ecore_x_selection_primary_clear();
-  
+
   clip_save(clip_inst->items);
 }
 
@@ -568,7 +570,7 @@ _cb_clipboard_request(void *data __UNUSED__)
 {
   if (clipboard_config->clip_copy)
     ecore_x_selection_clipboard_request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
-  
+
   if (clipboard_config->clip_select)
     ecore_x_selection_primary_request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
 
@@ -624,6 +626,7 @@ e_modapi_init (E_Module *m)
   E_CONFIG_VAL(D, T, version, INT);
   E_CONFIG_VAL(D, T, clip_copy, INT);
   E_CONFIG_VAL(D, T, clip_select, INT);
+  E_CONFIG_VAL(D, T, sync, INT);
   E_CONFIG_VAL(D, T, persistence, INT);
   E_CONFIG_VAL(D, T, hist_reverse, INT);
   E_CONFIG_VAL(D, T, hist_items, DOUBLE);
@@ -698,8 +701,8 @@ _menu_cb_configure(void *data, E_Menu *m, E_Menu_Item *mi)
   _config_clipboard_module(m->zone->container, NULL);
 }
 
-static void 
-_clipboard_cb_menu_post(void *data, E_Menu *menu) 
+static void
+_clipboard_cb_menu_post(void *data, E_Menu *menu)
 {
    Instance *inst = NULL;
 

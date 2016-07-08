@@ -26,7 +26,7 @@ extern int _clipboard_log;
  * You need to increment GENERATION when you add new values to the
  * configuration file but is not needed to delete the existing conf  */
 #define MOD_CONFIG_FILE_EPOCH 1
-#define MOD_CONFIG_FILE_GENERATION 0
+#define MOD_CONFIG_FILE_GENERATION 1
 #define MOD_CONFIG_FILE_VERSION    ((MOD_CONFIG_FILE_EPOCH * 1000000) + MOD_CONFIG_FILE_GENERATION)
 
 /* Setup the E Module Version, Needed to check if module can run. */

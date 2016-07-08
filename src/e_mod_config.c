@@ -4,15 +4,17 @@ struct _E_Config_Dialog_Data
 {
   E_Config_Dialog *cfd;
   Evas_Object *obj;
-  int   clip_copy;     /* Clipboard to use                                */
-  int   clip_select;   /* Clipboard to use                                */
-  int   persistence;   /* History file persistance                        */
-  int   hist_reverse;  /* Order to display History                        */
+  Evas_Object *sync_widget;
+  int   clip_copy;      /* Clipboard to use                                */
+  int   clip_select;    /* Clipboard to use                                */
+  int   sync;           /* Synchronize clipboards flag                     */
+  int   persistence;    /* History file persistance                        */
+  int   hist_reverse;   /* Order to display History                        */
   double hist_items;    /* Number of history items to store                */
   double label_length;  /* Number of characters of item to display         */
-  int   trim_ws;       /* Should we trim White space from selection       */
-  int   trim_nl;       /* Should we trim new lines from selection         */
-  int   confirm_clear; /* Display history confirmation dialog on deletion */
+  int   trim_ws;        /* Should we trim White space from selection       */
+  int   trim_nl;        /* Should we trim new lines from selection         */
+  int   confirm_clear;  /* Display history confirmation dialog on deletion */
 };
 
 static int           _basic_apply_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata);
@@ -22,8 +24,9 @@ static void          _fill_data(E_Config_Dialog_Data *cfdata);
 void                _free_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata);
 static Evas_Object  *_basic_create_widgets(E_Config_Dialog *cfd __UNUSED__, Evas *evas, E_Config_Dialog_Data *cfdata);
 static Eet_Error     _truncate_history(const unsigned int n);
-/* Found in e_mod_main.c */
-extern Mod_Inst *clip_inst;
+static int          _update_widget(E_Config_Dialog_Data *cfdata);
+
+extern Mod_Inst *clip_inst; /* Found in e_mod_main.c */
 
 static void *
 _create_data(E_Config_Dialog *cfd __UNUSED__)
@@ -46,6 +49,7 @@ _fill_data(E_Config_Dialog_Data *cfdata)
 {
   cfdata->clip_copy     = clipboard_config->clip_copy;
   cfdata->clip_select   = clipboard_config->clip_select;
+  cfdata->sync          = clipboard_config->sync;
   cfdata->persistence   = clipboard_config->persistence;
   cfdata->hist_reverse  = clipboard_config->hist_reverse;
   cfdata->hist_items    = clipboard_config->hist_items;
@@ -60,6 +64,7 @@ _basic_apply_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
 {
   clipboard_config->clip_copy     = cfdata->clip_copy;
   clipboard_config->clip_select   = cfdata->clip_select;
+  clipboard_config->sync          = cfdata->sync;
   clipboard_config->persistence   = cfdata->persistence;
   clipboard_config->hist_reverse  = cfdata->hist_reverse;
 
@@ -90,6 +95,12 @@ _basic_create_widgets(E_Config_Dialog *cfd __UNUSED__, Evas *evas, E_Config_Dial
   ob = e_widget_check_add(evas, "Use Primary (Selection)", &(cfdata->clip_select));
   e_widget_framelist_object_append(of, ob);
 
+  ob = e_widget_check_add(evas, "Synchronize Clipboards", &(cfdata->sync));
+  if ( !(cfdata->clip_copy && cfdata->clip_select))
+    e_widget_disabled_set(ob, EINA_TRUE);
+  cfdata->sync_widget = ob;
+  e_widget_framelist_object_append(of, ob);
+
   e_widget_list_object_append(o, of, 1, 0, 0.5);
   /* History Config Section       */
   of = e_widget_framelist_add(evas, "History", 0);
@@ -99,12 +110,12 @@ _basic_create_widgets(E_Config_Dialog *cfd __UNUSED__, Evas *evas, E_Config_Dial
   ob = e_widget_check_add(evas, "Reverse order", &(cfdata->hist_reverse));
   e_widget_framelist_object_append(of, ob);
 
-   ob = e_widget_label_add(evas, "Items in history (5-50):");
+   ob = e_widget_label_add(evas, "Items in history");
    e_widget_framelist_object_append(of, ob);
    ob = e_widget_slider_add(evas, 1, 0, "%2.0f", 5.0, 50.0, 1.0, 0, &(cfdata->hist_items), NULL, 40);
    e_widget_framelist_object_append(of, ob);
 
-   ob = e_widget_label_add(evas, "Items label length (5-50):");
+   ob = e_widget_label_add(evas, "Items label length");
    e_widget_framelist_object_append(of, ob);
    ob = e_widget_slider_add(evas, 1, 0, "%2.0f", 5.0, 50.0, 1.0, 0, &(cfdata->label_length), NULL, 40);
    e_widget_framelist_object_append(of, ob);
@@ -153,8 +164,12 @@ _config_clipboard_module(E_Container *con, const char *params __UNUSED__)
 static int
 _basic_check_changed(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
 {
-  if (clipboard_config->clip_copy     != cfdata->clip_copy) return 1;
-  if (clipboard_config->clip_select   != cfdata->clip_select) return 1;
+  if (clipboard_config->clip_copy     != cfdata->clip_copy)
+    return _update_widget(cfdata);
+  if (clipboard_config->clip_select   != cfdata->clip_select)
+    return _update_widget(cfdata);
+  if (clipboard_config->sync          != cfdata->sync)
+    return _update_widget(cfdata);
   if (clipboard_config-> persistence  != cfdata-> persistence) return 1;
   if (clipboard_config-> hist_reverse != cfdata-> hist_reverse) return 1;
   if (clipboard_config-> hist_items   != cfdata-> hist_items) return 1;
@@ -165,11 +180,24 @@ _basic_check_changed(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfda
   return 0;
 }
 
+static int
+_update_widget(E_Config_Dialog_Data *cfdata)
+{
+  if(cfdata->clip_copy && cfdata->clip_select) {
+    e_widget_disabled_set(cfdata->sync_widget, EINA_FALSE);
+  }
+  else {
+    e_widget_check_checked_set(cfdata->sync_widget, 0);
+    e_widget_disabled_set(cfdata->sync_widget, EINA_TRUE);
+  }
+  return 1;
+}
+
 static Eet_Error
 _truncate_history(const unsigned int n)
 {
   Eet_Error err = EET_ERROR_NONE;
-  
+
   EINA_SAFETY_ON_NULL_RETURN_VAL(clip_inst, EET_ERROR_BAD_OBJECT);
   if (clip_inst->items) {
     if (eina_list_count(clip_inst->items) > n) {
