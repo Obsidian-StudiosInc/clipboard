@@ -15,9 +15,9 @@ Beta release
 
 - [x] Add Config version checks for development and future releases
 
-- [ ] Add key binding support for Configuration settings 
+- [x] Add key binding support for Configuration settings 
 
-- [ ] Add key binding support for Clear clipboard
+- [x] Add key binding support for Clear clipboard
  
 - [ ] Actually use Config options in code
 
