@@ -36,7 +36,7 @@ Config *clipboard_config = NULL;
 static E_Config_DD *conf_edd = NULL;
 static E_Config_DD *conf_item_edd = NULL;
 Mod_Inst *clip_inst = NULL; /* Need by e_mod_config.c */
-static E_Action *act = NULL;
+static E_Action *act_float = NULL, *act_clear = NULL, *act_settings = NULL;
 int _clipboard_log;
 
 /*   First some call backs   */
@@ -647,10 +647,22 @@ e_modapi_init (E_Module *m)
   //e_module_delayed_set(m, 1);
 
   /* Add Module Key Binding actions */
-  act = e_action_add("clipboard");
-  if (act) {
-    act->func.go = (void *) _cb_show_menu;
-    e_action_predef_name_set("Clipboard","Show float menu", "clipboard", "<none>", NULL, 0);
+  act_float = e_action_add("clipboard_float");
+  if (act_float) {
+    act_float->func.go = (void *) _cb_show_menu;
+    e_action_predef_name_set("Clipboard","Show float menu", "clipboard_float", NULL, NULL, 0);
+  }
+  
+  act_clear = e_action_add("clipboard_clear");
+  if (act_clear) {
+    act_clear->func.go = (void *) _cb_clear_history;
+    e_action_predef_name_set("Clipboard","Clear history list", "clipboard_clear", NULL, NULL, 0);
+  }
+
+  act_settings = e_action_add("clipboard_settings");
+  if (act_settings) {
+    act_settings->func.go = (void *) _menu_cb_configure;
+    e_action_predef_name_set("Clipboard","Show settings dialog", "clipboard_settings", NULL, NULL, 0);
   }
 
   /* Create a global clip_inst for our module
@@ -686,7 +698,7 @@ _menu_cb_configure(void *data, E_Menu *m, E_Menu_Item *mi)
   inst = data;
   if (!clipboard_config) return;
   if (clipboard_config->config_dialog) return;
-  _config_clipboard_module(m->zone->container, NULL);
+  _config_clipboard_module(NULL, NULL);
 }
 
 static void
@@ -747,10 +759,20 @@ noconfig:
   e_configure_registry_item_del("preferences/clipboard");
 
   /* Clean up all key binding actions */
-  if (act) {
+  if (act_float) {
     e_action_predef_name_del("Clipboard", "Show float menu");
-    e_action_del("clipboard");
-    act = NULL;
+    e_action_del("clipboard_float");
+    act_float = NULL;
+  }
+  if (act_clear) {
+    e_action_predef_name_del("Clipboard", "Clear history list");
+    e_action_del("clipboard_clear");
+    act_clear = NULL;
+  }
+  if (act_settings) {
+    e_action_predef_name_del("Clipboard", "Show settings dialog");
+    e_action_del("clipboard_settings");
+    act_settings = NULL;
   }
 
   /* Clean EET */
