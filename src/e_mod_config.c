@@ -164,12 +164,14 @@ _config_clipboard_module(E_Container *con, const char *params __UNUSED__)
 static int
 _basic_check_changed(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
 {
-  if (clipboard_config->clip_copy     != cfdata->clip_copy)
+  if ((clipboard_config->clip_copy     != cfdata->clip_copy) ||
+      (clipboard_config->clip_select   != cfdata->clip_select) || 
+      (clipboard_config->sync          != cfdata->sync)){
     return _update_widget(cfdata);
-  if (clipboard_config->clip_select   != cfdata->clip_select)
-    return _update_widget(cfdata);
-  if (clipboard_config->sync          != cfdata->sync)
-    return _update_widget(cfdata);
+  }
+  if (clipboard_config->clip_copy     != cfdata->clip_copy) return 1;
+  if (clipboard_config->clip_select   != cfdata->clip_select) return 1;
+  if (clipboard_config->sync          != cfdata->sync) return 1;
   if (clipboard_config-> persistence  != cfdata-> persistence) return 1;
   if (clipboard_config-> hist_reverse != cfdata-> hist_reverse) return 1;
   if (clipboard_config-> hist_items   != cfdata-> hist_items) return 1;
