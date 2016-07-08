@@ -1,4 +1,5 @@
 #include "e_mod_main.h"
+#include "x_clipboard.h"
 #include "config_defaults.h"
 #include "history.h"
 
@@ -63,6 +64,7 @@ static void      _x_clipboard_update(const char *text);
 static Eina_List *     _item_in_history(Clip_Data *cd);
 static int             _clip_compare(Clip_Data *cd, char *text);
 
+/* new module needs a new config :), or config too old and we need one anyway */
 static void
 _clipboard_config_new(E_Module *m)
 {
@@ -98,7 +100,6 @@ _clipboard_config_new(E_Module *m)
   /* save the config to disk */
   e_config_save_queue();
 }
-
 
 /* This is called when we need to cleanup the actual configuration,
  * for example when our configuration is too old */
@@ -409,7 +410,7 @@ _menu_fill(Instance *inst, int event_type)
 static Eina_Bool
 _cb_event_selection(Instance *instance, int type __UNUSED__, void *event)
 {
-  Ecore_X_Event_Selection_Notify *ev;
+  Ecore_X_Selection_Data_Text *text_data;
   Clip_Data *cd = NULL;
   char *last="";
 
@@ -417,17 +418,9 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, void *event)
 
   if (clip_inst->items)
     last =  ((Clip_Data *) eina_list_data_get (clip_inst->items))->content;
-  ev = event;
 
-  if (((ev->selection == ECORE_X_SELECTION_CLIPBOARD) ||
-       (ev->selection == ECORE_X_SELECTION_PRIMARY)) &&
-       (strcmp(ev->target, ECORE_X_SELECTION_TARGET_UTF8_STRING) == 0)) {
-
-    Ecore_X_Selection_Data_Text *text_data;
-    text_data = ev->data;
-
-    if ((text_data->data.content == ECORE_X_SELECTION_CONTENT_TEXT) &&
-        (text_data->text) && (strcmp(last, text_data->text ) != 0)) {
+  if ((text_data = clipboard.get_text(event))) {
+    if (strcmp(last, text_data->text ) != 0) {
       char buf[MAGIC_LABEL_SIZE + 1];
       char *temp_buf, *strip_buf;
 
@@ -457,11 +450,7 @@ _x_clipboard_update(const char *text)
   EINA_SAFETY_ON_NULL_RETURN(clip_inst);
   EINA_SAFETY_ON_NULL_RETURN(text);
 
-  if (clipboard_config->clip_copy)
-    ecore_x_selection_clipboard_set(clip_inst->win, text, strlen(text) + 1);
-
-  if (clipboard_config->clip_select)
-    ecore_x_selection_primary_set(clip_inst->win, text, strlen(text) + 1);
+  clipboard.set(clip_inst->win, text, strlen(text) + 1);
 }
 
 static void
@@ -519,8 +508,7 @@ _clear_history(void)
     E_FREE_LIST(clip_inst->items, free_clip_data);
 
   /* Ensure clipboard is clear and save history */
-  ecore_x_selection_clipboard_clear();
-  ecore_x_selection_primary_clear();
+  clipboard.clear();
 
   clip_save(clip_inst->items);
 }
@@ -568,12 +556,7 @@ _cb_dialog_delete(void *data __UNUSED__)
 static Eina_Bool
 _cb_clipboard_request(void *data __UNUSED__)
 {
-  if (clipboard_config->clip_copy)
-    ecore_x_selection_clipboard_request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
-
-  if (clipboard_config->clip_select)
-    ecore_x_selection_primary_request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
-
+  clipboard.request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
   return EINA_TRUE;
 }
 
@@ -649,12 +632,17 @@ e_modapi_init (E_Module *m)
   if (!clipboard_config)
     _clipboard_config_new(m);
 
+  /* Be sure we initialize our clipboard 'object' */
+  init_clipboard_struct(clipboard_config);
+
+
+  /* Initialize Einna_log for developers */
   clipboard_config->log_name = eina_stringshare_add("MOD:CLIP");
 
   _clipboard_log = eina_log_domain_register(clipboard_config->log_name, EINA_COLOR_CYAN);
   eina_log_domain_level_set(clipboard_config->log_name, EINA_LOG_LEVEL_DBG);
-  INF("Initialized Clipboard Module");
 
+  INF("Initialized Clipboard Module");
 
   //e_module_delayed_set(m, 1);
 
@@ -676,7 +664,7 @@ e_modapi_init (E_Module *m)
 
   /* Now add some callbacks to handle clipboard events */
   E_LIST_HANDLER_APPEND(clip_inst->handle, ECORE_X_EVENT_SELECTION_NOTIFY, _cb_event_selection, clip_inst);
-  ecore_x_selection_clipboard_request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
+  clipboard.request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
   clip_inst->check_timer = ecore_timer_add(TIMEOUT_1, _cb_clipboard_request, clip_inst);
 
   /* Read History file and set clipboard */

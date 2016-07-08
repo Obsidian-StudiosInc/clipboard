@@ -39,4 +39,6 @@ src/utility.lo
 src/utility.o
 src/clip_log.lo
 src/clip_log.o
+src/x_clipboard.lo
+src/x_clipboard.o
 stamp-h1

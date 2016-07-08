@@ -1,20 +1,21 @@
 #include "e_mod_main.h"
+#include "x_clipboard.h"
 
 struct _E_Config_Dialog_Data
 {
   E_Config_Dialog *cfd;
   Evas_Object *obj;
   Evas_Object *sync_widget;
-  int   clip_copy;      /* Clipboard to use                                */
-  int   clip_select;    /* Clipboard to use                                */
-  int   sync;           /* Synchronize clipboards flag                     */
-  int   persistence;    /* History file persistance                        */
-  int   hist_reverse;   /* Order to display History                        */
-  double hist_items;    /* Number of history items to store                */
-  double label_length;  /* Number of characters of item to display         */
-  int   trim_ws;        /* Should we trim White space from selection       */
-  int   trim_nl;        /* Should we trim new lines from selection         */
-  int   confirm_clear;  /* Display history confirmation dialog on deletion */
+  int   clip_copy;     /* Clipboard to use                                */
+  int   clip_select;   /* Clipboard to use                                */
+  int   sync;          /* Synchronize clipboards flag                     */
+  int   persistence;   /* History file persistance                        */
+  int   hist_reverse;  /* Order to display History                        */
+  double hist_items;   /* Number of history items to store                */
+  double label_length; /* Number of characters of item to display         */
+  int   trim_ws;       /* Should we trim White space from selection       */
+  int   trim_nl;       /* Should we trim new lines from selection         */
+  int   confirm_clear; /* Display history confirmation dialog on deletion */
 };
 
 static int           _basic_apply_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata);
@@ -25,8 +26,8 @@ void                _free_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_
 static Evas_Object  *_basic_create_widgets(E_Config_Dialog *cfd __UNUSED__, Evas *evas, E_Config_Dialog_Data *cfdata);
 static Eet_Error     _truncate_history(const unsigned int n);
 static int          _update_widget(E_Config_Dialog_Data *cfdata);
-
-extern Mod_Inst *clip_inst; /* Found in e_mod_main.c */
+/* Found in e_mod_main.c */
+extern Mod_Inst *clip_inst;
 
 static void *
 _create_data(E_Config_Dialog *cfd __UNUSED__)
@@ -77,8 +78,11 @@ _basic_apply_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
   clipboard_config->trim_nl       = cfdata->trim_nl;
   clipboard_config->confirm_clear = cfdata->confirm_clear;
 
+  /* Be sure we set our clipboard 'object'with new configuration */
+  init_clipboard_struct(clipboard_config);
+  /* Now save configuration */
   e_config_save_queue();
-   return 1;
+  return 1;
 }
 
 static Evas_Object *
@@ -165,7 +169,7 @@ static int
 _basic_check_changed(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
 {
   if ((clipboard_config->clip_copy     != cfdata->clip_copy) ||
-      (clipboard_config->clip_select   != cfdata->clip_select) || 
+      (clipboard_config->clip_select   != cfdata->clip_select) ||
       (clipboard_config->sync          != cfdata->sync)){
     return _update_widget(cfdata);
   }
