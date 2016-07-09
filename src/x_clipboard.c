@@ -42,7 +42,7 @@ Eina_Bool (*jmp_table_clear[CLIP_MAX_MODE] )(void) = { _clear_none,
 void (*jmp_table_request[CLIP_MAX_MODE] )
     (Ecore_X_Window w, const char *target) = { _request_none,
                                                ecore_x_selection_clipboard_request,
-                                               ecore_x_selection_clipboard_request,
+                                               ecore_x_selection_primary_request,
                                                _request_both};
 
 Eina_Bool (*jmp_table_set[CLIP_MAX_MODE] )
