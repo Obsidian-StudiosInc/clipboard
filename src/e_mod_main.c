@@ -58,6 +58,7 @@ static void      _clipboard_config_new(E_Module *m);
 static void      _clipboard_config_free(void);
 static void      _clipboard_add_item(Clip_Data *clip_data);
 static int       _menu_fill(Instance *inst, int event_type);
+static void      _truncate_label(const unsigned int n,  Clip_Data *clip_data);
 static void      _clear_history(void);
 static void      _x_clipboard_update(const char *text);
 
@@ -321,12 +322,14 @@ _menu_fill(Instance *inst, int event_type)
     Eina_List *it;
     Clip_Data *clip;
 
+    
     /*revert list if selected*/
     if (clipboard_config->hist_reverse)
       clip_inst->items=eina_list_reverse(clip_inst->items);
 
     /*show list in history menu*/
     EINA_LIST_FOREACH(clip_inst->items, it, clip){
+      _truncate_label(clipboard_config->label_length, clip);
       mi = e_menu_item_new(inst->menu);
       e_menu_item_label_set(mi, clip->name);
       e_menu_item_callback_set(mi, (E_Menu_Cb)_cb_menu_item, clip);
@@ -421,7 +424,7 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, void *event)
 
   if ((text_data = clipboard.get_text(event))) {
     if (strcmp(last, text_data->text ) != 0) {
-      char buf[MAGIC_LABEL_SIZE + 1];
+      char buf[(int)(clipboard_config->label_length) + 1];
       char *temp_buf, *strip_buf;
 
       if (text_data->data.length == 0)
@@ -433,7 +436,7 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, void *event)
       asprintf(&temp_buf,"%s",text_data->text);
       memset(buf, '\0', sizeof(buf));
       strip_buf = strip_whitespace(temp_buf);
-      strncpy(buf, strip_buf, MAGIC_LABEL_SIZE);
+      strncpy(buf, strip_buf, clipboard_config->label_length);
       asprintf(&cd->name, "%s", buf);
       free(temp_buf);
       free(strip_buf);
@@ -520,6 +523,23 @@ clip_save(Eina_List *items)
     return save_history(items);
   else
     return EET_ERROR_NONE;
+}
+
+static void
+_truncate_label(const unsigned int n, Clip_Data *clip_data)
+{
+  char buf[n + 1];
+  char *temp_buf, *strip_buf;
+  Eina_List *it;
+  
+  
+  if (clip_inst->items) {
+      asprintf(&temp_buf,"%s",clip_data->content);
+      memset(buf, '\0', sizeof(buf));
+      strip_buf = strip_whitespace(temp_buf);
+      strncpy(buf, strip_buf, n);
+      asprintf(&clip_data->name, "%s", buf);
+  }
 }
 
 static void
