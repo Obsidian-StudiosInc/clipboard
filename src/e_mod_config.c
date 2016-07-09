@@ -6,6 +6,11 @@ struct _E_Config_Dialog_Data
   E_Config_Dialog *cfd;
   Evas_Object *obj;
   Evas_Object *sync_widget;
+  struct {
+    int copy;
+    int select;
+    int sync;
+  } sync_state;
   int   clip_copy;     /* Clipboard to use                                */
   int   clip_select;   /* Clipboard to use                                */
   int   sync;          /* Synchronize clipboards flag                     */
@@ -26,6 +31,8 @@ void                _free_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_
 static Evas_Object  *_basic_create_widgets(E_Config_Dialog *cfd __UNUSED__, Evas *evas, E_Config_Dialog_Data *cfdata);
 static Eet_Error     _truncate_history(const unsigned int n);
 static int          _update_widget(E_Config_Dialog_Data *cfdata);
+static Eina_Bool    _sync_state_changed(E_Config_Dialog_Data *cfdata);
+
 /* Found in e_mod_main.c */
 extern Mod_Inst *clip_inst;
 
@@ -48,6 +55,10 @@ _free_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
 static void
 _fill_data(E_Config_Dialog_Data *cfdata)
 {
+  cfdata->sync_state.copy   = clipboard_config->clip_copy;
+  cfdata->sync_state.select = clipboard_config->clip_select;
+  cfdata->sync_state.sync   = clipboard_config->sync;
+
   cfdata->clip_copy     = clipboard_config->clip_copy;
   cfdata->clip_select   = clipboard_config->clip_select;
   cfdata->sync          = clipboard_config->sync;
@@ -80,6 +91,12 @@ _basic_apply_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
 
   /* Be sure we set our clipboard 'object'with new configuration */
   init_clipboard_struct(clipboard_config);
+
+  /* and Update our Widget sync state info */
+  cfdata->sync_state.copy   = clipboard_config->clip_copy;
+  cfdata->sync_state.select = clipboard_config->clip_select;
+  cfdata->sync_state.sync   = clipboard_config->sync;
+
   /* Now save configuration */
   e_config_save_queue();
   return 1;
@@ -168,11 +185,8 @@ _config_clipboard_module(E_Container *con, const char *params __UNUSED__)
 static int
 _basic_check_changed(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
 {
-  if ((clipboard_config->clip_copy     != cfdata->clip_copy) ||
-      (clipboard_config->clip_select   != cfdata->clip_select) ||
-      (clipboard_config->sync          != cfdata->sync)){
+  if (_sync_state_changed(cfdata))
     return _update_widget(cfdata);
-  }
   if (clipboard_config->clip_copy     != cfdata->clip_copy) return 1;
   if (clipboard_config->clip_select   != cfdata->clip_select) return 1;
   if (clipboard_config->sync          != cfdata->sync) return 1;
@@ -184,6 +198,22 @@ _basic_check_changed(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfda
   if (clipboard_config->trim_nl       != cfdata->trim_nl) return 1;
   if (clipboard_config->confirm_clear != cfdata->confirm_clear) return 1;
   return 0;
+}
+
+static Eina_Bool
+_sync_state_changed(E_Config_Dialog_Data *cfdata)
+{
+  if ((cfdata->sync_state.copy   != cfdata->clip_copy) ||
+     (cfdata->sync_state.select != cfdata->clip_select) ||
+     (cfdata->sync_state.sync   != cfdata->sync))
+  {
+    cfdata->sync_state.copy   = cfdata->clip_copy;
+    cfdata->sync_state.select = cfdata->clip_select;
+    cfdata->sync_state.sync   = cfdata->sync;
+
+    return EINA_TRUE;
+  }
+  return EINA_FALSE;
 }
 
 static int
