@@ -16,7 +16,11 @@ Eina_Bool  _set_both     (Ecore_X_Window w, const void *data, int size);
 void       _sync(const Eina_Bool state);
 Eina_Bool  _track(unsigned int mode);
 
-Ecore_X_Selection_Data_Text *_get_text(Ecore_X_Event_Selection_Notify *event);
+Ecore_X_Selection_Data_Text *_get_text           (Ecore_X_Event_Selection_Notify *event);
+Ecore_X_Selection_Data_Text *_get_text_none      (Ecore_X_Event_Selection_Notify *event);
+Ecore_X_Selection_Data_Text *_get_text_clipboard (Ecore_X_Event_Selection_Notify *event);
+Ecore_X_Selection_Data_Text *_get_text_primary   (Ecore_X_Event_Selection_Notify *event);
+Ecore_X_Selection_Data_Text *_get_text_both      (Ecore_X_Event_Selection_Notify *event);
 
 const char * const Clip_Mode_Names[] = { "CLIP_SELECTION_NONE",
                                         "CLIP_SELECTION_CLIPBOARD",
@@ -34,6 +38,8 @@ Clipboard clipboard = { CLIP_MODE_DEFAULT,
                         _track,
                         _get_text };
 
+extern Mod_Inst *clip_inst;  /* Found in e_mod_main.c */
+
 Eina_Bool (*jmp_table_clear[CLIP_MAX_MODE] )(void) = { _clear_none,
                                                        ecore_x_selection_clipboard_clear,
                                                        ecore_x_selection_primary_clear,
@@ -50,6 +56,12 @@ Eina_Bool (*jmp_table_set[CLIP_MAX_MODE] )
                                                        ecore_x_selection_clipboard_set,
                                                        ecore_x_selection_primary_set,
                                                        _set_both};
+
+Ecore_X_Selection_Data_Text *(*jmp_table_get_text[CLIP_MAX_MODE])
+    (Ecore_X_Event_Selection_Notify *event) = { _get_text_none,
+                                                _get_text_clipboard,
+                                                _get_text_primary,
+                                                _get_text_both};
 
 Eina_Bool
 _clear(void)
@@ -138,18 +150,67 @@ _track(unsigned int mode)
 }
 
 Ecore_X_Selection_Data_Text *
-_get_text(Ecore_X_Event_Selection_Notify *event)
+_get_text(Ecore_X_Event_Selection_Notify *event) {
+  return (*jmp_table_get_text[clipboard.track_mode])(event);
+}
+
+Ecore_X_Selection_Data_Text *
+_get_text_none(Ecore_X_Event_Selection_Notify *event){
+  return NULL;
+}
+
+Ecore_X_Selection_Data_Text *
+_get_text_clipboard(Ecore_X_Event_Selection_Notify *event)
+{
+  Ecore_X_Selection_Data_Text *text_data;
+
+  if ((event->selection == ECORE_X_SELECTION_CLIPBOARD) &&
+       (strcmp(event->target, ECORE_X_SELECTION_TARGET_UTF8_STRING) == 0))
+  {
+    text_data = event->data;
+
+    if ((text_data->data.content == ECORE_X_SELECTION_CONTENT_TEXT) &&
+        (text_data->text))
+      return text_data;
+  }
+  return NULL;
+}
+
+Ecore_X_Selection_Data_Text *
+_get_text_primary(Ecore_X_Event_Selection_Notify *event)
+{
+  Ecore_X_Selection_Data_Text *text_data;
+
+  if ((event->selection == ECORE_X_SELECTION_PRIMARY) &&
+       (strcmp(event->target, ECORE_X_SELECTION_TARGET_UTF8_STRING) == 0))
+  {
+    text_data = event->data;
+
+    if ((text_data->data.content == ECORE_X_SELECTION_CONTENT_TEXT) &&
+        (text_data->text))
+      return text_data;
+  }
+  return NULL;
+}
+
+Ecore_X_Selection_Data_Text *
+_get_text_both(Ecore_X_Event_Selection_Notify *event)
 {
   Ecore_X_Selection_Data_Text *text_data;
 
   if (((event->selection == ECORE_X_SELECTION_CLIPBOARD) ||
        (event->selection == ECORE_X_SELECTION_PRIMARY)) &&
-       (strcmp(event->target, ECORE_X_SELECTION_TARGET_UTF8_STRING) == 0)) {
+       (strcmp(event->target, ECORE_X_SELECTION_TARGET_UTF8_STRING) == 0))
+  {
 
     text_data = event->data;
 
     if ((text_data->data.content == ECORE_X_SELECTION_CONTENT_TEXT) &&
         (text_data->text)) {
+      /* If we are syncing clipboard
+       *   Ensure both clipboards contain selection. */
+      if (clipboard.sync_mode)
+        clipboard.set(clip_inst->win, text_data->text, strlen(text_data->text) + 1);
       return text_data;
     }
   }
