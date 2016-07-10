@@ -3,8 +3,36 @@
 #define TRIM_SPACES   0
 #define TRIM_NEWLINES 1
 
+#ifndef HAVE_STRNDUP
+char *
+strndup(const char *s, size_t n)
+{
+  char *ret = malloc(n + 1);
+  if (!ret) return NULL;
+
+  memcpy(ret, s, n);
+  ret[n] = 0;
+  
+  return (char *) ret;
+}
+#endif
+
+#ifndef HAVE_STRDUP
+char *
+__strdup (const char *s)
+{
+  size_t len = strlen(s) + 1;
+  void *ret = malloc(len);
+
+  if (!ret) return NULL;
+
+  return (char *) memcpy(ret, s, len);
+}
+#endif
+
 char *my_strip_whitespace(char *str, int mode);
 int isnewline(int c);
+
 
 /**
  * @brief Strips whitespace from a string.
@@ -68,14 +96,12 @@ set_clip_content(char **content, char* text, int mode)
     switch (mode) {
       case 0:
         /* Don't trim */
-        temp = malloc(strlen(text) + 1);
-        strcpy(temp, text);
+        temp = strdup(text);
         break;
       case 1:
         /* Trim new lines */
         trim = my_strip_whitespace(text, TRIM_NEWLINES);
-        temp = malloc(strlen(trim) + 1);
-        strcpy(temp, trim);
+        temp = strdup(trim);
         break;
       case 2:
         /* Trim all white Space
@@ -84,14 +110,12 @@ set_clip_content(char **content, char* text, int mode)
       case 3:
         /* Trim white space and new lines */
         trim = my_strip_whitespace(text, TRIM_SPACES);
-        temp = malloc(strlen(trim) + 1);
-        strcpy(temp, trim);
+        temp = strdup(trim);
         break;
       default :
         /* Error Don't trim */
         WRN("ERROR: Invalid strip_mode %d\n", mode);
-        temp = malloc(strlen(text) + 1);
-        strcpy(temp, text);
+        temp = strdup(text);
         break;
     }
     if (!temp) {
