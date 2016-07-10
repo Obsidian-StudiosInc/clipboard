@@ -6,6 +6,15 @@
 #include "history.h"
 #include "utility.h"
 
+#ifdef ENABLE_NLS
+# include <libintl.h>
+# define _(string) dgettext(PACKAGE, string)
+#else
+# define bindtextdomain(domain,dir)
+# define bind_textdomain_codeset(domain,codeset)
+# define _(string) (string)
+#endif
+
 /* Macros used for config file versioning */
 /* You can increment the EPOCH value if the old configuration is not
  * compatible anymore, it creates an entire new one.

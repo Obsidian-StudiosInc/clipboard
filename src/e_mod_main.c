@@ -3,7 +3,7 @@
 #include "config_defaults.h"
 #include "history.h"
 
-#define _(S) S
+//~ #define _(S) S
 #define CLIP_TRIM_MODE(x) (x->trim_nl + 2 * (x->trim_ws))
 #define TIMEOUT_1 1.0 /* interval for timer */
 
@@ -345,7 +345,7 @@ _menu_fill(Instance *inst, int event_type)
   }
   else {
     mi = e_menu_item_new(inst->menu);
-    e_menu_item_label_set(mi, "Empty");
+    e_menu_item_label_set(mi, _("Empty"));
     e_menu_item_disabled_set(mi, EINA_TRUE);
   }
 

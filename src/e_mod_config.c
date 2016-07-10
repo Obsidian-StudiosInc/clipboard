@@ -116,14 +116,14 @@ _basic_create_widgets(E_Config_Dialog *cfd __UNUSED__, Evas *evas, E_Config_Dial
 
   o = e_widget_list_add(evas, 0, 0);
   /* Clipboard Config Section     */
-  of = e_widget_framelist_add(evas, "Clipboards", 0);
-  ob = e_widget_check_add(evas, "Use Copy (Ctrl-C)", &(cfdata->clip_copy));
+  of = e_widget_framelist_add(evas, _("Clipboards"), 0);
+  ob = e_widget_check_add(evas, _("Use Copy (Ctrl-C)"), &(cfdata->clip_copy));
   e_widget_framelist_object_append(of, ob);
 
-  ob = e_widget_check_add(evas, "Use Primary (Selection)", &(cfdata->clip_select));
+  ob = e_widget_check_add(evas, _("Use Primary (Selection)"), &(cfdata->clip_select));
   e_widget_framelist_object_append(of, ob);
 
-  ob = e_widget_check_add(evas, "Synchronize Clipboards", &(cfdata->sync));
+  ob = e_widget_check_add(evas, _("Synchronize Clipboards"), &(cfdata->sync));
   if ( !(cfdata->clip_copy && cfdata->clip_select))
     e_widget_disabled_set(ob, EINA_TRUE);
   cfdata->sync_widget = ob;
@@ -131,19 +131,19 @@ _basic_create_widgets(E_Config_Dialog *cfd __UNUSED__, Evas *evas, E_Config_Dial
 
   e_widget_list_object_append(o, of, 1, 0, 0.5);
   /* History Config Section       */
-  of = e_widget_framelist_add(evas, "History", 0);
-  ob = e_widget_check_add(evas, "Save History", &(cfdata->persistence));
+  of = e_widget_framelist_add(evas, _("History"), 0);
+  ob = e_widget_check_add(evas, _("Save History"), &(cfdata->persistence));
   e_widget_framelist_object_append(of, ob);
 
-  ob = e_widget_check_add(evas, "Reverse order", &(cfdata->hist_reverse));
+  ob = e_widget_check_add(evas, _("Reverse order"), &(cfdata->hist_reverse));
   e_widget_framelist_object_append(of, ob);
 
-   ob = e_widget_label_add(evas, "Items in history");
+   ob = e_widget_label_add(evas, _("Items in history"));
    e_widget_framelist_object_append(of, ob);
    ob = e_widget_slider_add(evas, 1, 0, "%2.0f", 5.0, 50.0, 1.0, 0, &(cfdata->hist_items), NULL, 40);
    e_widget_framelist_object_append(of, ob);
 
-   ob = e_widget_label_add(evas, "Items label length");
+   ob = e_widget_label_add(evas, _("Items label length"));
    e_widget_framelist_object_append(of, ob);
    ob = e_widget_slider_add(evas, 1, 0, "%2.0f", 5.0, 50.0, 1.0, 0, &(cfdata->label_length), NULL, 40);
    e_widget_framelist_object_append(of, ob);
@@ -152,14 +152,14 @@ _basic_create_widgets(E_Config_Dialog *cfd __UNUSED__, Evas *evas, E_Config_Dial
   e_widget_list_object_append(o, of, 1, 0, 0.5);
 
   /* Miscellaneous Config Section */
-  of = e_widget_framelist_add(evas, "Miscellaneous", 0);
-  ob = e_widget_check_add(evas, "Trim Whitespace", &(cfdata->trim_ws));
+  of = e_widget_framelist_add(evas, _("Miscellaneous"), 0);
+  ob = e_widget_check_add(evas, _("Trim Whitespace"), &(cfdata->trim_ws));
   e_widget_framelist_object_append(of, ob);
 
-  ob = e_widget_check_add(evas, "Trim Newlines", &(cfdata->trim_nl));
+  ob = e_widget_check_add(evas, _("Trim Newlines"), &(cfdata->trim_nl));
   e_widget_framelist_object_append(of, ob);
 
-  ob = e_widget_check_add(evas, "Confirm before clearing history", &(cfdata->confirm_clear));
+  ob = e_widget_check_add(evas, _("Confirm before clearing history"), &(cfdata->confirm_clear));
   e_widget_framelist_object_append(of, ob);
 
   e_widget_list_object_append(o, of, 1, 0, 0.5);
