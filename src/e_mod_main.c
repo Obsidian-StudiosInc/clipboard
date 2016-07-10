@@ -493,9 +493,8 @@ _clipboard_add_item(Clip_Data *cd)
   /* saving list to the file */
   clip_save(clip_inst->items);
 
-/* gain ownership of clipboard item in case we lose current owner */
-  if ((clipboard_config->clip_copy) && (!clipboard_config->clip_select))
-    _cb_menu_item(eina_list_data_get(clip_inst->items));
+ /* gain ownership of clipboard item in case we lose current owner */
+ _cb_menu_item(eina_list_data_get(clip_inst->items));
 }
 
 static Eina_List *
