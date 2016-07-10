@@ -158,12 +158,12 @@ read_history(Eina_List **items, int label_length)
         sprintf(str, "%d", i);
         ret = eet_read(history_file,str, &size);
         // FIXME: DATA VALIDATION
-        asprintf(&cd->content, "%s",ret);
+        cd->content = strdup(ret);
         temp_buf = ret;
         temp_buf = strip_whitespace(temp_buf);
         memset(buf, '\0', sizeof(buf));
         strncpy(buf, temp_buf, label_length);
-        asprintf(&(cd->name), "%s", buf);
+        cd->name = strdup(buf);
         l = eina_list_append(l, cd);
     }
     free(ret);

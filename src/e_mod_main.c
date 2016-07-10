@@ -443,11 +443,11 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, void *event)
         goto error;
       }
       // get rid unwanted chars from string - spaces and tabs
-      asprintf(&temp_buf,"%s",text_data->text);
+      temp_buf = strdup(text_data->text);
       memset(buf, '\0', sizeof(buf));
       strip_buf = strip_whitespace(temp_buf);
       strncpy(buf, strip_buf, clipboard_config->label_length);
-      asprintf(&cd->name, "%s", buf);
+      cd->name = strdup(buf);
       free(temp_buf);
       free(strip_buf);
       _clipboard_add_item(cd);

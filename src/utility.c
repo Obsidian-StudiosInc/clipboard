@@ -147,11 +147,11 @@ _truncate_label(const unsigned int n, Clip_Data *clip_data)
 
   //if (clip_inst->items) {
   if (1) {
-      asprintf(&temp_buf,"%s",clip_data->content);
+      temp_buf = strdup(clip_data->content);
       memset(buf, '\0', sizeof(buf));
       strip_buf = strip_whitespace(temp_buf);
       strncpy(buf, strip_buf, n);
-      asprintf(&clip_data->name, "%s", buf);
+      clip_data->name= strdup(buf);
   }
 }
 
