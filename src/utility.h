@@ -7,5 +7,8 @@
 
 char *strip_whitespace(char *str);
 Eina_Bool set_clip_content(char **content, char* text, int mode);
+Eina_Bool set_clip_name(char **name, char * text, int mode);
+
+void _truncate_label(const unsigned int n, Clip_Data *clip_data);
 
 #endif

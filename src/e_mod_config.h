@@ -14,6 +14,8 @@ struct _Config
   E_Module *module;
   E_Config_Dialog *config_dialog;
   const char *log_name;
+  Eina_Bool label_length_changed;  /* Flag indicating a need to update all clip
+                                       labels as configfuration changed. */
 
   int version;       /* Configuration version                           */
   int clip_copy;     /* Clipboard to use                                */

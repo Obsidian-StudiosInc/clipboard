@@ -8,6 +8,22 @@
 #define MAGIC_LABEL_SIZE 50
 #define MAGIC_HIST_SIZE  20
 
+/* Possible Future Config Options */
+#define FC_IGNORE_WHITE_SPACE EINA_TRUE
+
+/* EINA_LOG support macros and global */
+
+#undef DBG
+#undef INF
+#undef WRN
+#undef ERR
+#undef CRI
+#define DBG(...)            EINA_LOG_DOM_DBG(_clipboard_log, __VA_ARGS__)
+#define INF(...)            EINA_LOG_DOM_INFO(_clipboard_log, __VA_ARGS__)
+#define WRN(...)            EINA_LOG_DOM_WARN(_clipboard_log, __VA_ARGS__)
+#define ERR(...)            EINA_LOG_DOM_ERR(_clipboard_log, __VA_ARGS__)
+#define CRI(...)            EINA_LOG_DOM_CRIT(_clipboard_log, __VA_ARGS__)
+
 typedef struct _Clip_Data
 {
     /* A structure used for storing clipboard data in */
@@ -51,5 +67,8 @@ struct _Mod_Inst
     /* Stores Clipboard History */
     Eina_List *items;
 };
+
+void e_mod_log_cb(const Eina_Log_Domain *d, Eina_Log_Level level, const char *file, const char *fnc, int line, const char *fmt, void *data, va_list args);
+extern int _clipboard_log;
 
 #endif

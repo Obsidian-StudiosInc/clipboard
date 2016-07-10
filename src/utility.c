@@ -96,13 +96,39 @@ set_clip_content(char **content, char* text, int mode)
     }
     if (!temp) {
       /* This is bad, leave it to calling function */
-      CRI("ERROR: Memory allocation Failed!!\n");
+      CRI("ERROR: Memory allocation Failed!!");
       ret = EINA_FALSE;
     }
     *content = temp;
   } else
-    WRN("Error: Clip content is Null!!");
+    ERR("Error: Clip content is Null!!");
   return ret;
+}
+
+Eina_Bool
+set_clip_name(char **name, char * text, int mode)
+{
+  INF("Setting clip name");
+  /* to be continued latter */
+  return EINA_TRUE;
+}
+
+void
+_truncate_label(const unsigned int n, Clip_Data *clip_data)
+{
+  char buf[n + 1];
+  char *temp_buf, *strip_buf;
+  Eina_List *it;
+
+
+  //if (clip_inst->items) {
+  if (1) {
+      asprintf(&temp_buf,"%s",clip_data->content);
+      memset(buf, '\0', sizeof(buf));
+      strip_buf = strip_whitespace(temp_buf);
+      strncpy(buf, strip_buf, n);
+      asprintf(&clip_data->name, "%s", buf);
+  }
 }
 
 /**

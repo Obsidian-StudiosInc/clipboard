@@ -58,10 +58,8 @@ static void      _clipboard_config_new(E_Module *m);
 static void      _clipboard_config_free(void);
 static void      _clipboard_add_item(Clip_Data *clip_data);
 static int       _menu_fill(Instance *inst, int event_type);
-static void      _truncate_label(const unsigned int n,  Clip_Data *clip_data);
 static void      _clear_history(void);
 static void      _x_clipboard_update(const char *text);
-
 static Eina_List *     _item_in_history(Clip_Data *cd);
 static int             _clip_compare(Clip_Data *cd, char *text);
 
@@ -72,6 +70,9 @@ _clipboard_config_new(E_Module *m)
   /* setup defaults */
   if (!clipboard_config) {
     clipboard_config = E_NEW(Config, 1);
+
+    clipboard_config->label_length_changed = EINA_FALSE;
+
     clipboard_config->clip_copy     = CONFIG_DEFAULT_CLIP_COPY;
     clipboard_config->clip_select   = CONFIG_DEFAULT_CLIP_SELECT;
     clipboard_config->sync          = CONFIG_DEFAULT_CLIP_SYNC;
@@ -322,15 +323,19 @@ _menu_fill(Instance *inst, int event_type)
     Eina_List *it;
     Clip_Data *clip;
 
-    
+
     /*revert list if selected*/
     if (clipboard_config->hist_reverse)
       clip_inst->items=eina_list_reverse(clip_inst->items);
 
     /*show list in history menu*/
     EINA_LIST_FOREACH(clip_inst->items, it, clip){
-      _truncate_label(clipboard_config->label_length, clip);
       mi = e_menu_item_new(inst->menu);
+      if (clipboard_config->label_length_changed) {
+        set_clip_name(&clip->name, clip->content, FC_IGNORE_WHITE_SPACE);
+        INF("Need to update clip label names \n");
+        clipboard_config->label_length_changed = EINA_FALSE;
+      }
       e_menu_item_label_set(mi, clip->name);
       e_menu_item_callback_set(mi, (E_Menu_Cb)_cb_menu_item, clip);
     }
@@ -433,7 +438,7 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, void *event)
       cd = E_NEW(Clip_Data, 1);
       if (!set_clip_content(&cd->content, text_data->text,
                              CLIP_TRIM_MODE(clipboard_config))) {
-        WRN("Something bad happened !!\n");
+        CRI("Something bad happened !!");
         /* Try to continue */
         goto error;
       }
@@ -469,7 +474,7 @@ _clipboard_add_item(Clip_Data *cd)
   EINA_SAFETY_ON_NULL_RETURN(cd);
 
   if (*cd->content == 0) {
-    WRN("Warning Clip content is Empty!\n");
+    ERR("Warning Clip content is Empty!");
     clipboard.clear(); /* stop event selection cb */
     return;
   }
@@ -536,22 +541,7 @@ clip_save(Eina_List *items)
     return EET_ERROR_NONE;
 }
 
-static void
-_truncate_label(const unsigned int n, Clip_Data *clip_data)
-{
-  char buf[n + 1];
-  char *temp_buf, *strip_buf;
-  Eina_List *it;
-  
-  
-  if (clip_inst->items) {
-      asprintf(&temp_buf,"%s",clip_data->content);
-      memset(buf, '\0', sizeof(buf));
-      strip_buf = strip_whitespace(temp_buf);
-      strncpy(buf, strip_buf, n);
-      asprintf(&clip_data->name, "%s", buf);
-  }
-}
+
 
 static void
 _cb_clear_history(Instance *inst __UNUSED__)
@@ -683,7 +673,7 @@ e_modapi_init (E_Module *m)
     act_float->func.go = (void *) _cb_show_menu;
     e_action_predef_name_set("Clipboard","Show float menu", "clipboard_float", NULL, NULL, 0);
   }
-  
+
   act_clear = e_action_add("clipboard_clear");
   if (act_clear) {
     act_clear->func.go = (void *) _cb_clear_history;
@@ -711,7 +701,8 @@ e_modapi_init (E_Module *m)
   clip_inst->check_timer = ecore_timer_add(TIMEOUT_1, _cb_clipboard_request, clip_inst);
 
   /* Read History file and set clipboard */
-  if (read_history(&(clip_inst->items)) == EET_ERROR_NONE && eina_list_count(clip_inst->items))
+  if (read_history(&(clip_inst->items), clipboard_config->label_length) == EET_ERROR_NONE
+       && eina_list_count(clip_inst->items))
     _cb_menu_item(eina_list_data_get(clip_inst->items));
 
   /* Tell any gadget containers (shelves, etc) that we provide a module */

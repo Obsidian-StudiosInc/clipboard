@@ -6,6 +6,8 @@ struct _E_Config_Dialog_Data
   E_Config_Dialog *cfd;
   Evas_Object *obj;
   Evas_Object *sync_widget;
+  double init_label_length;  /* Initial label length */
+
   struct {
     int copy;
     int select;
@@ -58,6 +60,7 @@ _fill_data(E_Config_Dialog_Data *cfdata)
   cfdata->sync_state.copy   = clipboard_config->clip_copy;
   cfdata->sync_state.select = clipboard_config->clip_select;
   cfdata->sync_state.sync   = clipboard_config->sync;
+  cfdata->init_label_length = clipboard_config->label_length;
 
   cfdata->clip_copy     = clipboard_config->clip_copy;
   cfdata->clip_select   = clipboard_config->clip_select;
@@ -84,7 +87,11 @@ _basic_apply_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
     _truncate_history(cfdata-> hist_items);
 
   clipboard_config->hist_items    = cfdata->hist_items;
+
+  if (cfdata->label_length != cfdata->init_label_length)
+    clipboard_config->label_length_changed = EINA_TRUE;
   clipboard_config->label_length  = cfdata->label_length;
+
   clipboard_config->trim_ws       = cfdata->trim_ws;
   clipboard_config->trim_nl       = cfdata->trim_nl;
   clipboard_config->confirm_clear = cfdata->confirm_clear;

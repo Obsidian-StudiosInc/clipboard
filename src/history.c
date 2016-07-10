@@ -131,7 +131,7 @@ _set_history_path(char *path)
  *
  */
 Eet_Error
-read_history(Eina_List **items)
+read_history(Eina_List **items, int label_length)
 {
     Clip_Data *cd = NULL;
     char history_path[PATH_MAX];
@@ -162,7 +162,7 @@ read_history(Eina_List **items)
         temp_buf = ret;
         temp_buf = strip_whitespace(temp_buf);
         memset(buf, '\0', sizeof(buf));
-        strncpy(buf, temp_buf, MAGIC_LABEL_SIZE);
+        strncpy(buf, temp_buf, label_length);
         asprintf(&(cd->name), "%s", buf);
         l = eina_list_append(l, cd);
     }
