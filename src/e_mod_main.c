@@ -4,7 +4,7 @@
 #include "history.h"
 
 #define _(S) S
-
+#define CLIP_TRIM_MODE(x) (x->trim_nl + 2 * (x->trim_ws))
 #define TIMEOUT_1 1.0 /* interval for timer */
 
 /* gadcon requirements */
@@ -431,7 +431,12 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, void *event)
         return EINA_TRUE;
 
       cd = E_NEW(Clip_Data, 1);
-      asprintf(&cd->content, "%s", text_data->text);
+      if (!set_clip_content(&cd->content, text_data->text,
+                             CLIP_TRIM_MODE(clipboard_config))) {
+        WRN("Something bad happened !!\n");
+        /* Try to continue */
+        goto error;
+      }
       // get rid unwanted chars from string - spaces and tabs
       asprintf(&temp_buf,"%s",text_data->text);
       memset(buf, '\0', sizeof(buf));
@@ -443,6 +448,7 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, void *event)
       _clipboard_add_item(cd);
     }
   }
+  error:
   return ECORE_CALLBACK_DONE;
 }
 
@@ -461,6 +467,12 @@ _clipboard_add_item(Clip_Data *cd)
 {
   Eina_List *it;
   EINA_SAFETY_ON_NULL_RETURN(cd);
+
+  if (*cd->content == 0) {
+    WRN("Warning Clip content is Empty!\n");
+    clipboard.clear(); /* stop event selection cb */
+    return;
+  }
 
   if ((it = _item_in_history(cd))) {
     /* Move to top of list */

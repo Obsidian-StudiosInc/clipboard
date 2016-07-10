@@ -6,5 +6,6 @@
 
 
 char *strip_whitespace(char *str);
+Eina_Bool set_clip_content(char **content, char* text, int mode);
 
 #endif
