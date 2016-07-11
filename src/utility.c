@@ -196,6 +196,5 @@ my_strip_whitespace(char *str, int mode)
 int
 isnewline(int c)
 {
-  if ((c == '\n')||(c == '\r')) return 1;
-  else                      return 0;
+  return (c == '\n')||(c == '\r');
 }
