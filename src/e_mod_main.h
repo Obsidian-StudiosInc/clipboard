@@ -37,7 +37,7 @@ EAPI extern E_Module_Api e_modapi;
  *                    when the module appears on his container
  * e_modapi_shutdown: it is called when e17 is closing, so calling the modules
  *                    to finish
- * e_modapi_save:     this is called when e17 or by another reason is requeested
+ * e_modapi_save:     this is called when e17 or by another reason is requested
  *                    to save the configuration file                      */
 EAPI void *e_modapi_init     (E_Module *m);
 EAPI int   e_modapi_shutdown (E_Module *m __UNUSED__);
@@ -45,6 +45,6 @@ EAPI int   e_modapi_save     (E_Module *m __UNUSED__);
 
 /* Needed elsewhere */
 Eet_Error   clip_save(Eina_List *items);
-void        free_clip_data(Clip_Data *cd);
+void        free_clip_data(Clip_Data *clip);
 
 #endif

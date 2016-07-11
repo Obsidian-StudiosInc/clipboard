@@ -156,14 +156,11 @@ read_history(Eina_List **items, int label_length)
         cd = E_NEW(Clip_Data, 1);  //new instance for another struct
 
         sprintf(str, "%d", i);
-        ret = eet_read(history_file,str, &size);
+        ret = eet_read(history_file, str, &size);
         // FIXME: DATA VALIDATION
         cd->content = strdup(ret);
-        temp_buf = ret;
-        temp_buf = strip_whitespace(temp_buf);
-        memset(buf, '\0', sizeof(buf));
-        strncpy(buf, temp_buf, label_length);
-        cd->name = strdup(buf);
+        set_clip_name(&cd->name, cd->content,
+                      FC_IGNORE_WHITE_SPACE, label_length);
         l = eina_list_append(l, cd);
     }
     free(ret);

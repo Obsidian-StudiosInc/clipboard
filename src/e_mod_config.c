@@ -88,8 +88,10 @@ _basic_apply_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
 
   clipboard_config->hist_items    = cfdata->hist_items;
 
-  if (cfdata->label_length != cfdata->init_label_length)
+  if (cfdata->label_length != cfdata->init_label_length) {
     clipboard_config->label_length_changed = EINA_TRUE;
+    cfdata->init_label_length = cfdata->label_length;
+  }
   clipboard_config->label_length  = cfdata->label_length;
 
   clipboard_config->trim_ws       = cfdata->trim_ws;

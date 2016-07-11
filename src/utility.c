@@ -3,6 +3,8 @@
 #define TRIM_SPACES   0
 #define TRIM_NEWLINES 1
 
+char * _sanitize_ln(char *text, const unsigned int n, const int mode);
+
 #ifndef HAVE_STRNDUP
 char *
 strndup(const char *s, size_t n)
@@ -12,14 +14,14 @@ strndup(const char *s, size_t n)
 
   memcpy(ret, s, n);
   ret[n] = 0;
-  
+
   return (char *) ret;
 }
 #endif
 
 #ifndef HAVE_STRDUP
 char *
-__strdup (const char *s)
+strdup (const char *s)
 {
   size_t len = strlen(s) + 1;
   void *ret = malloc(len);
@@ -30,57 +32,8 @@ __strdup (const char *s)
 }
 #endif
 
-char *my_strip_whitespace(char *str, int mode);
+char *strip_whitespace(char *str, int mode);
 int isnewline(int c);
-
-
-/**
- * @brief Strips whitespace from a string.
- *
- * @param str char pointer to a string.
- *
- * @return a char pointer to a substring of the original string..
- *
- * If the given string was allocated dynamically, the caller must not overwrite
- *  that pointer with the returned value. The original pointer must be
- *  deallocated using the same allocator with which it was allocated.  The return
- *  value must NOT be deallocated using free etc.
- *
- * You have been warned!!
- */
-char *
-strip_whitespace(char *str)
-{
-  char *end;
-  char *middle;
-
-  while(isspace(*str)) str++; // cleaning white chars before string
-
-  if(*str == 0)  // empty string ?
-    return str;
-
-  end = str + strlen(str) - 1;  // finding end position
-   while(end > str && isspace(*end)) end--;
-
-  // Write new null terminator
-  //~ *(end+1) = 0;
-
-  middle = calloc(strlen(str), sizeof(char));
-  char *start=middle; //remember start position
-
-  while (str<=end && strlen(start)<MAGIC_LABEL_SIZE){
-    if (!isspace(*str)) {
-      *middle=*str;
-      middle++;
-  }
-  else {
-    *middle = ' ';
-    middle++;
-  }
-  str++;
-}
-  return start;
-}
 
 Eina_Bool
 set_clip_content(char **content, char* text, int mode)
@@ -100,7 +53,7 @@ set_clip_content(char **content, char* text, int mode)
         break;
       case 1:
         /* Trim new lines */
-        trim = my_strip_whitespace(text, TRIM_NEWLINES);
+        trim = strip_whitespace(text, TRIM_NEWLINES);
         temp = strdup(trim);
         break;
       case 2:
@@ -109,7 +62,7 @@ set_clip_content(char **content, char* text, int mode)
          *  drop thru here */
       case 3:
         /* Trim white space and new lines */
-        trim = my_strip_whitespace(text, TRIM_SPACES);
+        trim = strip_whitespace(text, TRIM_SPACES);
         temp = strdup(trim);
         break;
       default :
@@ -125,35 +78,80 @@ set_clip_content(char **content, char* text, int mode)
     }
     *content = temp;
   } else
-    ERR("Error: Clip content is Null!!");
+    ERR("Error: Clip content pointer is Null!!");
   return ret;
 }
 
 Eina_Bool
-set_clip_name(char **name, char * text, int mode)
+set_clip_name(char **name, char * text, int mode, int n)
 {
-  INF("Setting clip name");
-  /* to be continued latter */
-  return EINA_TRUE;
-}
+  Eina_Bool ret = EINA_TRUE;
+  char *temp, *trim;
 
-void
-_truncate_label(const unsigned int n, Clip_Data *clip_data)
-{
-  char buf[n + 1];
-  char *temp_buf, *strip_buf;
-  Eina_List *it;
-
-
-  //if (clip_inst->items) {
-  if (1) {
-      temp_buf = strdup(clip_data->content);
-      memset(buf, '\0', sizeof(buf));
-      strip_buf = strip_whitespace(temp_buf);
-      strncpy(buf, strip_buf, n);
-      clip_data->name= strdup(buf);
+  /* Sanity check */
+  if (!text) {
+    WRN("ERROR: Text is NULL\n");
+    text = "";
   }
+  /* to be continued latter */
+  if (name)
+    *name = _sanitize_ln(text, n, mode);
+  else {
+    ERR("Error: Clip name pointer is Null!!");
+    return EINA_FALSE;
+  }
+
+  if (!*name) {
+      /* This is bad, leave it to calling function */
+      CRI("ERROR: Memory allocation Failed!!");
+      ret = EINA_FALSE;
+    }
+
+  return ret;
 }
+
+char *
+_sanitize_ln(char *text, const unsigned int n, const int mode)
+{
+  EINA_SAFETY_ON_NULL_RETURN_VAL(text, NULL);
+
+  char *ret = malloc(n + 1);
+  char *temp = ret;
+  int chr, i = 0;
+
+  if (!ret) return NULL;
+
+  if (mode == FC_IGNORE_WHITE_SPACE)
+    text = strip_whitespace(text, TRIM_SPACES);
+
+  while (1) {
+    chr = *text;
+    if (chr == 0)
+      break;
+    if (chr < 32) {
+      /* is it a tab */
+      if (chr == 9){
+        // default tab
+        for (i; i+4;i++){
+          *temp++ = ' ';
+        }
+        text++;
+      }
+      else {
+        text++;
+      }
+    }
+    else {
+    /* assume char is ok and add to temp buffer */
+    *temp++ = *text++;
+    i++;
+    }
+    if (i == n) break;
+  }
+  *temp = 0;
+  return ret;
+}
+
 
 /**
  * @brief Strips whitespace from a string.
@@ -170,7 +168,7 @@ _truncate_label(const unsigned int n, Clip_Data *clip_data)
  * You have been warned!!
  */
 char *
-my_strip_whitespace(char *str, int mode)
+strip_whitespace(char *str, int mode)
 {
   char *end;
   int (*compare)(int);

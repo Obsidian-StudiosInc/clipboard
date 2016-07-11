@@ -332,8 +332,9 @@ _menu_fill(Instance *inst, int event_type)
     EINA_LIST_FOREACH(clip_inst->items, it, clip){
       mi = e_menu_item_new(inst->menu);
       if (clipboard_config->label_length_changed) {
-        set_clip_name(&clip->name, clip->content, FC_IGNORE_WHITE_SPACE);
-        INF("Need to update clip label names \n");
+        free(clip->name);
+        set_clip_name(&clip->name, clip->content,
+                       FC_IGNORE_WHITE_SPACE, clipboard_config->label_length);
         clipboard_config->label_length_changed = EINA_FALSE;
       }
       e_menu_item_label_set(mi, clip->name);
@@ -429,9 +430,6 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, void *event)
 
   if ((text_data = clipboard.get_text(event))) {
     if (strcmp(last, text_data->text ) != 0) {
-      char buf[(int)(clipboard_config->label_length) + 1];
-      char *temp_buf, *strip_buf;
-
       if (text_data->data.length == 0)
         return EINA_TRUE;
 
@@ -442,14 +440,12 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, void *event)
         /* Try to continue */
         goto error;
       }
-      // get rid unwanted chars from string - spaces and tabs
-      temp_buf = strdup(text_data->text);
-      memset(buf, '\0', sizeof(buf));
-      strip_buf = strip_whitespace(temp_buf);
-      strncpy(buf, strip_buf, clipboard_config->label_length);
-      cd->name = strdup(buf);
-      free(temp_buf);
-      free(strip_buf);
+      if (!set_clip_name(&cd->name, cd->content,
+                    FC_IGNORE_WHITE_SPACE, clipboard_config->label_length)){
+        CRI("Something bad happened !!");
+        /* Try to continue */
+        goto error;
+      }
       _clipboard_add_item(cd);
     }
   }
@@ -595,12 +591,12 @@ _cb_menu_post_deactivate(void *data, E_Menu *menu __UNUSED__)
 }
 
 void
-free_clip_data(Clip_Data *cd)
+free_clip_data(Clip_Data *clip)
 {
-  EINA_SAFETY_ON_NULL_RETURN(cd);
-  free(cd->name);
-  free(cd->content);
-  free(cd);
+  EINA_SAFETY_ON_NULL_RETURN(clip);
+  free(clip->name);
+  free(clip->content);
+  free(clip);
 }
 
 /*
