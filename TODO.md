@@ -19,9 +19,9 @@ Beta release
 
 - [x] Add key binding support for Clear clipboard
  
-- [ ] Actually use Config options in code
+- [x] Actually use Config options in code
 
-- [ ] Proper fix for whitespace issue in menu labels
+- [x] Proper fix for whitespace issue in menu labels
 
 - [ ] .xsession-errors support
 
