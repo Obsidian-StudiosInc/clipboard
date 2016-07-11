@@ -1,10 +1,10 @@
 #include <e.h>
 #include "e_mod_main.h"
 
-/* This function adapted from Elive's e17 module productivity.
+/* This function was adapted from Elive's e17 module productivity.
  *   https://github.com/Elive/emodule-productivity
  *   Thanks to princeamd for implementing this.
- * 
+ *
  * The MIT License:
  *   https://opensource.org/licenses/MIT
  */
@@ -45,6 +45,3 @@ e_mod_log_cb(const Eina_Log_Domain *d, Eina_Log_Level level, const char *file,
   } else
     eina_log_print_cb_stderr(d, level, file, fnc, line, fmt, NULL, args);
 }
-
-
- 
