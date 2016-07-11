@@ -1,8 +1,9 @@
 #ifndef E_MOD_CLIPBOARD_H
 #define E_MOD_CLIPBOARD_H
 
-#define CLIP_CONFIG_MODE(x) (x->clip_copy + 2 * (x->clip_select) /*+ x->clip_sync*/)
+#include "e_mod_config.h"
 
+#define CLIP_CONFIG_MODE(x) (x->clip_copy + 2 * (x->clip_select))
 #define CLIP_MAX_MODE            CLIP_SELECTION_SYNC
 #define CLIP_MODE_DEFAULT        CLIP_SELECTION_CLIPBOARD
 #define CLIP_MODE_NAME_DEFAULT   "CLIP_SELECTION_CLIPBOARD"
@@ -10,7 +11,12 @@
 #define CLIP_SYNC_ON             EINA_TRUE
 #define CLIP_SYNC_OFF            EINA_FALSE
 
-#include "e_mod_config.h"
+enum
+clip_selection_type { CLIP_SELECTION_NONE = 0,
+                      CLIP_SELECTION_CLIPBOARD,
+                      CLIP_SELECTION_PRIMARY,
+                      CLIP_SELECTION_BOTH,
+                      CLIP_SELECTION_SYNC };
 
 typedef struct _Clipboard
 {
@@ -27,16 +33,9 @@ typedef struct _Clipboard
   Ecore_X_Selection_Data_Text * (* const get_text) (Ecore_X_Event_Selection_Notify *event);
 } Clipboard;
 
-extern Clipboard clipboard;
-extern const char * const Clip_Mode_Names[4];
+extern Clipboard clipboard;                   /* Defined in x_clipboard.c */
+extern const char * const Clip_Mode_Names[4]; /* Defined in x_clipboard.c */
 
-enum
-clip_selection_type { CLIP_SELECTION_NONE = 0,
-                      CLIP_SELECTION_CLIPBOARD,
-                      CLIP_SELECTION_PRIMARY,
-                      CLIP_SELECTION_BOTH,
-                      CLIP_SELECTION_SYNC };
-                      
 void       init_clipboard_struct(Config *config);
 
 #endif
