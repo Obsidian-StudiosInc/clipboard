@@ -31,7 +31,7 @@ Beta release
 
 - [x] Add support for x-primary clipboard and clipboard sync. *Mostly done I hope ...*
  
-- [x] Implement a file lock on history file during file writes *I think handled ny eet stuff ...*
+- [x] Implement a file lock on history file during file writes *I think handled by eet stuff ...*
 
 - [ ] Implement a validate utf8 text and use during history read
  
