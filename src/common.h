@@ -38,10 +38,8 @@ struct _Instance
 
     /* pointer to this gadget's container */
     E_Gadcon_Client *gcc;
-
     /* Pointer to gadget or float menu */
     E_Menu *menu;
-
     /* Pointer to mouse button object
      * to add call back to */
     Evas_Object *o_button;
@@ -53,17 +51,15 @@ struct _Mod_Inst
 {
     /* Sructure to store a global module instance in
      *   complete with a hidden window for event notification purposes */
-
+     
+    Instance *inst;
     /* A pointer to an Ecore window used to
      * recieve or send clipboard events to */
     Ecore_X_Window win;
-
     /* Timer callback function to reguest Clipboard events */
     Ecore_Timer  *check_timer;
-
     /* Callback function to handle clipboard events */
     Eina_List *handle;
-
     /* Stores Clipboard History */
     Eina_List *items;
 };

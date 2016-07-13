@@ -36,7 +36,7 @@ Config *clipboard_config = NULL;
 static E_Config_DD *conf_edd = NULL;
 static E_Config_DD *conf_item_edd = NULL;
 Mod_Inst *clip_inst = NULL; /* Need by e_mod_config.c */
-static E_Action *act_float = NULL, *act_clear = NULL, *act_settings = NULL;
+static E_Action *act = NULL;
 int _clipboard_log;
 
 /*   First some call backs   */
@@ -48,8 +48,9 @@ static void      _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *o
 static void      _cb_clear_history(Instance *inst);
 static void      _cb_dialog_delete(void *data __UNUSED__);
 static void      _cb_dialog_keep(void *data __UNUSED__);
+static void      _cb_action_switch(E_Object *o __UNUSED__, const char *params, Instance *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *event);
 
-static void      _menu_cb_configure(void *data, E_Menu *m, E_Menu_Item *mi);
+static void      _menu_cb_configure(void *data, E_Menu *m __UNUSED__, E_Menu_Item *mi __UNUSED__);
 static void      _clipboard_cb_menu_post(void *data, E_Menu *menu);
 
 
@@ -242,6 +243,7 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
 
     initialize = ((((Evas_Event_Mouse_Down *) event)->button) == 1) && (!inst->menu);
   } else {
+    inst = clip_inst->inst;
     inst->gcc = NULL;
     initialize = EINA_TRUE;
   }
@@ -305,7 +307,6 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
                               EVAS_BUTTON_NONE, ((Evas_Event_Mouse_Down *) event)->timestamp, NULL);
   }
 }
-
 
 static int
 _menu_fill(Instance *inst, int event_type)
@@ -537,8 +538,6 @@ clip_save(Eina_List *items)
     return EET_ERROR_NONE;
 }
 
-
-
 static void
 _cb_clear_history(Instance *inst __UNUSED__)
 {
@@ -588,6 +587,18 @@ _cb_menu_post_deactivate(void *data, E_Menu *menu __UNUSED__)
 {
   EINA_SAFETY_ON_NULL_RETURN(data);
   ((Instance *) data)->menu = NULL;
+}
+
+static void
+_cb_action_switch(E_Object *o __UNUSED__, const char *params, Instance *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *event)
+{
+  if (!strcmp(params, "float"))
+    _cb_show_menu(data, NULL, NULL, event);
+  else if (!strcmp(params, "settings"))
+    _menu_cb_configure(data, NULL, NULL);
+  else if (!strcmp(params, "clear"))
+    /* Only call clear dialog if there is something to clear */
+    if (clip_inst->items) _cb_clear_history(NULL);
 }
 
 void
@@ -654,7 +665,6 @@ e_modapi_init (E_Module *m)
   /* Be sure we initialize our clipboard 'object' */
   init_clipboard_struct(clipboard_config);
 
-
   /* Initialize Einna_log for developers */
   clipboard_config->log_name = eina_stringshare_add("MOD:CLIP");
 
@@ -666,28 +676,19 @@ e_modapi_init (E_Module *m)
   //e_module_delayed_set(m, 1);
 
   /* Add Module Key Binding actions */
-  act_float = e_action_add("clipboard_float");
-  if (act_float) {
-    act_float->func.go = (void *) _cb_show_menu;
-    e_action_predef_name_set("Clipboard","Show float menu", "clipboard_float", NULL, NULL, 0);
-  }
-
-  act_clear = e_action_add("clipboard_clear");
-  if (act_clear) {
-    act_clear->func.go = (void *) _cb_clear_history;
-    e_action_predef_name_set("Clipboard","Clear history list", "clipboard_clear", NULL, NULL, 0);
-  }
-
-  act_settings = e_action_add("clipboard_settings");
-  if (act_settings) {
-    act_settings->func.go = (void *) _menu_cb_configure;
-    e_action_predef_name_set("Clipboard","Show settings dialog", "clipboard_settings", NULL, NULL, 0);
+  act = e_action_add("clipboard");
+  if (act) {
+    act->func.go = (void *) _cb_action_switch;
+    e_action_predef_name_set("Clipboard","Show History", "clipboard", "float",    NULL, 0);
+    e_action_predef_name_set("Clipboard","Show Settings",   "clipboard", "settings", NULL, 0);
+    e_action_predef_name_set("Clipboard","Clear History",   "clipboard", "clear",    NULL, 0);
   }
 
   /* Create a global clip_inst for our module
    *   complete with a hidden window for event notification purposes
    */
   clip_inst = E_NEW(Mod_Inst, 1);
+  clip_inst->inst = E_NEW(Instance, 1);
 
   /* Create an invisible window for clipboard input purposes
    *   It is my understanding this should not displayed.*/
@@ -716,7 +717,7 @@ e_modapi_init (E_Module *m)
 }
 
 static void
-_menu_cb_configure(void *data, E_Menu *m, E_Menu_Item *mi)
+_menu_cb_configure(void *data, E_Menu *m __UNUSED__, E_Menu_Item *mi __UNUSED__)
 {
   Instance *inst = NULL;
 
@@ -784,20 +785,11 @@ noconfig:
   e_configure_registry_item_del("preferences/clipboard");
 
   /* Clean up all key binding actions */
-  if (act_float) {
+  /* Clean up all key binding actions */
+  if (act) {
     e_action_predef_name_del("Clipboard", "Show float menu");
-    e_action_del("clipboard_float");
-    act_float = NULL;
-  }
-  if (act_clear) {
-    e_action_predef_name_del("Clipboard", "Clear history list");
-    e_action_del("clipboard_clear");
-    act_clear = NULL;
-  }
-  if (act_settings) {
-    e_action_predef_name_del("Clipboard", "Show settings dialog");
-    e_action_del("clipboard_settings");
-    act_settings = NULL;
+    e_action_del("clipboard");
+    act = NULL;
   }
 
   /* Clean EET */
