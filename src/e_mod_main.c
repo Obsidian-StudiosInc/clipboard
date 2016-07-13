@@ -605,6 +605,8 @@ free_clip_data(Clip_Data *clip)
 EAPI void *
 e_modapi_init (E_Module *m)
 {
+  Eet_Error hist_err;
+
   /* Display this Modules config info in the main Config Panel
    * Under Preferences catogory */
   e_configure_registry_item_add("preferences/clipboard", 10,
@@ -697,9 +699,14 @@ e_modapi_init (E_Module *m)
   clip_inst->check_timer = ecore_timer_add(TIMEOUT_1, _cb_clipboard_request, clip_inst);
 
   /* Read History file and set clipboard */
-  if (read_history(&(clip_inst->items), clipboard_config->label_length) == EET_ERROR_NONE
-       && eina_list_count(clip_inst->items))
+  hist_err = read_history(&(clip_inst->items), clipboard_config->label_length);
+
+  if (hist_err == EET_ERROR_NONE && eina_list_count(clip_inst->items))
     _cb_menu_item(eina_list_data_get(clip_inst->items));
+  else
+    /* Something must be wrong with history file
+     *   so we create a new one */
+    clip_save(clip_inst->items);
 
   /* Tell any gadget containers (shelves, etc) that we provide a module */
   e_gadcon_provider_register(&_gadcon_class);
