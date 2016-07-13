@@ -358,11 +358,7 @@ _menu_fill(Instance *inst, int event_type)
   e_menu_item_label_set(mi, _("Clear"));
   e_util_menu_item_theme_icon_set(mi, "edit-clear");
   e_menu_item_callback_set(mi, (E_Menu_Cb) _cb_clear_history, inst);
-  /* FIXME: This will need to be changed if we ever get around to not deleting
-   *   history file and clip_inst->items on clear and allow a 'empty' history
-   *   file and corresponding eina_list with no elements.
-   *
-   * Is this even possible?      */
+
   if (clip_inst->items)
     e_menu_item_disabled_set(mi, EINA_FALSE);
   else
@@ -708,7 +704,16 @@ e_modapi_init (E_Module *m)
     /* Something must be wrong with history file
      *   so we create a new one */
     clip_save(clip_inst->items);
-
+  /* Make sure the history read has no more items than allowed
+   *  by clipboard config file. This should never happen without user
+   *  intervention of some kind. */
+  if (clip_inst->items)
+    if (eina_list_count(clip_inst->items) > clipboard_config->hist_items) {
+      /* FIXME: Do we need to warn user in case this is backed up data
+       *         being restored ? */
+      WRN("History File truncation!");
+      truncate_history(clipboard_config->hist_items);
+  }
   /* Tell any gadget containers (shelves, etc) that we provide a module */
   e_gadcon_provider_register(&_gadcon_class);
 

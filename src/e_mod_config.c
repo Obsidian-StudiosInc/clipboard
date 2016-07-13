@@ -35,7 +35,6 @@ static int           _basic_check_changed(E_Config_Dialog *cfd __UNUSED__, E_Con
 static void          _fill_data(E_Config_Dialog_Data *cfdata);
 void                 _free_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata);
 static Evas_Object  *_basic_create_widgets(E_Config_Dialog *cfd __UNUSED__, Evas *evas, E_Config_Dialog_Data *cfdata);
-static Eet_Error     _truncate_history(const unsigned int n);
 static int           _update_widget(E_Config_Dialog_Data *cfdata);
 static Eina_Bool     _sync_state_changed(E_Config_Dialog_Data *cfdata);
 extern Mod_Inst     *clip_inst; /* Found in e_mod_main.c */
@@ -85,8 +84,8 @@ _basic_apply_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
   clipboard_config->persistence   = cfdata->persistence;
   clipboard_config->hist_reverse  = cfdata->hist_reverse;
   /* Do we need to Truncate our history list? */
-  if (clipboard_config-> hist_items   != cfdata-> hist_items)
-    _truncate_history(cfdata-> hist_items);
+  if (clipboard_config->hist_items   != cfdata->hist_items)
+    truncate_history(cfdata-> hist_items);
   clipboard_config->hist_items    = cfdata->hist_items;
   /* Has clipboard label name length changed ? */
   if (cfdata->label_length != cfdata->init_label_length) {
@@ -197,10 +196,10 @@ _basic_check_changed(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfda
   if (clipboard_config->clip_copy     != cfdata->clip_copy) return 1;
   if (clipboard_config->clip_select   != cfdata->clip_select) return 1;
   if (clipboard_config->sync          != cfdata->sync) return 1;
-  if (clipboard_config-> persistence  != cfdata-> persistence) return 1;
-  if (clipboard_config-> hist_reverse != cfdata-> hist_reverse) return 1;
-  if (clipboard_config-> hist_items   != cfdata-> hist_items) return 1;
-  if (clipboard_config-> label_length != cfdata-> label_length) return 1;
+  if (clipboard_config-> persistence  != cfdata->persistence) return 1;
+  if (clipboard_config-> hist_reverse != cfdata->hist_reverse) return 1;
+  if (clipboard_config-> hist_items   != cfdata->hist_items) return 1;
+  if (clipboard_config-> label_length != cfdata->label_length) return 1;
   if (clipboard_config->trim_ws       != cfdata->trim_ws) return 1;
   if (clipboard_config->trim_nl       != cfdata->trim_nl) return 1;
   if (clipboard_config->confirm_clear != cfdata->confirm_clear) return 1;
@@ -233,8 +232,8 @@ _update_widget(E_Config_Dialog_Data *cfdata)
   return 1;
 }
 
-static Eet_Error
-_truncate_history(const unsigned int n)
+Eet_Error
+truncate_history(const unsigned int n)
 {
   Eet_Error err = EET_ERROR_NONE;
 
