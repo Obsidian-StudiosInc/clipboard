@@ -3,9 +3,11 @@
 #include "config_defaults.h"
 #include "history.h"
 
-//~ #define _(S) S
+#define TIMEOUT_1 1.0
+#define CLIP_LOG_NAME  "MOD:CLIP"
+
+/* convenience macro to compress code */
 #define CLIP_TRIM_MODE(x) (x->trim_nl + 2 * (x->trim_ws))
-#define TIMEOUT_1 1.0 /* interval for timer */
 
 /* gadcon requirements */
 static     Evas_Object *_gc_icon(const E_Gadcon_Client_Class *client_class __UNUSED__, Evas * evas);
@@ -37,7 +39,6 @@ static E_Config_DD *conf_edd = NULL;
 static E_Config_DD *conf_item_edd = NULL;
 Mod_Inst *clip_inst = NULL; /* Need by e_mod_config.c */
 static E_Action *act = NULL;
-int clipboard_log;
 
 /*   First some call backs   */
 static Eina_Bool _cb_clipboard_request(void *data __UNUSED__);
@@ -667,10 +668,7 @@ e_modapi_init (E_Module *m)
   init_clipboard_struct(clipboard_config);
 
   /* Initialize Einna_log for developers */
-  clipboard_config->log_name = eina_stringshare_add("MOD:CLIP");
-
-  clipboard_log = eina_log_domain_register(clipboard_config->log_name, EINA_COLOR_CYAN);
-  eina_log_domain_level_set(clipboard_config->log_name, EINA_LOG_LEVEL_DBG);
+  logger_init(CLIP_LOG_NAME);
 
   INF("Initialized Clipboard Module");
 
@@ -809,8 +807,8 @@ noconfig:
   E_CONFIG_DD_FREE(conf_item_edd);
 
   INF("Shutting down Clipboard Module");
-  eina_log_domain_unregister(clipboard_log);
-  clipboard_log = -1;
+  /* Shutdown Logger */
+  logger_shutdown(CLIP_LOG_NAME);
 
   /* Tell E the module is now unloaded. Gets removed from shelves, etc. */
   e_gadcon_provider_unregister(&_gadcon_class);

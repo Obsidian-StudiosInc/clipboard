@@ -1,13 +1,46 @@
 #include <e.h>
+#include "clip_log.h"
 #include "e_mod_main.h"
 
-/* This function was adapted from Elive's e17 module productivity.
+/* The fn cb_mod_log was adapted from Elive's e17 module productivity.
  *   https://github.com/Elive/emodule-productivity
  *   Thanks to princeamd for implementing this.
  *
  * The MIT License:
  *   https://opensource.org/licenses/MIT
  */
+
+int clipboard_log = -1;
+
+Eina_Bool
+logger_init(char *package)
+{
+  if(clipboard_log < 0) {
+    clipboard_config->log_name = eina_stringshare_add(package);
+    clipboard_log = eina_log_domain_register(clipboard_config->log_name, EINA_COLOR_CYAN);
+    if(clipboard_log < 0) {
+      EINA_LOG_CRIT("Could not register log domain %s", package);
+      return EINA_FALSE;
+    }
+    eina_log_domain_level_set(clipboard_config->log_name, EINA_LOG_LEVEL_DBG);
+  }
+  return EINA_TRUE;
+}
+
+int
+logger_shutdown(char *package)
+{
+  Eina_Stringshare *temp;
+
+  if (temp = eina_stringshare_add(package))
+    eina_stringshare_del(temp);
+
+  if(clipboard_log >= 0) {
+    eina_log_domain_unregister(clipboard_log);
+    clipboard_log = -1;
+  }
+  return clipboard_log;
+}
 
 void
 cb_mod_log(const Eina_Log_Domain *d, Eina_Log_Level level, const char *file,

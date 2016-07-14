@@ -35,9 +35,10 @@ struct _Config_Item
   const char *id;
 };
 
+extern Config *clipboard_config;
+
 E_Config_Dialog *config_clipboard_module(E_Container *con, const char *params __UNUSED__);
 Eet_Error        truncate_history(const unsigned int n);
-extern Config *clipboard_config;
 
 #endif
 #endif
