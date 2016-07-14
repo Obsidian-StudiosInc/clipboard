@@ -10,12 +10,12 @@
 #define CLIP_TRIM_MODE(x) (x->trim_nl + 2 * (x->trim_ws))
 
 /* gadcon requirements */
-static     Evas_Object *_gc_icon(const E_Gadcon_Client_Class *client_class __UNUSED__, Evas * evas);
-static const char      *_gc_id_new(const E_Gadcon_Client_Class *client_class);
-static E_Gadcon_Client *_gc_init(E_Gadcon * gc, const char *name, const char *id, const char *style);
-static void             _gc_orient(E_Gadcon_Client * gcc, E_Gadcon_Orient orient __UNUSED__);
-static const char      *_gc_label(const E_Gadcon_Client_Class *client_class __UNUSED__);
-static void             _gc_shutdown(E_Gadcon_Client * gcc);
+static     Evas_Object  *_gc_icon(const E_Gadcon_Client_Class *client_class __UNUSED__, Evas * evas);
+static const char       *_gc_id_new(const E_Gadcon_Client_Class *client_class);
+static E_Gadcon_Client  *_gc_init(E_Gadcon * gc, const char *name, const char *id, const char *style);
+static void              _gc_orient(E_Gadcon_Client * gcc, E_Gadcon_Orient orient __UNUSED__);
+static const char       *_gc_label(const E_Gadcon_Client_Class *client_class __UNUSED__);
+static void              _gc_shutdown(E_Gadcon_Client * gcc);
 
 /* Define the gadcon class that this module provides (just 1) */
 static const E_Gadcon_Client_Class _gadcon_class = {
@@ -34,7 +34,7 @@ static const E_Gadcon_Client_Class _gadcon_class = {
 EAPI E_Module_Api e_modapi = { E_MODULE_API_VERSION, "Clipboard"};
 
 /* actual module specifics   */
-Config *clipboard_config = NULL;
+Config *clip_cfg = NULL;
 static E_Config_DD *conf_edd = NULL;
 static E_Config_DD *conf_item_edd = NULL;
 Mod_Inst *clip_inst = NULL; /* Need by e_mod_config.c */
@@ -71,37 +71,37 @@ static void
 _clip_config_new(E_Module *m)
 {
   /* setup defaults */
-  if (!clipboard_config) {
-    clipboard_config = E_NEW(Config, 1);
+  if (!clip_cfg) {
+    clip_cfg = E_NEW(Config, 1);
 
-    clipboard_config->label_length_changed = EINA_FALSE;
+    clip_cfg->label_length_changed = EINA_FALSE;
 
-    clipboard_config->clip_copy     = CONFIG_DEFAULT_CLIP_COPY;
-    clipboard_config->clip_select   = CONFIG_DEFAULT_CLIP_SELECT;
-    clipboard_config->sync          = CONFIG_DEFAULT_CLIP_SYNC;
-    clipboard_config->persistence   = CONFIG_DEFAULT_CLIP_PERSISTANCE;
-    clipboard_config->hist_reverse  = CONFIG_DEFAULT_CLIP_HIST_REVERSE;
-    clipboard_config->hist_items    = CONFIG_DEFAULT_CLIP_HIST_ITEMS;
-    clipboard_config->label_length  = CONFIG_DEFAULT_CLIP_LABEL_LENGTH;
-    clipboard_config->trim_ws       = CONFIG_DEFAULT_CLIP_TRIM_WS;
-    clipboard_config->trim_nl       = CONFIG_DEFAULT_CLIP_NL;
-    clipboard_config->confirm_clear = CONFIG_DEFAULT_CLIP_COMFIRM_CLEAR;
+    clip_cfg->clip_copy     = CF_DEFAULT_COPY;
+    clip_cfg->clip_select   = CF_DEFAULT_SELECT;
+    clip_cfg->sync          = CF_DEFAULT_SYNC;
+    clip_cfg->persistence   = CF_DEFAULT_PERSISTANCE;
+    clip_cfg->hist_reverse  = CF_DEFAULT_HIST_REVERSE;
+    clip_cfg->hist_items    = CF_DEFAULT_HIST_ITEMS;
+    clip_cfg->label_length  = CF_DEFAULT_LABEL_LENGTH;
+    clip_cfg->trim_ws       = CF_DEFAULT_WS;
+    clip_cfg->trim_nl       = CF_DEFAULT_NL;
+    clip_cfg->confirm_clear = CF_DEFAULT_CONFIRM;
   }
-  E_CONFIG_LIMIT(clipboard_config->clip_copy, 0, 1);
-  E_CONFIG_LIMIT(clipboard_config->clip_select, 0, 1);
-  E_CONFIG_LIMIT(clipboard_config->sync, 0, 1);
-  E_CONFIG_LIMIT(clipboard_config->persistence, 0, 1);
-  E_CONFIG_LIMIT(clipboard_config->hist_reverse, 0, 1);
-  E_CONFIG_LIMIT(clipboard_config->hist_items, 5.0, MAGIC_HIST_SIZE);
-  E_CONFIG_LIMIT(clipboard_config->label_length, 5.0, MAGIC_LABEL_SIZE);
-  E_CONFIG_LIMIT(clipboard_config->trim_ws, 0, 1);
-  E_CONFIG_LIMIT(clipboard_config->trim_nl, 0, 1);
-  E_CONFIG_LIMIT(clipboard_config->confirm_clear, 0, 1);
+  E_CONFIG_LIMIT(clip_cfg->clip_copy, 0, 1);
+  E_CONFIG_LIMIT(clip_cfg->clip_select, 0, 1);
+  E_CONFIG_LIMIT(clip_cfg->sync, 0, 1);
+  E_CONFIG_LIMIT(clip_cfg->persistence, 0, 1);
+  E_CONFIG_LIMIT(clip_cfg->hist_reverse, 0, 1);
+  E_CONFIG_LIMIT(clip_cfg->hist_items, HIST_MIN, HIST_MAX);
+  E_CONFIG_LIMIT(clip_cfg->label_length, LABEL_MIN, LABEL_MAX);
+  E_CONFIG_LIMIT(clip_cfg->trim_ws, 0, 1);
+  E_CONFIG_LIMIT(clip_cfg->trim_nl, 0, 1);
+  E_CONFIG_LIMIT(clip_cfg->confirm_clear, 0, 1);
 
   /* update the version */
-  clipboard_config->version = MOD_CONFIG_FILE_VERSION;
+  clip_cfg->version = MOD_CONFIG_FILE_VERSION;
 
-  clipboard_config->module = m;
+  clip_cfg->module = m;
   /* save the config to disk */
   e_config_save_queue();
 }
@@ -113,12 +113,12 @@ _clip_config_free(void)
 {
   Config_Item *ci;
 
-  EINA_LIST_FREE(clipboard_config->items, ci){
+  EINA_LIST_FREE(clip_cfg->items, ci){
     eina_stringshare_del(ci->id);
     free(ci);
   }
-  clipboard_config->module = NULL;
-  E_FREE(clipboard_config);
+  clip_cfg->module = NULL;
+  E_FREE(clip_cfg);
 }
 
 /*
@@ -318,23 +318,23 @@ _menu_fill(Instance *inst, int event_type)
 
 
     /*revert list if selected*/
-    if (clipboard_config->hist_reverse)
+    if (clip_cfg->hist_reverse)
       clip_inst->items=eina_list_reverse(clip_inst->items);
 
     /*show list in history menu*/
     EINA_LIST_FOREACH(clip_inst->items, it, clip){
       mi = e_menu_item_new(inst->menu);
-      if (clipboard_config->label_length_changed) {
+      if (clip_cfg->label_length_changed) {
         free(clip->name);
         set_clip_name(&clip->name, clip->content,
-                       FC_IGNORE_WHITE_SPACE, clipboard_config->label_length);
-        clipboard_config->label_length_changed = EINA_FALSE;
+                       FC_IGNORE_WHITE_SPACE, clip_cfg->label_length);
+        clip_cfg->label_length_changed = EINA_FALSE;
       }
       e_menu_item_label_set(mi, clip->name);
       e_menu_item_callback_set(mi, (E_Menu_Cb)_cb_menu_item, clip);
     }
     /*revert list back if selected*/
-    if (clipboard_config->hist_reverse)
+    if (clip_cfg->hist_reverse)
       clip_inst->items=eina_list_reverse(clip_inst->items);
   }
   else {
@@ -424,13 +424,13 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, void *event)
 
       cd = E_NEW(Clip_Data, 1);
       if (!set_clip_content(&cd->content, text_data->text,
-                             CLIP_TRIM_MODE(clipboard_config))) {
+                             CLIP_TRIM_MODE(clip_cfg))) {
         CRI("Something bad happened !!");
         /* Try to continue */
         goto error;
       }
       if (!set_clip_name(&cd->name, cd->content,
-                    FC_IGNORE_WHITE_SPACE, clipboard_config->label_length)){
+                    FC_IGNORE_WHITE_SPACE, clip_cfg->label_length)){
         CRI("Something bad happened !!");
         /* Try to continue */
         goto error;
@@ -469,7 +469,7 @@ _clip_add_item(Clip_Data *cd)
     clip_inst->items = eina_list_promote_list(clip_inst->items, it);
   } else {
     /* add item to the list */
-    if (eina_list_count(clip_inst->items) < clipboard_config->hist_items) {
+    if (eina_list_count(clip_inst->items) < clip_cfg->hist_items) {
       clip_inst->items = eina_list_prepend(clip_inst->items, cd);
     }
     else {
@@ -520,7 +520,7 @@ _clear_history(void)
 Eet_Error
 clip_save(Eina_List *items)
 {
-  if(clipboard_config->persistence)
+  if(clip_cfg->persistence)
     return save_history(items);
   else
     return EET_ERROR_NONE;
@@ -529,9 +529,9 @@ clip_save(Eina_List *items)
 static void
 _cb_clear_history(Instance *inst __UNUSED__)
 {
-  EINA_SAFETY_ON_NULL_RETURN(clipboard_config);
+  EINA_SAFETY_ON_NULL_RETURN(clip_cfg);
 
-  if (clipboard_config->confirm_clear) {
+  if (clip_cfg->confirm_clear) {
     e_confirm_dialog_show(_("Confirm History Deletion"),
                           "application-exit",
                           _("You wish to delete the clipboards history.<br>"
@@ -626,13 +626,13 @@ e_modapi_init (E_Module *m)
             "Clipboard Settings", NULL,
             "edit-paste", config_clipboard_module);
 
-  conf_item_edd = E_CONFIG_DD_NEW("Clipboard_Config_Item", Config_Item);
+  conf_item_edd = E_CONFIG_DD_NEW("clip_cfg_Item", Config_Item);
 #undef T
 #undef D
 #define T Config_Item
 #define D conf_item_edd
   E_CONFIG_VAL(D, T, id, STR);
-  conf_edd = E_CONFIG_DD_NEW("Clipboard_Config", Config);
+  conf_edd = E_CONFIG_DD_NEW("clip_cfg", Config);
 #undef T
 #undef D
 #define T Config
@@ -651,21 +651,21 @@ e_modapi_init (E_Module *m)
   E_CONFIG_VAL(D, T, confirm_clear, INT);
 
   /* Tell E to find any existing module data. First run ? */
-  clipboard_config = e_config_domain_load("module.clipboard", conf_edd);
+  clip_cfg = e_config_domain_load("module.clipboard", conf_edd);
 
-   if (clipboard_config) {
+   if (clip_cfg) {
      /* Check config version */
-     if (!e_util_module_config_check("Clipboard", clipboard_config->version, MOD_CONFIG_FILE_VERSION))
+     if (!e_util_module_config_check("Clipboard", clip_cfg->version, MOD_CONFIG_FILE_VERSION))
        _clip_config_free();
    }
 
   /* If we don't have a config yet, or it got erased above,
    * then create a default one */
-  if (!clipboard_config)
+  if (!clip_cfg)
     _clip_config_new(m);
 
   /* Be sure we initialize our clipboard 'object' */
-  init_clipboard_struct(clipboard_config);
+  init_clipboard_struct(clip_cfg);
 
   /* Initialize Einna_log for developers */
   logger_init(CLIP_LOG_NAME);
@@ -699,7 +699,7 @@ e_modapi_init (E_Module *m)
   clip_inst->check_timer = ecore_timer_add(TIMEOUT_1, _cb_clipboard_request, clip_inst);
 
   /* Read History file and set clipboard */
-  hist_err = read_history(&(clip_inst->items), clipboard_config->label_length);
+  hist_err = read_history(&(clip_inst->items), clip_cfg->label_length);
 
   if (hist_err == EET_ERROR_NONE && eina_list_count(clip_inst->items))
     _cb_menu_item(eina_list_data_get(clip_inst->items));
@@ -711,11 +711,11 @@ e_modapi_init (E_Module *m)
    *  by clipboard config file. This should never happen without user
    *  intervention of some kind. */
   if (clip_inst->items)
-    if (eina_list_count(clip_inst->items) > clipboard_config->hist_items) {
+    if (eina_list_count(clip_inst->items) > clip_cfg->hist_items) {
       /* FIXME: Do we need to warn user in case this is backed up data
        *         being restored ? */
       WRN("History File truncation!");
-      truncate_history(clipboard_config->hist_items);
+      truncate_history(clip_cfg->hist_items);
   }
   /* Tell any gadget containers (shelves, etc) that we provide a module */
   e_gadcon_provider_register(&_gadcon_class);
@@ -730,8 +730,8 @@ _menu_cb_configure(void *data, E_Menu *m __UNUSED__, E_Menu_Item *mi __UNUSED__)
   Instance *inst = NULL;
 
   inst = data;
-  if (!clipboard_config) return;
-  if (clipboard_config->config_dialog) return;
+  if (!clip_cfg) return;
+  if (clip_cfg->config_dialog) return;
   config_clipboard_module(NULL, NULL);
 }
 
@@ -771,24 +771,24 @@ e_modapi_shutdown (E_Module *m __UNUSED__)
   E_FREE(clip_inst);
 
 noclip:
-  EINA_SAFETY_ON_NULL_GOTO(clipboard_config, noconfig);
+  EINA_SAFETY_ON_NULL_GOTO(clip_cfg, noconfig);
 
   /* Kill the config dialog */
-  while((clipboard_config->config_dialog = e_config_dialog_get("E", "preferences/clipboard")))
-    e_object_del(E_OBJECT(clipboard_config->config_dialog));
+  while((clip_cfg->config_dialog = e_config_dialog_get("E", "preferences/clipboard")))
+    e_object_del(E_OBJECT(clip_cfg->config_dialog));
 
-  if(clipboard_config->config_dialog)
-    e_object_del(E_OBJECT(clipboard_config->config_dialog));
-  E_FREE(clipboard_config->config_dialog);
+  if(clip_cfg->config_dialog)
+    e_object_del(E_OBJECT(clip_cfg->config_dialog));
+  E_FREE(clip_cfg->config_dialog);
 
   /* Cleanup our item list */
-  EINA_LIST_FREE(clipboard_config->items, ci){
+  EINA_LIST_FREE(clip_cfg->items, ci){
     eina_stringshare_del(ci->id);
     free(ci);
   }
-  clipboard_config->module = NULL;
+  clip_cfg->module = NULL;
   /* keep the planet green */
-  E_FREE(clipboard_config);
+  E_FREE(clip_cfg);
 
 noconfig:
   /* Unregister the config dialog from the main panel */
@@ -824,6 +824,6 @@ noconfig:
 EAPI int
 e_modapi_save(E_Module *m __UNUSED__)
 {
-  e_config_domain_save("module.clipboard", conf_edd, clipboard_config);
+  e_config_domain_save("module.clipboard", conf_edd, clip_cfg);
   return 1;
 }

@@ -16,13 +16,13 @@ Eina_Bool
 logger_init(char *package)
 {
   if(clipboard_log < 0) {
-    clipboard_config->log_name = eina_stringshare_add(package);
-    clipboard_log = eina_log_domain_register(clipboard_config->log_name, EINA_COLOR_CYAN);
+    clip_cfg->log_name = eina_stringshare_add(package);
+    clipboard_log = eina_log_domain_register(clip_cfg->log_name, EINA_COLOR_CYAN);
     if(clipboard_log < 0) {
       EINA_LOG_CRIT("Could not register log domain %s", package);
       return EINA_FALSE;
     }
-    eina_log_domain_level_set(clipboard_config->log_name, EINA_LOG_LEVEL_DBG);
+    eina_log_domain_level_set(clip_cfg->log_name, EINA_LOG_LEVEL_DBG);
   }
   return EINA_TRUE;
 }
@@ -46,8 +46,8 @@ void
 cb_mod_log(const Eina_Log_Domain *d, Eina_Log_Level level, const char *file,
               const char *fnc, int line, const char *fmt, void *data EINA_UNUSED, va_list args)
 {
-  if ((d->name) && (d->namelen == sizeof(clipboard_config->log_name) - 1) &&
-       (memcmp(d->name, clipboard_config->log_name, sizeof(clipboard_config->log_name) - 1) == 0))
+  if ((d->name) && (d->namelen == sizeof(clip_cfg->log_name) - 1) &&
+       (memcmp(d->name, clip_cfg->log_name, sizeof(clip_cfg->log_name) - 1) == 0))
   {
     const char *prefix;
     Eina_Bool use_color = !eina_log_color_disable_get();

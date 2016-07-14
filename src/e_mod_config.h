@@ -1,7 +1,11 @@
-#ifdef E_TYPEDEFS
-#else
 #ifndef E_MOD_CONFIG_H
 #define E_MOD_CONFIG_H
+
+#define HIST_MIN   5
+#define HIST_MAX   100
+#define LABEL_MIN  5
+#define LABEL_MAX  100
+
 
 /* We create a structure config for our module, and also a config structure
  * for every item element (you can have multiple gadgets for the same module) */
@@ -35,10 +39,9 @@ struct _Config_Item
   const char *id;
 };
 
-extern Config *clipboard_config;
+extern Config *clip_cfg;
 
 E_Config_Dialog *config_clipboard_module(E_Container *con, const char *params __UNUSED__);
 Eet_Error        truncate_history(const unsigned int n);
 
-#endif
 #endif

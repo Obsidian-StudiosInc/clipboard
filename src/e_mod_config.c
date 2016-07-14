@@ -50,61 +50,61 @@ _create_data(E_Config_Dialog *cfd __UNUSED__)
 void
 _free_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
 {
-  EINA_SAFETY_ON_NULL_RETURN(clipboard_config);
-  clipboard_config->config_dialog = NULL;
+  EINA_SAFETY_ON_NULL_RETURN(clip_cfg);
+  clip_cfg->config_dialog = NULL;
   E_FREE(cfdata);
 }
 
 static void
 _fill_data(E_Config_Dialog_Data *cfdata)
 {
-  cfdata->sync_state.copy   = clipboard_config->clip_copy;
-  cfdata->sync_state.select = clipboard_config->clip_select;
-  cfdata->sync_state.sync   = clipboard_config->sync;
-  cfdata->init_label_length = clipboard_config->label_length;
+  cfdata->sync_state.copy   = clip_cfg->clip_copy;
+  cfdata->sync_state.select = clip_cfg->clip_select;
+  cfdata->sync_state.sync   = clip_cfg->sync;
+  cfdata->init_label_length = clip_cfg->label_length;
 
-  cfdata->clip_copy     = clipboard_config->clip_copy;
-  cfdata->clip_select   = clipboard_config->clip_select;
-  cfdata->sync          = clipboard_config->sync;
-  cfdata->persistence   = clipboard_config->persistence;
-  cfdata->hist_reverse  = clipboard_config->hist_reverse;
-  cfdata->hist_items    = clipboard_config->hist_items;
-  cfdata->label_length  = clipboard_config->label_length;
-  cfdata->trim_ws       = clipboard_config->trim_ws;
-  cfdata->trim_nl       = clipboard_config->trim_nl;
-  cfdata->confirm_clear = clipboard_config->confirm_clear;
+  cfdata->clip_copy     = clip_cfg->clip_copy;
+  cfdata->clip_select   = clip_cfg->clip_select;
+  cfdata->sync          = clip_cfg->sync;
+  cfdata->persistence   = clip_cfg->persistence;
+  cfdata->hist_reverse  = clip_cfg->hist_reverse;
+  cfdata->hist_items    = clip_cfg->hist_items;
+  cfdata->label_length  = clip_cfg->label_length;
+  cfdata->trim_ws       = clip_cfg->trim_ws;
+  cfdata->trim_nl       = clip_cfg->trim_nl;
+  cfdata->confirm_clear = clip_cfg->confirm_clear;
 }
 
 static int
 _basic_apply_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
 {
-  clipboard_config->clip_copy     = cfdata->clip_copy;
-  clipboard_config->clip_select   = cfdata->clip_select;
-  clipboard_config->sync          = cfdata->sync;
-  clipboard_config->persistence   = cfdata->persistence;
-  clipboard_config->hist_reverse  = cfdata->hist_reverse;
+  clip_cfg->clip_copy     = cfdata->clip_copy;
+  clip_cfg->clip_select   = cfdata->clip_select;
+  clip_cfg->sync          = cfdata->sync;
+  clip_cfg->persistence   = cfdata->persistence;
+  clip_cfg->hist_reverse  = cfdata->hist_reverse;
   /* Do we need to Truncate our history list? */
-  if (clipboard_config->hist_items   != cfdata->hist_items)
+  if (clip_cfg->hist_items   != cfdata->hist_items)
     truncate_history(cfdata-> hist_items);
-  clipboard_config->hist_items    = cfdata->hist_items;
+  clip_cfg->hist_items    = cfdata->hist_items;
   /* Has clipboard label name length changed ? */
   if (cfdata->label_length != cfdata->init_label_length) {
-    clipboard_config->label_length_changed = EINA_TRUE;
+    clip_cfg->label_length_changed = EINA_TRUE;
     cfdata->init_label_length = cfdata->label_length;
   }
-  clipboard_config->label_length  = cfdata->label_length;
+  clip_cfg->label_length  = cfdata->label_length;
 
-  clipboard_config->trim_ws       = cfdata->trim_ws;
-  clipboard_config->trim_nl       = cfdata->trim_nl;
-  clipboard_config->confirm_clear = cfdata->confirm_clear;
+  clip_cfg->trim_ws       = cfdata->trim_ws;
+  clip_cfg->trim_nl       = cfdata->trim_nl;
+  clip_cfg->confirm_clear = cfdata->confirm_clear;
 
   /* Be sure we set our clipboard 'object'with new configuration */
-  init_clipboard_struct(clipboard_config);
+  init_clipboard_struct(clip_cfg);
 
   /* and Update our Widget sync state info */
-  cfdata->sync_state.copy   = clipboard_config->clip_copy;
-  cfdata->sync_state.select = clipboard_config->clip_select;
-  cfdata->sync_state.sync   = clipboard_config->sync;
+  cfdata->sync_state.copy   = clip_cfg->clip_copy;
+  cfdata->sync_state.select = clip_cfg->clip_select;
+  cfdata->sync_state.sync   = clip_cfg->sync;
 
   /* Now save configuration */
   e_config_save_queue();
@@ -142,12 +142,12 @@ _basic_create_widgets(E_Config_Dialog *cfd __UNUSED__, Evas *evas, E_Config_Dial
 
    ob = e_widget_label_add(evas, _("Items in history"));
    e_widget_framelist_object_append(of, ob);
-   ob = e_widget_slider_add(evas, 1, 0, "%2.0f", 5.0, 50.0, 1.0, 0, &(cfdata->hist_items), NULL, 40);
+   ob = e_widget_slider_add(evas, 1, 0, "%2.0f", HIST_MIN, HIST_MAX, 1.0, 0, &(cfdata->hist_items), NULL, 40);
    e_widget_framelist_object_append(of, ob);
 
    ob = e_widget_label_add(evas, _("Items label length"));
    e_widget_framelist_object_append(of, ob);
-   ob = e_widget_slider_add(evas, 1, 0, "%2.0f", 5.0, 50.0, 1.0, 0, &(cfdata->label_length), NULL, 40);
+   ob = e_widget_slider_add(evas, 1, 0, "%2.0f", LABEL_MIN, LABEL_MAX, 1.0, 0, &(cfdata->label_length), NULL, 40);
    e_widget_framelist_object_append(of, ob);
 
   e_widget_list_object_append(o, of, 1, 0, 0.5);
@@ -184,7 +184,7 @@ config_clipboard_module(E_Container *con, const char *params __UNUSED__)
   cfd = e_config_dialog_new(con, "Clipboard Settings",
             "E", "preferences/clipboard",
             "preferences-engine", 0, v, NULL);
-  clipboard_config->config_dialog = cfd;
+  clip_cfg->config_dialog = cfd;
   return cfd;
 }
 
@@ -193,16 +193,16 @@ _basic_check_changed(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfda
 {
   if (_sync_state_changed(cfdata))
     return _update_widget(cfdata);
-  if (clipboard_config->clip_copy     != cfdata->clip_copy) return 1;
-  if (clipboard_config->clip_select   != cfdata->clip_select) return 1;
-  if (clipboard_config->sync          != cfdata->sync) return 1;
-  if (clipboard_config-> persistence  != cfdata->persistence) return 1;
-  if (clipboard_config-> hist_reverse != cfdata->hist_reverse) return 1;
-  if (clipboard_config-> hist_items   != cfdata->hist_items) return 1;
-  if (clipboard_config-> label_length != cfdata->label_length) return 1;
-  if (clipboard_config->trim_ws       != cfdata->trim_ws) return 1;
-  if (clipboard_config->trim_nl       != cfdata->trim_nl) return 1;
-  if (clipboard_config->confirm_clear != cfdata->confirm_clear) return 1;
+  if (clip_cfg->clip_copy     != cfdata->clip_copy) return 1;
+  if (clip_cfg->clip_select   != cfdata->clip_select) return 1;
+  if (clip_cfg->sync          != cfdata->sync) return 1;
+  if (clip_cfg->persistence  != cfdata->persistence) return 1;
+  if (clip_cfg->hist_reverse != cfdata->hist_reverse) return 1;
+  if (clip_cfg->hist_items   != cfdata->hist_items) return 1;
+  if (clip_cfg->label_length != cfdata->label_length) return 1;
+  if (clip_cfg->trim_ws       != cfdata->trim_ws) return 1;
+  if (clip_cfg->trim_nl       != cfdata->trim_nl) return 1;
+  if (clip_cfg->confirm_clear != cfdata->confirm_clear) return 1;
   return 0;
 }
 
