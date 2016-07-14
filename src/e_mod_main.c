@@ -6,8 +6,9 @@
 #define TIMEOUT_1 1.0
 #define CLIP_LOG_NAME  "MOD:CLIP"
 
-/* convenience macro to compress code */
+/* Stuff for convenience to compress code */
 #define CLIP_TRIM_MODE(x) (x->trim_nl + 2 * (x->trim_ws))
+typedef Evas_Event_Mouse_Down Mouse_Event;
 
 /* gadcon requirements */
 static     Evas_Object  *_gc_icon(const E_Gadcon_Client_Class *client_class __UNUSED__, Evas * evas);
@@ -45,13 +46,14 @@ static Eina_Bool _cb_clipboard_request(void *data __UNUSED__);
 static Eina_Bool _cb_event_selection(Instance *instance, int type __UNUSED__, void *event);
 static void      _cb_menu_item(Clip_Data *selected_clip);
 static void      _cb_menu_post_deactivate(void *data, E_Menu *menu __UNUSED__);
-static void      _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Evas_Event_Mouse_Down *event);
+static void      _cb_menu_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Mouse_Event *event);
+static void      _cb_context_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Mouse_Event *event);
 static void      _cb_clear_history(Instance *inst);
 static void      _cb_dialog_delete(void *data __UNUSED__);
 static void      _cb_dialog_keep(void *data __UNUSED__);
-static void      _cb_action_switch(E_Object *o __UNUSED__, const char *params, Instance *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *event);
+static void      _cb_action_switch(E_Object *o __UNUSED__, const char *params, Instance *data, Evas *evas, Evas_Object *obj, Mouse_Event *event);
 
-static void      _menu_cb_configure(void *data, E_Menu *m __UNUSED__, E_Menu_Item *mi __UNUSED__);
+static void      _cb_config_show(void *data, E_Menu *m __UNUSED__, E_Menu_Item *mi __UNUSED__);
 static void      _cb_menu_post(void *data, E_Menu *menu);
 
 
@@ -145,7 +147,8 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
   inst->o_button = o;
 
   e_gadcon_client_util_menu_attach(gcc);
-  evas_object_event_callback_add(inst->o_button, EVAS_CALLBACK_MOUSE_DOWN, (Evas_Object_Event_Cb) _cb_show_menu, inst);
+  evas_object_event_callback_add(inst->o_button, EVAS_CALLBACK_MOUSE_DOWN, (Evas_Object_Event_Cb) _cb_menu_show, inst);
+  evas_object_event_callback_add(inst->o_button, EVAS_CALLBACK_MOUSE_DOWN, (Evas_Object_Event_Cb) _cb_context_show, inst);
 
   return gcc;
 }
@@ -217,8 +220,10 @@ _gc_id_new (const E_Gadcon_Client_Class *client_class __UNUSED__)
  */
 
 static void
-_cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Evas_Event_Mouse_Down *event)
+_cb_menu_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Mouse_Event *event)
 {
+
+  EINA_SAFETY_ON_NULL_RETURN(data);
   Instance *inst = data;
   Evas_Coord x, y, w, h;
   int cx, cy, dir, event_type = ecore_event_current_type_get();
@@ -226,79 +231,85 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
   E_Manager *man;
   Eina_Bool initialize;
 
-  EINA_SAFETY_ON_NULL_RETURN(inst);
-
   if (event_type == ECORE_EVENT_MOUSE_BUTTON_DOWN){
     /* Ignore all mouse events but right clicks        */
-    if ((((Evas_Event_Mouse_Down *) event)->button) != 1 && (((Evas_Event_Mouse_Down *) event)->button) != 3)
+    if (((Mouse_Event *) event)->button != 1 )
       return;
 
-    initialize = ((((Evas_Event_Mouse_Down *) event)->button) == 1) && (!inst->menu);
+    initialize = (((Mouse_Event *) event)->button == 1);
   } else {
     inst = clip_inst->inst;
     inst->gcc = NULL;
     initialize = EINA_TRUE;
   }
 
-  if (initialize) {
-    if (event_type == ECORE_EVENT_MOUSE_BUTTON_DOWN){
-      /* Coordinates and sizing */
-      evas_object_geometry_get(inst->o_button, &x, &y, &w, &h);
-      e_gadcon_canvas_zone_geometry_get(inst->gcc->gadcon, &cx, &cy,
-                                          NULL, NULL);
-      x += cx;
-      y += cy;
-    } else {
-      /* Coordinates and sizing */
-      man = e_manager_current_get();
-      con = e_container_current_get(man);
-      ecore_x_pointer_xy_get(con->win, &x, &y);
-    }
-
-    dir = _menu_fill(inst, event_type);
-    if (event_type == ECORE_EVENT_MOUSE_BUTTON_DOWN){
-      /* this activates gadget menu*/
-      e_gadcon_locked_set(inst->gcc->gadcon, EINA_TRUE);
-      e_menu_activate_mouse(inst->menu,
-                      e_util_zone_current_get(e_manager_current_get()),
-                 x, y, w, h, dir, ((Evas_Event_Mouse_Down *) event)->timestamp);
-    } else {
-      // e_gadcon_locked_set(inst->gcc->gadcon, EINA_TRUE);
-
-      /* this activates float menu*/
-      e_menu_activate_mouse(inst->menu,
-                      e_util_zone_current_get(e_manager_current_get()),
-                 x, y, 1, 1, dir, 1);
-      return;
-    }
+  EINA_SAFETY_ON_FALSE_RETURN(initialize);
+  if (event_type == ECORE_EVENT_MOUSE_BUTTON_DOWN){
+    /* Coordinates and sizing */
+    evas_object_geometry_get(inst->o_button, &x, &y, &w, &h);
+    e_gadcon_canvas_zone_geometry_get(inst->gcc->gadcon, &cx, &cy,
+                                        NULL, NULL);
+    x += cx;
+    y += cy;
+  } else {
+    /* Coordinates and sizing */
+    man = e_manager_current_get();
+    con = e_container_current_get(man);
+    ecore_x_pointer_xy_get(con->win, &x, &y);
   }
 
-  /* Settings item in gadget context menu */
-  initialize = ((((Evas_Event_Mouse_Down *) event)->button) == 3) && (!inst->menu);
-  if (initialize) {
-        E_Menu_Item *mi;
-        /* create popup menu */
-        inst->menu = e_menu_new();
-        mi = e_menu_item_new(inst->menu);
-        e_menu_item_label_set(mi, _("Settings"));
-        e_util_menu_item_theme_icon_set(mi, "preferences-system");
-        e_menu_item_callback_set(mi, _menu_cb_configure, inst);
+  dir = _menu_fill(inst, event_type);
+  if (event_type == ECORE_EVENT_MOUSE_BUTTON_DOWN){
+    /* this activates gadget menu*/
+    e_gadcon_locked_set(inst->gcc->gadcon, EINA_TRUE);
+    e_menu_activate_mouse(inst->menu,
+                    e_util_zone_current_get(e_manager_current_get()),
+               x, y, w, h, dir, ((Mouse_Event *) event)->timestamp);
+  } else {
+    // e_gadcon_locked_set(inst->gcc->gadcon, EINA_TRUE);
 
-        /* Each Gadget Client has a utility menu from the Container */
-        inst->menu = e_gadcon_client_util_menu_items_append(inst->gcc, inst->menu, 0);
-        e_menu_post_deactivate_callback_set(inst->menu, _cb_menu_post, inst);
-
-        e_gadcon_canvas_zone_geometry_get(inst->gcc->gadcon, &x, &y, NULL, NULL);
-
-        /* show the menu relative to gadgets position */
-        e_menu_activate_mouse(inst->menu, e_util_zone_current_get(e_manager_current_get()),
-                              (x + ((Evas_Event_Mouse_Down *) event)->output.x),
-                              (y + ((Evas_Event_Mouse_Down *) event)->output.y), 1, 1,
-                              E_MENU_POP_DIRECTION_AUTO, ((Evas_Event_Mouse_Down *) event)->timestamp);
-        evas_event_feed_mouse_up(inst->gcc->gadcon->evas, ((Evas_Event_Mouse_Down *) event)->button,
-                              EVAS_BUTTON_NONE, ((Evas_Event_Mouse_Down *) event)->timestamp, NULL);
+    /* this activates float menu*/
+    e_menu_activate_mouse(inst->menu,
+                    e_util_zone_current_get(e_manager_current_get()),
+               x, y, 1, 1, dir, 1);
   }
 }
+
+static void
+_cb_context_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Mouse_Event *event)
+{
+  EINA_SAFETY_ON_NULL_RETURN(data);
+
+  Instance *inst = data;
+  Eina_Bool initialize;
+  Evas_Coord x, y;
+  /* Settings item in gadget context menu */
+  initialize = ((((Mouse_Event *) event)->button) == 3);
+  EINA_SAFETY_ON_FALSE_RETURN(initialize);
+
+  E_Menu_Item *mi;
+  /* create popup menu */
+  inst->menu = e_menu_new();
+  mi = e_menu_item_new(inst->menu);
+  e_menu_item_label_set(mi, _("Settings"));
+  e_util_menu_item_theme_icon_set(mi, "preferences-system");
+  e_menu_item_callback_set(mi, _cb_config_show, inst);
+
+  /* Each Gadget Client has a utility menu from the Container */
+  inst->menu = e_gadcon_client_util_menu_items_append(inst->gcc, inst->menu, 0);
+  e_menu_post_deactivate_callback_set(inst->menu, _cb_menu_post, inst);
+
+  e_gadcon_canvas_zone_geometry_get(inst->gcc->gadcon, &x, &y, NULL, NULL);
+
+  /* show the menu relative to gadgets position */
+  e_menu_activate_mouse(inst->menu, e_util_zone_current_get(e_manager_current_get()),
+                        (x + ((Mouse_Event *) event)->output.x),
+                        (y + ((Mouse_Event *) event)->output.y), 1, 1,
+                        E_MENU_POP_DIRECTION_AUTO, ((Mouse_Event *) event)->timestamp);
+  evas_event_feed_mouse_up(inst->gcc->gadcon->evas, ((Mouse_Event *) event)->button,
+                        EVAS_BUTTON_NONE, ((Mouse_Event *) event)->timestamp, NULL);
+}
+
 
 static int
 _menu_fill(Instance *inst, int event_type)
@@ -362,7 +373,7 @@ _menu_fill(Instance *inst, int event_type)
   mi = e_menu_item_new(inst->menu);
   e_menu_item_label_set(mi, _("Settings"));
   e_util_menu_item_theme_icon_set(mi, "preferences-system");
-  e_menu_item_callback_set(mi, _menu_cb_configure, NULL);
+  e_menu_item_callback_set(mi, _cb_config_show, NULL);
 
   if (event_type == ECORE_EVENT_MOUSE_BUTTON_DOWN) {
     e_menu_post_deactivate_callback_set(inst->menu, _cb_menu_post_deactivate, inst);
@@ -578,12 +589,12 @@ _cb_menu_post_deactivate(void *data, E_Menu *menu __UNUSED__)
 }
 
 static void
-_cb_action_switch(E_Object *o __UNUSED__, const char *params, Instance *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *event)
+_cb_action_switch(E_Object *o __UNUSED__, const char *params, Instance *data, Evas *evas, Evas_Object *obj, Mouse_Event *event)
 {
   if (!strcmp(params, "float"))
-    _cb_show_menu(data, NULL, NULL, event);
+    _cb_menu_show(data, NULL, NULL, event);
   else if (!strcmp(params, "settings"))
-    _menu_cb_configure(data, NULL, NULL);
+    _cb_config_show(data, NULL, NULL);
   else if (!strcmp(params, "clear"))
     /* Only call clear dialog if there is something to clear */
     if (clip_inst->items) _cb_clear_history(NULL);
@@ -725,7 +736,7 @@ e_modapi_init (E_Module *m)
 }
 
 static void
-_menu_cb_configure(void *data, E_Menu *m __UNUSED__, E_Menu_Item *mi __UNUSED__)
+_cb_config_show(void *data, E_Menu *m __UNUSED__, E_Menu_Item *mi __UNUSED__)
 {
   Instance *inst = NULL;
 
