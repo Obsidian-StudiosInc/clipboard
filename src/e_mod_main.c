@@ -57,6 +57,7 @@ static void      _clipboard_cb_menu_post(void *data, E_Menu *menu);
 /*   And then some auxillary functions */
 static void      _clipboard_config_new(E_Module *m);
 static void      _clipboard_config_free(void);
+static void      _clip_inst_free(Instance *inst);
 static void      _clipboard_add_item(Clip_Data *clip_data);
 static int       _menu_fill(Instance *inst, int event_type);
 static void      _clear_history(void);
@@ -156,17 +157,7 @@ _gc_init(E_Gadcon *gc, const char *name, const char *id, const char *style)
 static void
 _gc_shutdown(E_Gadcon_Client *gcc)
 {
-  Instance *inst = gcc->data;
-
-  if (inst->menu) {
-    e_menu_post_deactivate_callback_set(inst->menu, NULL, NULL);
-    e_object_del(E_OBJECT(inst->menu));
-    inst->menu = NULL;
-  }
-
-  evas_object_del(inst->o_button);
-
-  E_FREE(inst);
+  _clip_inst_free(gcc->data);
 }
 
 static void
@@ -606,6 +597,20 @@ free_clip_data(Clip_Data *clip)
   free(clip);
 }
 
+static void
+_clip_inst_free(Instance *inst)
+{
+  inst->gcc = NULL;
+  if (inst->menu) {
+    e_menu_post_deactivate_callback_set(inst->menu, NULL, NULL);
+    e_object_del(E_OBJECT(inst->menu));
+    inst->menu = NULL;
+  }
+  if(inst->o_button)
+    evas_object_del(inst->o_button);
+  E_FREE(inst);
+}
+
 /*
  * This is the first function called by e17 when you load the module
  */
@@ -764,6 +769,8 @@ e_modapi_shutdown (E_Module *m __UNUSED__)
   ecore_timer_del(clip_inst->check_timer);
   clip_inst->check_timer = NULL;
   E_FREE_LIST(clip_inst->items, free_clip_data);
+  _clip_inst_free(clip_inst->inst);
+  E_FREE(clip_inst);
 
 noclip:
   EINA_SAFETY_ON_NULL_GOTO(clipboard_config, noconfig);
