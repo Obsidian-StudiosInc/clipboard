@@ -37,7 +37,7 @@ static E_Config_DD *conf_edd = NULL;
 static E_Config_DD *conf_item_edd = NULL;
 Mod_Inst *clip_inst = NULL; /* Need by e_mod_config.c */
 static E_Action *act = NULL;
-int _clipboard_log;
+int clipboard_log;
 
 /*   First some call backs   */
 static Eina_Bool _cb_clipboard_request(void *data __UNUSED__);
@@ -51,14 +51,14 @@ static void      _cb_dialog_keep(void *data __UNUSED__);
 static void      _cb_action_switch(E_Object *o __UNUSED__, const char *params, Instance *data, Evas *evas, Evas_Object *obj, Evas_Event_Mouse_Down *event);
 
 static void      _menu_cb_configure(void *data, E_Menu *m __UNUSED__, E_Menu_Item *mi __UNUSED__);
-static void      _clipboard_cb_menu_post(void *data, E_Menu *menu);
+static void      _cb_menu_post(void *data, E_Menu *menu);
 
 
 /*   And then some auxillary functions */
-static void      _clipboard_config_new(E_Module *m);
-static void      _clipboard_config_free(void);
+static void      _clip_config_new(E_Module *m);
+static void      _clip_config_free(void);
 static void      _clip_inst_free(Instance *inst);
-static void      _clipboard_add_item(Clip_Data *clip_data);
+static void      _clip_add_item(Clip_Data *clip_data);
 static int       _menu_fill(Instance *inst, int event_type);
 static void      _clear_history(void);
 static void      _x_clipboard_update(const char *text);
@@ -67,7 +67,7 @@ static int             _clip_compare(Clip_Data *cd, char *text);
 
 /* new module needs a new config :), or config too old and we need one anyway */
 static void
-_clipboard_config_new(E_Module *m)
+_clip_config_new(E_Module *m)
 {
   /* setup defaults */
   if (!clipboard_config) {
@@ -108,7 +108,7 @@ _clipboard_config_new(E_Module *m)
 /* This is called when we need to cleanup the actual configuration,
  * for example when our configuration is too old */
 static void
-_clipboard_config_free(void)
+_clip_config_free(void)
 {
   Config_Item *ci;
 
@@ -285,7 +285,7 @@ _cb_show_menu(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Ev
 
         /* Each Gadget Client has a utility menu from the Container */
         inst->menu = e_gadcon_client_util_menu_items_append(inst->gcc, inst->menu, 0);
-        e_menu_post_deactivate_callback_set(inst->menu, _clipboard_cb_menu_post, inst);
+        e_menu_post_deactivate_callback_set(inst->menu, _cb_menu_post, inst);
 
         e_gadcon_canvas_zone_geometry_get(inst->gcc->gadcon, &x, &y, NULL, NULL);
 
@@ -434,7 +434,7 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, void *event)
         /* Try to continue */
         goto error;
       }
-      _clipboard_add_item(cd);
+      _clip_add_item(cd);
     }
   }
   error:
@@ -452,7 +452,7 @@ _x_clipboard_update(const char *text)
 }
 
 static void
-_clipboard_add_item(Clip_Data *cd)
+_clip_add_item(Clip_Data *cd)
 {
   Eina_List *it;
   EINA_SAFETY_ON_NULL_RETURN(cd);
@@ -623,7 +623,7 @@ e_modapi_init (E_Module *m)
    * Under Preferences catogory */
   e_configure_registry_item_add("preferences/clipboard", 10,
             "Clipboard Settings", NULL,
-            "edit-paste", _config_clipboard_module);
+            "edit-paste", config_clipboard_module);
 
   conf_item_edd = E_CONFIG_DD_NEW("Clipboard_Config_Item", Config_Item);
 #undef T
@@ -655,13 +655,13 @@ e_modapi_init (E_Module *m)
    if (clipboard_config) {
      /* Check config version */
      if (!e_util_module_config_check("Clipboard", clipboard_config->version, MOD_CONFIG_FILE_VERSION))
-       _clipboard_config_free();
+       _clip_config_free();
    }
 
   /* If we don't have a config yet, or it got erased above,
    * then create a default one */
   if (!clipboard_config)
-    _clipboard_config_new(m);
+    _clip_config_new(m);
 
   /* Be sure we initialize our clipboard 'object' */
   init_clipboard_struct(clipboard_config);
@@ -669,7 +669,7 @@ e_modapi_init (E_Module *m)
   /* Initialize Einna_log for developers */
   clipboard_config->log_name = eina_stringshare_add("MOD:CLIP");
 
-  _clipboard_log = eina_log_domain_register(clipboard_config->log_name, EINA_COLOR_CYAN);
+  clipboard_log = eina_log_domain_register(clipboard_config->log_name, EINA_COLOR_CYAN);
   eina_log_domain_level_set(clipboard_config->log_name, EINA_LOG_LEVEL_DBG);
 
   INF("Initialized Clipboard Module");
@@ -734,11 +734,11 @@ _menu_cb_configure(void *data, E_Menu *m __UNUSED__, E_Menu_Item *mi __UNUSED__)
   inst = data;
   if (!clipboard_config) return;
   if (clipboard_config->config_dialog) return;
-  _config_clipboard_module(NULL, NULL);
+  config_clipboard_module(NULL, NULL);
 }
 
 static void
-_clipboard_cb_menu_post(void *data, E_Menu *menu)
+_cb_menu_post(void *data, E_Menu *menu)
 {
    Instance *inst = NULL;
 
@@ -809,8 +809,8 @@ noconfig:
   E_CONFIG_DD_FREE(conf_item_edd);
 
   INF("Shutting down Clipboard Module");
-  eina_log_domain_unregister(_clipboard_log);
-  _clipboard_log = -1;
+  eina_log_domain_unregister(clipboard_log);
+  clipboard_log = -1;
 
   /* Tell E the module is now unloaded. Gets removed from shelves, etc. */
   e_gadcon_provider_unregister(&_gadcon_class);

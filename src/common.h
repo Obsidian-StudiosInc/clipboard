@@ -18,11 +18,11 @@
 #undef WRN
 #undef ERR
 #undef CRI
-#define DBG(...)            EINA_LOG_DOM_DBG(_clipboard_log, __VA_ARGS__)
-#define INF(...)            EINA_LOG_DOM_INFO(_clipboard_log, __VA_ARGS__)
-#define WRN(...)            EINA_LOG_DOM_WARN(_clipboard_log, __VA_ARGS__)
-#define ERR(...)            EINA_LOG_DOM_ERR(_clipboard_log, __VA_ARGS__)
-#define CRI(...)            EINA_LOG_DOM_CRIT(_clipboard_log, __VA_ARGS__)
+#define DBG(...)            EINA_LOG_DOM_DBG(clipboard_log, __VA_ARGS__)
+#define INF(...)            EINA_LOG_DOM_INFO(clipboard_log, __VA_ARGS__)
+#define WRN(...)            EINA_LOG_DOM_WARN(clipboard_log, __VA_ARGS__)
+#define ERR(...)            EINA_LOG_DOM_ERR(clipboard_log, __VA_ARGS__)
+#define CRI(...)            EINA_LOG_DOM_CRIT(clipboard_log, __VA_ARGS__)
 
 typedef struct _Clip_Data
 {
@@ -63,7 +63,7 @@ struct _Mod_Inst
     Eina_List *items;
 };
 
-void e_mod_log_cb(const Eina_Log_Domain *d, Eina_Log_Level level, const char *file, const char *fnc, int line, const char *fmt, void *data, va_list args);
-extern int _clipboard_log;
+void cb_mod_log(const Eina_Log_Domain *d, Eina_Log_Level level, const char *file, const char *fnc, int line, const char *fmt, void *data, va_list args);
+extern int clipboard_log;
 
 #endif
