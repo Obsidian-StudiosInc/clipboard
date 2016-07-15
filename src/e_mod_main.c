@@ -257,23 +257,24 @@ _cb_context_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__,
 
   Instance *inst = data;
   Evas_Coord x, y;
+  E_Menu *m;
   E_Menu_Item *mi;
 
   /* create popup menu  */
-  inst->menu = e_menu_new();
-  mi = e_menu_item_new(inst->menu);
+  m = e_menu_new();
+  mi = e_menu_item_new(m);
   e_menu_item_label_set(mi, _("Settings"));
   e_util_menu_item_theme_icon_set(mi, "preferences-system");
   e_menu_item_callback_set(mi, _cb_config_show, inst);
 
   /* Each Gadget Client has a utility menu from the Container  */
-  inst->menu = e_gadcon_client_util_menu_items_append(inst->gcc, inst->menu, 0);
-  e_menu_post_deactivate_callback_set(inst->menu, _cb_menu_post_deactivate, inst);
+  m = e_gadcon_client_util_menu_items_append(inst->gcc, m, 0);
+  e_menu_post_deactivate_callback_set(m, _cb_menu_post_deactivate, inst);
 
   e_gadcon_canvas_zone_geometry_get(inst->gcc->gadcon, &x, &y, NULL, NULL);
 
   /* show the menu relative to gadgets position  */
-  e_menu_activate_mouse(inst->menu, e_util_zone_current_get(e_manager_current_get()),
+  e_menu_activate_mouse(m, e_util_zone_current_get(e_manager_current_get()),
                         (x + event->output.x),
                         (y + event->output.y), 1, 1,
                         E_MENU_POP_DIRECTION_AUTO, event->timestamp);
