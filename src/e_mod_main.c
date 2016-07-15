@@ -47,7 +47,7 @@ static Eina_Bool _cb_clipboard_request(void *data __UNUSED__);
 static Eina_Bool _cb_event_selection(Instance *instance, int type __UNUSED__, void *event);
 static void      _cb_menu_item(Clip_Data *selected_clip);
 static void      _cb_menu_post_deactivate(void *data, E_Menu *menu __UNUSED__);
-static void      _cb_menu_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, void *event);
+static void      _cb_menu_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Mouse_Event *event);
 static void      _cb_context_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Mouse_Event *event);
 static void      _cb_clear_history(Instance *inst);
 static void      _cb_dialog_delete(void *data __UNUSED__);
@@ -222,7 +222,7 @@ _gc_id_new (const E_Gadcon_Client_Class *client_class __UNUSED__)
  */
 
 static void
-_cb_menu_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, void *event)
+_cb_menu_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Mouse_Event *event)
 {
   EINA_SAFETY_ON_NULL_RETURN(data);
   EINA_SAFETY_ON_NULL_RETURN(event);
@@ -234,9 +234,9 @@ _cb_menu_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, vo
 
   /* Ignore all mouse events but right clicks  */
   if (mouse_event)
-    IF_TRUE_RETURN(((Mouse_Event *) event)->button != 1);
+    IF_TRUE_RETURN(event->button != 1);
   /* Set time_stamp and Evas coordinates  */
-  timestamp = mouse_event ? ((Mouse_Event *) event)->timestamp : 1;
+  timestamp = mouse_event ? event->timestamp : 1;
   _set_mouse_coord(inst, mouse_event, &x,&y, &w, &h);
   /* Fill menu  */
   dir = _menu_fill(inst, mouse_event);
