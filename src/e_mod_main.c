@@ -67,7 +67,8 @@ static void      _x_clipboard_update(const char *text);
 static Eina_List *     _item_in_history(Clip_Data *cd);
 static int             _clip_compare(Clip_Data *cd, char *text);
 static void  _set_mouse_coord(Instance *inst, Eina_Bool mouse_event,
-                 Evas_Coord *x, Evas_Coord *y, Evas_Coord *w, Evas_Coord *h);
+                              Evas_Coord * const x, Evas_Coord * const y,
+                              Evas_Coord * const w, Evas_Coord * const h);
 
 /* new module needs a new config :), or config too old and we need one anyway */
 static void
@@ -252,7 +253,7 @@ _cb_context_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__,
   EINA_SAFETY_ON_NULL_RETURN(data);
   EINA_SAFETY_ON_NULL_RETURN(event);
   /* Ignore all mouse events but left clicks  */
-  IF_TRUE_RETURN((((Mouse_Event *) event)->button) != 3);
+  IF_TRUE_RETURN(event->button != 3);
 
   Instance *inst = data;
   Evas_Coord x, y;
@@ -273,17 +274,18 @@ _cb_context_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__,
 
   /* show the menu relative to gadgets position  */
   e_menu_activate_mouse(inst->menu, e_util_zone_current_get(e_manager_current_get()),
-                        (x + ((Mouse_Event *) event)->output.x),
-                        (y + ((Mouse_Event *) event)->output.y), 1, 1,
-                        E_MENU_POP_DIRECTION_AUTO, ((Mouse_Event *) event)->timestamp);
-  evas_event_feed_mouse_up(inst->gcc->gadcon->evas, ((Mouse_Event *) event)->button,
-                        EVAS_BUTTON_NONE, ((Mouse_Event *) event)->timestamp, NULL);
+                        (x + event->output.x),
+                        (y + event->output.y), 1, 1,
+                        E_MENU_POP_DIRECTION_AUTO, event->timestamp);
+  evas_event_feed_mouse_up(inst->gcc->gadcon->evas, event->button,
+                        EVAS_BUTTON_NONE, event->timestamp, NULL);
 }
-//FIX ME add const ??
+
 static void
 _set_mouse_coord(Instance *inst,
                  Eina_Bool mouse_event,
-                 Evas_Coord *x, Evas_Coord *y, Evas_Coord *w, Evas_Coord *h)
+                 Evas_Coord * const x, Evas_Coord * const y,
+                 Evas_Coord * const w, Evas_Coord * const h)
 {
    int cx, cy;
    E_Container *con;
