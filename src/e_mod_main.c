@@ -689,9 +689,9 @@ e_modapi_init (E_Module *m)
   act = e_action_add("clipboard");
   if (act) {
     act->func.go = (void *) _cb_action_switch;
-    e_action_predef_name_set("Clipboard","Show History", "clipboard", "float",    NULL, 0);
-    e_action_predef_name_set("Clipboard","Show Settings",   "clipboard", "settings", NULL, 0);
-    e_action_predef_name_set("Clipboard","Clear History",   "clipboard", "clear",    NULL, 0);
+    e_action_predef_name_set("Clipboard", ACT_FLOAT, "clipboard", "float",    NULL, 0);
+    e_action_predef_name_set("Clipboard", ACT_CONFIG,   "clipboard", "settings", NULL, 0);
+    e_action_predef_name_set("Clipboard", ACT_CLEAR,   "clipboard", "clear",    NULL, 0);
   }
 
   /* Create a global clip_inst for our module
@@ -795,9 +795,10 @@ noconfig:
   e_configure_registry_item_del("preferences/clipboard");
 
   /* Clean up all key binding actions */
-  /* Clean up all key binding actions */
   if (act) {
-    e_action_predef_name_del("Clipboard", "Show float menu");
+    e_action_predef_name_del("Clipboard", ACT_FLOAT);
+    e_action_predef_name_del("Clipboard", ACT_CONFIG);
+    e_action_predef_name_del("Clipboard", ACT_CLEAR);
     e_action_del("clipboard");
     act = NULL;
   }

@@ -15,6 +15,11 @@
 # define _(string) (string)
 #endif
 
+/* Key Board Bindings action names */
+#define ACT_FLOAT   "Show History"
+#define ACT_CONFIG  "Show Settings"
+#define ACT_CLEAR   "Clear History"
+
 /* Macros used for config file versioning */
 /* You can increment the EPOCH value if the old configuration is not
  * compatible anymore, it creates an entire new one.
