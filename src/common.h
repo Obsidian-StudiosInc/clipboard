@@ -8,6 +8,12 @@
 #define MAGIC_LABEL_SIZE 50
 #define MAGIC_HIST_SIZE  20
 
+/* Stuff for convenience to compress code */
+#define IF_TRUE_RETURN(exp)             \
+do {                                    \
+  if (exp) return;                      \
+} while(0)
+
 /* Possible Future Config Options */
 #define FC_IGNORE_WHITE_SPACE EINA_TRUE
 
@@ -50,7 +56,7 @@ struct _Mod_Inst
 {
     /* Sructure to store a global module instance in
      *   complete with a hidden window for event notification purposes */
-     
+
     Instance *inst;
     /* A pointer to an Ecore window used to
      * recieve or send clipboard events to */
