@@ -198,6 +198,7 @@ read_history(Eina_List **items, unsigned ignore_ws, unsigned label_length)
     /* Read each item */
     for (i = 1; i <= item_num; i++){
         cd = E_NEW(Clip_Data, 1);
+        cd->name = malloc(LABEL_MAX + 1);
         sprintf(str, "%d", i);
         ret = eet_read(history_file, str, &size);
         if (!ret) {

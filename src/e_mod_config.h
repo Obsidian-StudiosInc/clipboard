@@ -3,9 +3,6 @@
 
 #define HIST_MIN   5
 #define HIST_MAX   100
-#define LABEL_MIN  5
-#define LABEL_MAX  100
-
 
 /* We create a structure config for our module, and also a config structure
  * for every item element (you can have multiple gadgets for the same module) */
