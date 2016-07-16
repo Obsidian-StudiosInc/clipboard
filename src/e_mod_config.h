@@ -29,6 +29,7 @@ struct _Config
   int hist_reverse;  /* Order to display History                        */
   double hist_items;    /* Number of history items to store             */
   double label_length;  /* Number of characters of item to display      */
+  int ignore_ws;     /* Should we trim White space from selection       */
   int trim_ws;       /* Should we trim White space from selection       */
   int trim_nl;       /* Should we trim new lines from selection         */
   int confirm_clear; /* Display history confirmation dialog on deletion */

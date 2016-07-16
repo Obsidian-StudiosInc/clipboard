@@ -24,6 +24,7 @@ struct _E_Config_Dialog_Data
   int   hist_reverse;  /* Order to display History                        */
   double hist_items;   /* Number of history items to store                */
   double label_length; /* Number of characters of item to display         */
+  int   ignore_ws;     /* Should we trim White space from selection       */
   int   trim_ws;       /* Should we trim White space from selection       */
   int   trim_nl;       /* Should we trim new lines from selection         */
   int   confirm_clear; /* Display history confirmation dialog on deletion */
@@ -70,6 +71,7 @@ _fill_data(E_Config_Dialog_Data *cfdata)
   cfdata->hist_reverse  = clip_cfg->hist_reverse;
   cfdata->hist_items    = clip_cfg->hist_items;
   cfdata->label_length  = clip_cfg->label_length;
+  cfdata->ignore_ws     = clip_cfg->ignore_ws;
   cfdata->trim_ws       = clip_cfg->trim_ws;
   cfdata->trim_nl       = clip_cfg->trim_nl;
   cfdata->confirm_clear = clip_cfg->confirm_clear;
@@ -94,6 +96,7 @@ _basic_apply_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
   }
   clip_cfg->label_length  = cfdata->label_length;
 
+  clip_cfg->ignore_ws     = cfdata->ignore_ws;
   clip_cfg->trim_ws       = cfdata->trim_ws;
   clip_cfg->trim_nl       = cfdata->trim_nl;
   clip_cfg->confirm_clear = cfdata->confirm_clear;
@@ -154,6 +157,9 @@ _basic_create_widgets(E_Config_Dialog *cfd __UNUSED__, Evas *evas, E_Config_Dial
 
   /* Miscellaneous Config Section */
   of = e_widget_framelist_add(evas, _("Miscellaneous"), 0);
+  ob = e_widget_check_add(evas, _("Ignore Whitespace"), &(cfdata->ignore_ws));
+  e_widget_framelist_object_append(of, ob);
+
   ob = e_widget_check_add(evas, _("Trim Whitespace"), &(cfdata->trim_ws));
   e_widget_framelist_object_append(of, ob);
 
@@ -196,10 +202,11 @@ _basic_check_changed(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfda
   if (clip_cfg->clip_copy     != cfdata->clip_copy) return 1;
   if (clip_cfg->clip_select   != cfdata->clip_select) return 1;
   if (clip_cfg->sync          != cfdata->sync) return 1;
-  if (clip_cfg->persistence  != cfdata->persistence) return 1;
-  if (clip_cfg->hist_reverse != cfdata->hist_reverse) return 1;
-  if (clip_cfg->hist_items   != cfdata->hist_items) return 1;
-  if (clip_cfg->label_length != cfdata->label_length) return 1;
+  if (clip_cfg->persistence   != cfdata->persistence) return 1;
+  if (clip_cfg->hist_reverse  != cfdata->hist_reverse) return 1;
+  if (clip_cfg->hist_items    != cfdata->hist_items) return 1;
+  if (clip_cfg->label_length  != cfdata->label_length) return 1;
+  if (clip_cfg->ignore_ws     != cfdata->ignore_ws) return 1;
   if (clip_cfg->trim_ws       != cfdata->trim_ws) return 1;
   if (clip_cfg->trim_nl       != cfdata->trim_nl) return 1;
   if (clip_cfg->confirm_clear != cfdata->confirm_clear) return 1;
