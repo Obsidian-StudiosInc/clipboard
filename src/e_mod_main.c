@@ -338,11 +338,9 @@ _menu_fill(Instance *inst, Eina_Bool mouse_event)
     /* show list in history menu  */
     EINA_LIST_FOREACH(clip_inst->items, it, clip){
       mi = e_menu_item_new(inst->menu);
-      if (label_length_changed) {
-        free(clip->name);
+      if (label_length_changed)
         set_clip_name(&clip->name, clip->content,
                        clip_cfg->ignore_ws, clip_cfg->label_length);
-      }
       e_menu_item_label_set(mi, clip->name);
       e_menu_item_callback_set(mi, (E_Menu_Cb)_cb_menu_item, clip);
     }
