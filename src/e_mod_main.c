@@ -325,6 +325,10 @@ _menu_fill(Instance *inst, Eina_Bool mouse_event)
     Eina_List *it;
     Clip_Data *clip;
 
+    /* Flag to see if Label len changed */
+    Eina_Bool label_length_changed = clip_cfg->label_length_changed;
+    clip_cfg->label_length_changed = EINA_FALSE;
+
     /* revert list if selected  */
     if (clip_cfg->hist_reverse)
       clip_inst->items=eina_list_reverse(clip_inst->items);
@@ -332,11 +336,10 @@ _menu_fill(Instance *inst, Eina_Bool mouse_event)
     /* show list in history menu  */
     EINA_LIST_FOREACH(clip_inst->items, it, clip){
       mi = e_menu_item_new(inst->menu);
-      if (clip_cfg->label_length_changed) {
+      if (label_length_changed) {
         free(clip->name);
         set_clip_name(&clip->name, clip->content,
                        FC_IGNORE_WHITE_SPACE, clip_cfg->label_length);
-        clip_cfg->label_length_changed = EINA_FALSE;
       }
       e_menu_item_label_set(mi, clip->name);
       e_menu_item_callback_set(mi, (E_Menu_Cb)_cb_menu_item, clip);
