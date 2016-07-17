@@ -33,7 +33,7 @@ strdup (const char *s)
 #endif
 
 char *strip_whitespace(char *str, int mode);
-int isnewline(int c);
+int isnewline(const int c);
 
 Eina_Bool
 set_clip_content(char **content, char* text, int mode)
@@ -132,7 +132,7 @@ _sanitize_ln(char *text, const unsigned int n, const int mode)
       /* is it a tab */
       if (chr == 9){
         // default tab
-        for (i; i+4;i++){
+        for (i; i + 4; i++){
           if (i == n) break;
           *temp++ = ' ';
         }
@@ -193,7 +193,16 @@ strip_whitespace(char *str, int mode)
 }
 
 int
-isnewline(int c)
+isnewline(const int c)
 {
   return (c == '\n')||(c == '\r');
+}
+
+Eina_Bool 
+is_empty(const char *str)
+{
+  EINA_SAFETY_ON_NULL_RETURN(str);
+  
+  while (isspace((unsigned char) *str) && str++);
+  return !*str;
 }

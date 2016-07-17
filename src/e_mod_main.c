@@ -1,3 +1,5 @@
+/* This is a test */
+
 #include "e_mod_main.h"
 #include "x_clipboard.h"
 #include "config_defaults.h"
@@ -80,17 +82,18 @@ _clip_config_new(E_Module *m)
 
     clip_cfg->label_length_changed = EINA_FALSE;
 
-    clip_cfg->clip_copy     = CF_DEFAULT_COPY;
-    clip_cfg->clip_select   = CF_DEFAULT_SELECT;
-    clip_cfg->sync          = CF_DEFAULT_SYNC;
-    clip_cfg->persistence   = CF_DEFAULT_PERSISTANCE;
-    clip_cfg->hist_reverse  = CF_DEFAULT_HIST_REVERSE;
-    clip_cfg->hist_items    = CF_DEFAULT_HIST_ITEMS;
-    clip_cfg->label_length  = CF_DEFAULT_LABEL_LENGTH;
-    clip_cfg->ignore_ws     = CF_DEFAULT_IGNORE_WS;
-    clip_cfg->trim_ws       = CF_DEFAULT_WS;
-    clip_cfg->trim_nl       = CF_DEFAULT_NL;
-    clip_cfg->confirm_clear = CF_DEFAULT_CONFIRM;
+    clip_cfg->clip_copy      = CF_DEFAULT_COPY;
+    clip_cfg->clip_select    = CF_DEFAULT_SELECT;
+    clip_cfg->sync           = CF_DEFAULT_SYNC;
+    clip_cfg->persistence    = CF_DEFAULT_PERSISTANCE;
+    clip_cfg->hist_reverse   = CF_DEFAULT_HIST_REVERSE;
+    clip_cfg->hist_items     = CF_DEFAULT_HIST_ITEMS;
+    clip_cfg->confirm_clear  = CF_DEFAULT_CONFIRM;
+    clip_cfg->label_length   = CF_DEFAULT_LABEL_LENGTH;
+    clip_cfg->ignore_ws      = CF_DEFAULT_IGNORE_WS;
+    clip_cfg->ignore_ws_copy = CF_DEFAULT_IGNORE_WS_COPY;
+    clip_cfg->trim_ws        = CF_DEFAULT_WS;
+    clip_cfg->trim_nl        = CF_DEFAULT_NL;
   }
   E_CONFIG_LIMIT(clip_cfg->clip_copy, 0, 1);
   E_CONFIG_LIMIT(clip_cfg->clip_select, 0, 1);
@@ -99,10 +102,12 @@ _clip_config_new(E_Module *m)
   E_CONFIG_LIMIT(clip_cfg->hist_reverse, 0, 1);
   E_CONFIG_LIMIT(clip_cfg->hist_items, HIST_MIN, HIST_MAX);
   E_CONFIG_LIMIT(clip_cfg->label_length, LABEL_MIN, LABEL_MAX);
+  E_CONFIG_LIMIT(clip_cfg->confirm_clear, 0, 1);
   E_CONFIG_LIMIT(clip_cfg->ignore_ws, 0, 1);
+  E_CONFIG_LIMIT(clip_cfg->ignore_ws_copy, 0, 1);
   E_CONFIG_LIMIT(clip_cfg->trim_ws, 0, 1);
   E_CONFIG_LIMIT(clip_cfg->trim_nl, 0, 1);
-  E_CONFIG_LIMIT(clip_cfg->confirm_clear, 0, 1);
+
 
   /* update the version */
   clip_cfg->version = MOD_CONFIG_FILE_VERSION;
@@ -433,19 +438,24 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, void *event)
   if ((text_data = clipboard.get_text(event))) {
     if (strcmp(last, text_data->text ) != 0) {
       if (text_data->data.length == 0)
-        return EINA_TRUE;
-
+        return ECORE_CALLBACK_DONE;
+      if (clip_cfg->ignore_ws_copy && is_empty(text_data->text)) {
+        clipboard.clear();
+        return ECORE_CALLBACK_DONE;
+      }
       cd = E_NEW(Clip_Data, 1);
       if (!set_clip_content(&cd->content, text_data->text,
                              CLIP_TRIM_MODE(clip_cfg))) {
         CRI("Something bad happened !!");
         /* Try to continue */
+        E_FREE(cd);
         goto error;
       }
       if (!set_clip_name(&cd->name, cd->content,
                     clip_cfg->ignore_ws, clip_cfg->label_length)){
         CRI("Something bad happened !!");
         /* Try to continue */
+        E_FREE(cd);
         goto error;
       }
       _clip_add_item(cd);
@@ -669,11 +679,12 @@ e_modapi_init (E_Module *m)
   E_CONFIG_VAL(D, T, persistence, INT);
   E_CONFIG_VAL(D, T, hist_reverse, INT);
   E_CONFIG_VAL(D, T, hist_items, DOUBLE);
+  E_CONFIG_VAL(D, T, confirm_clear, INT);
   E_CONFIG_VAL(D, T, label_length, DOUBLE);
   E_CONFIG_VAL(D, T, ignore_ws, INT);
+  E_CONFIG_VAL(D, T, ignore_ws_copy, INT);
   E_CONFIG_VAL(D, T, trim_ws, INT);
   E_CONFIG_VAL(D, T, trim_nl, INT);
-  E_CONFIG_VAL(D, T, confirm_clear, INT);
 
   /* Tell E to find any existing module data. First run ? */
   clip_cfg = e_config_domain_load("module.clipboard", conf_edd);

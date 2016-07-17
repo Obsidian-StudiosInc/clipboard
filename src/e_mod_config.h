@@ -18,18 +18,19 @@ struct _Config
   Eina_Bool label_length_changed;  /* Flag indicating a need to update all clip
                                        labels as configfuration changed. */
 
-  int version;       /* Configuration version                           */
-  int clip_copy;     /* Clipboard to use                                */
-  int clip_select;   /* Clipboard to use                                */
-  int sync;          /* Synchronize clipboards flag                     */
-  int persistence;   /* History file persistance                        */
-  int hist_reverse;  /* Order to display History                        */
-  double hist_items;    /* Number of history items to store             */
-  double label_length;  /* Number of characters of item to display      */
-  int ignore_ws;     /* Should we trim White space from selection       */
-  int trim_ws;       /* Should we trim White space from selection       */
-  int trim_nl;       /* Should we trim new lines from selection         */
-  int confirm_clear; /* Display history confirmation dialog on deletion */
+  int version;          /* Configuration version                           */
+  int clip_copy;        /* Clipboard to use                                */
+  int clip_select;      /* Clipboard to use                                */
+  int sync;             /* Synchronize clipboards flag                     */
+  int persistence;      /* History file persistance                        */
+  int hist_reverse;     /* Order to display History                        */
+  double hist_items;    /* Number of history items to store                */
+  int confirm_clear;    /* Display history confirmation dialog on deletion */
+  double label_length;  /* Number of characters of item to display         */
+  int   ignore_ws;      /* Should we ignore White space in label           */
+  int   ignore_ws_copy; /* Should we not copy White space only             */
+  int trim_ws;          /* Should we trim White space from selection       */
+  int trim_nl;          /* Should we trim new lines from selection         */
 };
 
 struct _Config_Item
