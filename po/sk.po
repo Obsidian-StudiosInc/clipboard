@@ -1,0 +1,98 @@
+# Slovak translation for enlightenment
+# This file is distributed under the same license as the enlightenment package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: enlightenment\n"
+"Report-Msgid-Bugs-To: enlightenment-devel@lists.sourceforge.net\n"
+"POT-Creation-Date: 2016-07-13 18:42+0200\n"
+"PO-Revision-Date: 2016-07-12 22:25+0100\n"
+"Last-Translator: Stefan Uram <uram@szm.sk>\n"
+"Language-Team: Slovak <uram@szm.sk>\n"
+"Language: Slovak\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: e_mod_config.c:122
+msgid "Clipboards"
+msgstr "Schránka"
+
+#: e_mod_config.c:123
+msgid "Use Copy (Ctrl-C)"
+msgstr "Použi Kopíruj (CTRL-C)"
+
+#: e_mod_config.c:126
+msgid "Use Primary (Selection)"
+msgstr "Použi Primary (výber)"
+
+#: e_mod_config.c:129
+msgid "Synchronize Clipboards"
+msgstr "Synchronizuj schránky"
+
+#: e_mod_config.c:137
+msgid "History"
+msgstr "História"
+
+#: e_mod_config.c:138
+msgid "Save History"
+msgstr "Ulož históriu"
+
+#: e_mod_config.c:141
+msgid "Reverse order"
+msgstr "Opačné zobrazenie"
+
+#: e_mod_config.c:144
+msgid "Items in history"
+msgstr "Počet položiek histórie"
+
+#: e_mod_config.c:149
+msgid "Items label length"
+msgstr "Počet znakov položky"
+
+#: e_mod_config.c:157
+msgid "Miscellaneous"
+msgstr "Rôzne"
+
+#: e_mod_config.c:158
+msgid "Trim Whitespace"
+msgstr "Odstráň neviditeľné znaky"
+
+#: e_mod_config.c:161
+msgid "Trim Newlines"
+msgstr "Odstráň znak konca riadku"
+
+#: e_mod_config.c:164
+msgid "Confirm before clearing history"
+msgstr "Potvrď vymazanie histórie"
+
+#: e_mod_main.c:289 e_mod_main.c:374
+msgid "Settings"
+msgstr "Nastavenia"
+
+#: e_mod_main.c:349
+msgid "Empty"
+msgstr "Prázdny"
+
+#: e_mod_main.c:357
+msgid "Clear"
+msgstr "Vymaž"
+
+#: e_mod_main.c:548
+msgid "Confirm History Deletion"
+msgstr "Potvrď vymazanie histórie"
+
+#: e_mod_main.c:550
+msgid ""
+"You wish to delete the clipboards history.<br><br>Are you sure you want to "
+"delete it?"
+msgstr "História bude vymazaná. <br><br>Si si istý, že ju chceš vymazať?"
+
+#: e_mod_main.c:553
+msgid "Delete"
+msgstr "Vymaž"
+
+#: e_mod_main.c:553
+msgid "Keep"
+msgstr "Späť"
