@@ -58,6 +58,10 @@ msgid "Miscellaneous"
 msgstr ""
 
 #: e_mod_config.c:158
+msgid "Ignore Whitespace"
+msgstr ""
+
+#: e_mod_config.c:159
 msgid "Trim Whitespace"
 msgstr ""
 
