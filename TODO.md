@@ -39,7 +39,7 @@ Beta release
 
 - [ ] Ensure we have no memory leaks
 
-- [ ] Add proper localization support 
+- [x] Add proper localization support 
 
 
 Research
@@ -52,4 +52,4 @@ Research
 Github
 ------
 
-- [ ] Proper readme See [Classic-Menu](https://github.com/rbtylee/Classic-Menu) for example
+- [x] Proper readme See [Classic-Menu](https://github.com/rbtylee/Classic-Menu) for example
