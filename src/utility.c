@@ -133,6 +133,7 @@ _sanitize_ln(char *text, const unsigned int n, const int mode)
       if (chr == 9){
         // default tab
         for (i; i+4;i++){
+          if (i == n) break;
           *temp++ = ' ';
         }
         text++;
