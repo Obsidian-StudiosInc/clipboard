@@ -42,16 +42,6 @@ MODULE_ARCH="$host_os-$host_cpu-$release"
 AC_SUBST(MODULE_ARCH)
 AC_DEFINE_UNQUOTED(MODULE_ARCH, "$MODULE_ARCH", "Module architecture")
 
-#
-# Platform specific setup
-#
-#############################
-case $host_os in
-    linux*)
-         PKG_CHECK_MODULES(BSD, [libbsd])
-         ;;
-esac
-
 AC_CHECK_FUNCS([strdup strndup])
 
 # Find edje_cc
