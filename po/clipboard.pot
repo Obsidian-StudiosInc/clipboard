@@ -17,88 +17,92 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: e_mod_config.c:122
+#: e_mod_config.c:130
 msgid "Clipboards"
 msgstr ""
 
-#: e_mod_config.c:123
-msgid "Use Copy (Ctrl-C)"
+#: e_mod_config.c:131
+msgid " Use Copy (Ctrl-C)"
 msgstr ""
 
-#: e_mod_config.c:126
-msgid "Use Primary (Selection)"
-msgstr ""
-
-#: e_mod_config.c:129
-msgid "Synchronize Clipboards"
+#: e_mod_config.c:134
+msgid " Use Primary (Selection)"
 msgstr ""
 
 #: e_mod_config.c:137
+msgid " Synchronize Clipboards"
+msgstr ""
+
+#: e_mod_config.c:146
 msgid "History"
 msgstr ""
 
-#: e_mod_config.c:138
-msgid "Save History"
+#: e_mod_config.c:147
+msgid " Save History"
 msgstr ""
 
-#: e_mod_config.c:141
-msgid "Reverse order"
+#: e_mod_config.c:150
+msgid " Reverse Order"
 msgstr ""
 
-#: e_mod_config.c:144
-msgid "Items in history"
+#: e_mod_config.c:153
+msgid " Confirm before Clearing"
 msgstr ""
 
-#: e_mod_config.c:149
-msgid "Items label length"
-msgstr ""
-
-#: e_mod_config.c:157
-msgid "Miscellaneous"
-msgstr ""
-
-#: e_mod_config.c:158
-msgid "Ignore Whitespace"
-msgstr ""
-
-#: e_mod_config.c:159
-msgid "Trim Whitespace"
-msgstr ""
-
-#: e_mod_config.c:161
-msgid "Trim Newlines"
+#: e_mod_config.c:156
+msgid " Items in History"
 msgstr ""
 
 #: e_mod_config.c:164
-msgid "Confirm before clearing history"
+msgid "Labels"
 msgstr ""
 
-#: e_mod_main.c:289 e_mod_main.c:374
+#: e_mod_config.c:165 e_mod_config.c:177
+msgid " Ignore Whitespace"
+msgstr ""
+
+#: e_mod_config.c:168
+msgid " Label Length"
+msgstr ""
+
+#: e_mod_config.c:176
+msgid "Content"
+msgstr ""
+
+#: e_mod_config.c:180
+msgid " Trim Whitespace"
+msgstr ""
+
+#: e_mod_config.c:183
+msgid " Trim Newlines"
+msgstr ""
+
+#: e_mod_main.c:273 e_mod_main.c:381
 msgid "Settings"
 msgstr ""
 
-#: e_mod_main.c:349
+#: e_mod_main.c:360
 msgid "Empty"
 msgstr ""
 
-#: e_mod_main.c:357
+#: e_mod_main.c:368
 msgid "Clear"
 msgstr ""
 
-#: e_mod_main.c:548
+#: e_mod_main.c:558
 msgid "Confirm History Deletion"
 msgstr ""
 
-#: e_mod_main.c:550
+#: e_mod_main.c:560
 msgid ""
 "You wish to delete the clipboards history.<br><br>Are you sure you want to "
 "delete it?"
 msgstr ""
 
-#: e_mod_main.c:553
+#: e_mod_main.c:563
 msgid "Delete"
 msgstr ""
 
-#: e_mod_main.c:553
+#: e_mod_main.c:563
 msgid "Keep"
 msgstr ""
