@@ -270,7 +270,7 @@ _cb_context_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__,
   /* create popup menu  */
   m = e_menu_new();
   mi = e_menu_item_new(m);
-  e_menu_item_label_set(mi, _("Settings"));
+  e_menu_item_label_set(mi, D_("Settings"));
   e_util_menu_item_theme_icon_set(mi, "preferences-system");
   e_menu_item_callback_set(mi, _cb_config_show, inst);
 
@@ -357,7 +357,7 @@ _menu_fill(Instance *inst, Eina_Bool mouse_event)
   }
   else {
     mi = e_menu_item_new(inst->menu);
-    e_menu_item_label_set(mi, _("Empty"));
+    e_menu_item_label_set(mi, D_("Empty"));
     e_menu_item_disabled_set(mi, EINA_TRUE);
   }
 
@@ -365,7 +365,7 @@ _menu_fill(Instance *inst, Eina_Bool mouse_event)
   e_menu_item_separator_set(mi, EINA_TRUE);
 
   mi = e_menu_item_new(inst->menu);
-  e_menu_item_label_set(mi, _("Clear"));
+  e_menu_item_label_set(mi, D_("Clear"));
   e_util_menu_item_theme_icon_set(mi, "edit-clear");
   e_menu_item_callback_set(mi, (E_Menu_Cb) _cb_clear_history, inst);
 
@@ -378,7 +378,7 @@ _menu_fill(Instance *inst, Eina_Bool mouse_event)
   e_menu_item_separator_set(mi, EINA_TRUE);
 
   mi = e_menu_item_new(inst->menu);
-  e_menu_item_label_set(mi, _("Settings"));
+  e_menu_item_label_set(mi, D_("Settings"));
   e_util_menu_item_theme_icon_set(mi, "preferences-system");
   e_menu_item_callback_set(mi, _cb_config_show, NULL);
 
@@ -555,12 +555,12 @@ _cb_clear_history(Instance *inst __UNUSED__)
   EINA_SAFETY_ON_NULL_RETURN(clip_cfg);
 
   if (clip_cfg->confirm_clear) {
-    e_confirm_dialog_show(_("Confirm History Deletion"),
+    e_confirm_dialog_show(D_("Confirm History Deletion"),
                           "application-exit",
-                          _("You wish to delete the clipboards history.<br>"
+                          D_("You wish to delete the clipboards history.<br>"
                           "<br>"
                           "Are you sure you want to delete it?"),
-                          _("Delete"), _("Keep"),
+                          D_("Delete"), D_("Keep"),
                           _cb_dialog_delete, NULL, NULL, NULL,
                           _cb_dialog_keep, NULL);
   }
