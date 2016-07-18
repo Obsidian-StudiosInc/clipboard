@@ -49,7 +49,7 @@ Research
  
 - [ ] Automatic pasting 
 
-- [ ] How to avoid the need for .pot file  
+- [x] How to avoid the need for .pot file  
 
 
 Github
