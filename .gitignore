@@ -35,6 +35,7 @@ po/Makevars.template
 po/POTFILES
 po/Rules-quot
 po/boldquot.sed
+po/clipboard.pot
 po/en@boldquot.header
 po/en@quot.header
 po/insert-header.sin
