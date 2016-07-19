@@ -43,7 +43,7 @@ This module is currently in a pre-release beta state. *It is more a proof of con
 
 # Screenshot
 
-![alt text](http://i.imgur.com/4GreCI0.png "Clipboard module")
+[![alt text](http://i.imgur.com/4GreCI0.png "Clipboard module")](http://i.imgur.com/4GreCI0.png)
 
 # Requirements
 
@@ -97,5 +97,6 @@ If you have found this module interesting and want to collaborate by making it b
 - [Marcel Hollerbach](https://github.com/marcelhollerbach)
 - [Stephen Houston]
 
-In memory of John B. Minick IV (1952-2016) Brick mason, truck driver, father, Linux user, arm chair intellectual and revolutionary.
+<center>In memory of John B. Minick IV (1952-2016)</center>
+Brick mason, truck driver, father, Linux user, arm chair intellectual and revolutionary.
 
