@@ -97,6 +97,6 @@ If you have found this module interesting and want to collaborate by making it b
 - [Marcel Hollerbach](https://github.com/marcelhollerbach)
 - [Stephen Houston]
 
-<center>In memory of John B. Minick IV (1952-2016)</center>
-Brick mason, truck driver, father, Linux user, arm chair intellectual and revolutionary.
+<p align="center"><i>In memory of John B. Minick IV (1952-2016)<br>
 
+Brick mason, truck driver, father, Linux user, intellectual and revolutionary.</i></p>
