@@ -49,7 +49,7 @@ This module is currently in a pre-release beta state. *It is more a proof of con
 
 We currently only support Linux and the X Window System clipboards so sorry users of other Operating systems and Display Servers. It is also worth noting we currently only build using the gcc compiler, other compilers remain untested due to a lack of time. *Patches are however accepted.*
 
-It should build without any issues on any system meeting the above reguirements meeting [the reguirements for building e17 itself](https://www.enlightenment.org/download).
+It should build without any issues on any system meeting the above reguirements as well as meeting [the reguirements for building e17 itself](https://www.enlightenment.org/download).
 
 - [Enlightenment Foundation Libraries] (https://download.enlightenment.org/rel/libs/efl/)
 
