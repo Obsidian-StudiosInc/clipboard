@@ -47,7 +47,7 @@ static E_Action *act = NULL;
 /*   First some call backs   */
 static Eina_Bool _cb_clipboard_request(void *data __UNUSED__);
 static Eina_Bool _cb_event_selection(Instance *instance, int type __UNUSED__, Ecore_X_Event_Selection_Notify * event);
-static Eina_Bool _cb_event_owner(Instance *instance, int type __UNUSED__, Ecore_X_Event_Fixes_Selection_Notify * event);
+static Eina_Bool _cb_event_owner(Instance *instance __UNUSED__, int type __UNUSED__, Ecore_X_Event_Fixes_Selection_Notify * event);
 static void      _cb_menu_item(Clip_Data *selected_clip);
 static void      _cb_menu_post_deactivate(void *data, E_Menu *menu __UNUSED__);
 static void      _cb_menu_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Mouse_Event *event);
@@ -467,8 +467,9 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, Ecore_X_Event_Selec
 }
 
 static Eina_Bool
-_cb_event_owner(Instance *instance, int type __UNUSED__, Ecore_X_Event_Fixes_Selection_Notify * event){
-
+_cb_event_owner(Instance *instance __UNUSED__, int type __UNUSED__, Ecore_X_Event_Fixes_Selection_Notify * event)
+{
+  EINA_SAFETY_ON_NULL_RETURN_VAL(event, ECORE_CALLBACK_DONE);
   /* If we lost owner of clipboard */
   if (event->reason)
     /* Reset clipboard and gain ownership of it */
