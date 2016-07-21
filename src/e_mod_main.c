@@ -46,7 +46,8 @@ static E_Action *act = NULL;
 
 /*   First some call backs   */
 static Eina_Bool _cb_clipboard_request(void *data __UNUSED__);
-static Eina_Bool _cb_event_selection(Instance *instance, int type __UNUSED__, void *event);
+static Eina_Bool _cb_event_selection(Instance *instance, int type __UNUSED__, Ecore_X_Event_Selection_Notify * event);
+static Eina_Bool _cb_event_owner(Instance *instance, int type __UNUSED__, Ecore_X_Event_Fixes_Selection_Notify * event);
 static void      _cb_menu_item(Clip_Data *selected_clip);
 static void      _cb_menu_post_deactivate(void *data, E_Menu *menu __UNUSED__);
 static void      _cb_menu_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Mouse_Event *event);
@@ -424,7 +425,7 @@ _menu_fill(Instance *inst, Eina_Bool mouse_event)
 }
 
 static Eina_Bool
-_cb_event_selection(Instance *instance, int type __UNUSED__, void *event)
+_cb_event_selection(Instance *instance, int type __UNUSED__, Ecore_X_Event_Selection_Notify * event)
 {
   Ecore_X_Selection_Data_Text *text_data;
   Clip_Data *cd = NULL;
@@ -462,6 +463,17 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, void *event)
     }
   }
   error:
+  return ECORE_CALLBACK_PASS_ON;
+}
+
+static Eina_Bool
+_cb_event_owner(Instance *instance, int type __UNUSED__, Ecore_X_Event_Fixes_Selection_Notify * event){
+
+  /* If we lost owner of clipboard */
+  if (event->reason)
+    /* Reset clipboard and gain ownership of it */
+    _cb_menu_item(eina_list_data_get(clip_inst->items));
+
   return ECORE_CALLBACK_DONE;
 }
 
@@ -505,9 +517,6 @@ _clip_add_item(Clip_Data *cd)
 
   /* saving list to the file */
   clip_save(clip_inst->items);
-
- /* gain ownership of clipboard item in case we lose current owner */
- _cb_menu_item(eina_list_data_get(clip_inst->items));
 }
 
 static Eina_List *
@@ -583,6 +592,8 @@ _cb_dialog_delete(void *data __UNUSED__)
 static Eina_Bool
 _cb_clipboard_request(void *data __UNUSED__)
 {
+
+	ecore_x_fixes_selection_notification_request(ECORE_X_ATOM_SELECTION_CLIPBOARD);
   clipboard.request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
   return EINA_TRUE;
 }
@@ -731,6 +742,7 @@ e_modapi_init (E_Module *m)
 
   /* Now add some callbacks to handle clipboard events */
   E_LIST_HANDLER_APPEND(clip_inst->handle, ECORE_X_EVENT_SELECTION_NOTIFY, _cb_event_selection, clip_inst);
+  E_LIST_HANDLER_APPEND(clip_inst->handle, ECORE_X_EVENT_FIXES_SELECTION_NOTIFY, _cb_event_owner, clip_inst);
   clipboard.request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
   clip_inst->check_timer = ecore_timer_add(TIMEOUT_1, _cb_clipboard_request, clip_inst);
 
