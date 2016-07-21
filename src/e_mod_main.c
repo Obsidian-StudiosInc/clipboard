@@ -463,7 +463,7 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, Ecore_X_Event_Selec
     }
   }
   error:
-  return ECORE_CALLBACK_PASS_ON;
+  return ECORE_CALLBACK_DONE;
 }
 
 static Eina_Bool
