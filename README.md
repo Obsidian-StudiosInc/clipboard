@@ -94,6 +94,7 @@ If you have found this module interesting and want to collaborate by making it b
 
 # Thanks
 - [Jeff Hoogland](https://github.com/JeffHoogland)
+- [Leif Middelschulte] (share module author which our project is based on)
 - [Marcel Hollerbach](https://github.com/marcelhollerbach)
 - [Stephen Houston]
 
