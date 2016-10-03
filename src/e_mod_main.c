@@ -499,6 +499,7 @@ _cb_refresh_item(void *data)
   exe = ecore_exe_run(buf, NULL);
   if (exe) ecore_exe_free(exe);
 
+  eina_strbuf_free(mybuffer);
   return ECORE_CALLBACK_DONE;
 }
 
@@ -506,10 +507,6 @@ _cb_refresh_item(void *data)
 void
 _x_clipboard_update(const char *text)
 {
-  
-  Ecore_Exe *exe;
-  char buf[PATH_MAX];
-	
   EINA_SAFETY_ON_NULL_RETURN(clip_inst);
   EINA_SAFETY_ON_NULL_RETURN(text);
 
@@ -524,9 +521,6 @@ _x_clipboard_update(const char *text)
   //~ if (exe) ecore_exe_free(exe);
   
     clip_inst->delay_timer = ecore_timer_add(0.2, _cb_refresh_item, text);
-
-  
-
 }
 
 static void
