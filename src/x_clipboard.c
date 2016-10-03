@@ -171,8 +171,9 @@ _get_text_clipboard(Ecore_X_Event_Selection_Notify *event)
 
     if ((text_data->data.content == ECORE_X_SELECTION_CONTENT_TEXT) &&
         (text_data->text))
-      return text_data;
+        return text_data;
   }
+  
   return NULL;
 }
 
@@ -180,7 +181,9 @@ Ecore_X_Selection_Data_Text *
 _get_text_primary(Ecore_X_Event_Selection_Notify *event)
 {
   Ecore_X_Selection_Data_Text *text_data;
-
+Ecore_Exe *exe;
+  
+  char buf[PATH_MAX];
   if ((event->selection == ECORE_X_SELECTION_PRIMARY) &&
        (strcmp(event->target, ECORE_X_SELECTION_TARGET_UTF8_STRING) == 0))
   {
@@ -190,6 +193,7 @@ _get_text_primary(Ecore_X_Event_Selection_Notify *event)
         (text_data->text))
       return text_data;
   }
+  
   return NULL;
 }
 

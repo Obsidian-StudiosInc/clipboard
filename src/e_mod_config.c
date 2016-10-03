@@ -195,8 +195,11 @@ config_clipboard_module(E_Container *con, const char *params __UNUSED__)
   E_Config_Dialog *cfd;
   E_Config_Dialog_View *v;
 
-  if(e_config_dialog_find("E", "settings/clipboard")) return NULL;
+  if(e_config_dialog_find("Clipboard", "extensions/clipboard")) return NULL;
+  
   v = E_NEW(E_Config_Dialog_View, 1);
+  if (!v) return NULL;
+  
   v->create_cfdata = _create_data;
   v->free_cfdata = _free_data;
   v->basic.create_widgets = _basic_create_widgets;
@@ -204,8 +207,8 @@ config_clipboard_module(E_Container *con, const char *params __UNUSED__)
   v->basic.check_changed = _basic_check_changed;
 
   cfd = e_config_dialog_new(con, "Clipboard Settings",
-            "E", "preferences/clipboard",
-            "preferences-engine", 0, v, NULL);
+            "Clipboard", "extensions/clipboard",
+             0, 0, v, NULL);
   clip_cfg->config_dialog = cfd;
   return cfd;
 }

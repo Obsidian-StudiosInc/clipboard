@@ -471,9 +471,33 @@ _cb_event_owner(Instance *instance __UNUSED__, int type __UNUSED__, Ecore_X_Even
 {
   EINA_SAFETY_ON_NULL_RETURN_VAL(event, ECORE_CALLBACK_DONE);
   /* If we lost owner of clipboard */
-  if (event->reason)
-    /* Reset clipboard and gain ownership of it */
-    _cb_menu_item(eina_list_data_get(clip_inst->items));
+  //~ if (event->reason)
+    //~ /* Reset clipboard and gain ownership of it */
+    //~ _cb_menu_item(eina_list_data_get(clip_inst->items));
+
+  return ECORE_CALLBACK_DONE;
+}
+
+static Eina_Bool
+_cb_refresh_item(void *data)
+{
+	clipboard.set(clip_inst->win, data, strlen(data) + 1);
+  //~ Ecore_Exe *exe;
+  //~ char buf[PATH_MAX];
+  //~ Eina_Strbuf *mybuffer;
+  //~ mybuffer = eina_strbuf_new();
+  //~ eina_strbuf_append(mybuffer, data);
+  //~ eina_strbuf_replace_all(mybuffer, "'", "\\'");
+  //~ //e_util_dialog_internal("mybuffer",eina_strbuf_string_get(mybuffer));
+  //~ // eina_strbuf_insert(mybuffer, "printf \'", 0);
+  //~ // eina_strbuf_insert(mybuffer, "\' | xclip -selection clipboard", eina_strbuf_length_get(mybuffer));
+  //~ 
+  //~ // strcpy(buf,eina_strbuf_string_get(mybuffer));
+  //~ snprintf(buf, sizeof(buf), "printf \'%s\' | xclip -selection clipboard", eina_strbuf_string_get(mybuffer));
+  //~ // snprintf(buf, sizeof(buf), "%s", eina_strbuf_string_get(mybuffer));
+  //~ // e_util_dialog_internal("buf",buf);
+  //~ exe = ecore_exe_run(buf, NULL);
+  //~ if (exe) ecore_exe_free(exe);
 
   return ECORE_CALLBACK_DONE;
 }
@@ -482,10 +506,27 @@ _cb_event_owner(Instance *instance __UNUSED__, int type __UNUSED__, Ecore_X_Even
 void
 _x_clipboard_update(const char *text)
 {
+  
+  Ecore_Exe *exe;
+  char buf[PATH_MAX];
+	
   EINA_SAFETY_ON_NULL_RETURN(clip_inst);
   EINA_SAFETY_ON_NULL_RETURN(text);
 
-  clipboard.set(clip_inst->win, text, strlen(text) + 1);
+  //~ clipboard.set(clip_inst->win, text, strlen(text) + 1);
+
+/* temporary solution for pasting content to the GTK environment
+ * xclip need to install as dependency of course
+ *         
+ *       -                                                 */
+  //~ snprintf(buf, sizeof(buf), "xclip -selection clipboard -o > xclip.txt");
+  //~ exe = ecore_exe_run(buf, NULL);
+  //~ if (exe) ecore_exe_free(exe);
+  
+    clip_inst->delay_timer = ecore_timer_add(0.2, _cb_refresh_item, text);
+
+  
+
 }
 
 static void
@@ -518,6 +559,8 @@ _clip_add_item(Clip_Data *cd)
 
   /* saving list to the file */
   clip_save(clip_inst->items);
+  clip_inst->delay_timer = ecore_timer_add(1.0, _cb_refresh_item, cd->content);
+  
 }
 
 static Eina_List *
@@ -593,10 +636,8 @@ _cb_dialog_delete(void *data __UNUSED__)
 static Eina_Bool
 _cb_clipboard_request(void *data __UNUSED__)
 {
-
   ecore_x_fixes_selection_notification_request(ECORE_X_ATOM_SELECTION_CLIPBOARD);
   clipboard.request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
-  return EINA_TRUE;
 }
 
 static void
@@ -668,7 +709,7 @@ e_modapi_init (E_Module *m)
 
   /* Display this Modules config info in the main Config Panel
    * Under Preferences catogory */
-  e_configure_registry_item_add("preferences/clipboard", 10,
+  e_configure_registry_item_add("extensions/clipboard", 10,
             "Clipboard Settings", NULL,
             "edit-paste", config_clipboard_module);
 
