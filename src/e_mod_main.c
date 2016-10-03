@@ -481,23 +481,23 @@ _cb_event_owner(Instance *instance __UNUSED__, int type __UNUSED__, Ecore_X_Even
 static Eina_Bool
 _cb_refresh_item(void *data)
 {
-	clipboard.set(clip_inst->win, data, strlen(data) + 1);
-  //~ Ecore_Exe *exe;
-  //~ char buf[PATH_MAX];
-  //~ Eina_Strbuf *mybuffer;
-  //~ mybuffer = eina_strbuf_new();
-  //~ eina_strbuf_append(mybuffer, data);
-  //~ eina_strbuf_replace_all(mybuffer, "'", "\\'");
-  //~ //e_util_dialog_internal("mybuffer",eina_strbuf_string_get(mybuffer));
-  //~ // eina_strbuf_insert(mybuffer, "printf \'", 0);
-  //~ // eina_strbuf_insert(mybuffer, "\' | xclip -selection clipboard", eina_strbuf_length_get(mybuffer));
-  //~ 
-  //~ // strcpy(buf,eina_strbuf_string_get(mybuffer));
-  //~ snprintf(buf, sizeof(buf), "printf \'%s\' | xclip -selection clipboard", eina_strbuf_string_get(mybuffer));
-  //~ // snprintf(buf, sizeof(buf), "%s", eina_strbuf_string_get(mybuffer));
-  //~ // e_util_dialog_internal("buf",buf);
-  //~ exe = ecore_exe_run(buf, NULL);
-  //~ if (exe) ecore_exe_free(exe);
+	//~ clipboard.set(clip_inst->win, data, strlen(data) + 1);
+  Ecore_Exe *exe;
+  char buf[PATH_MAX];
+  Eina_Strbuf *mybuffer;
+  mybuffer = eina_strbuf_new();
+  eina_strbuf_append(mybuffer, data);
+  eina_strbuf_replace_all(mybuffer, "'", "\\'");
+  //e_util_dialog_internal("mybuffer",eina_strbuf_string_get(mybuffer));
+  // eina_strbuf_insert(mybuffer, "printf \'", 0);
+  // eina_strbuf_insert(mybuffer, "\' | xclip -selection clipboard", eina_strbuf_length_get(mybuffer));
+  
+  // strcpy(buf,eina_strbuf_string_get(mybuffer));
+  snprintf(buf, sizeof(buf), "printf \'%s\' | xclip -selection clipboard", eina_strbuf_string_get(mybuffer));
+  // snprintf(buf, sizeof(buf), "%s", eina_strbuf_string_get(mybuffer));
+  // e_util_dialog_internal("buf",buf);
+  exe = ecore_exe_run(buf, NULL);
+  if (exe) ecore_exe_free(exe);
 
   return ECORE_CALLBACK_DONE;
 }
