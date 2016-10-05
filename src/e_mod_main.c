@@ -424,6 +424,7 @@ _menu_fill(Instance *inst, Eina_Bool mouse_event)
   return dir;
 }
 
+
 static Eina_Bool
 _cb_event_selection(Instance *instance, int type __UNUSED__, Ecore_X_Event_Selection_Notify * event)
 {
@@ -460,6 +461,7 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, Ecore_X_Event_Selec
         goto error;
       }
       _clip_add_item(cd);
+      
     }
   }
   error:
@@ -471,29 +473,36 @@ _cb_event_owner(Instance *instance __UNUSED__, int type __UNUSED__, Ecore_X_Even
 {
   EINA_SAFETY_ON_NULL_RETURN_VAL(event, ECORE_CALLBACK_DONE);
   /* If we lost owner of clipboard */
-  //~ if (event->reason)
+  if (event->reason)
     //~ /* Reset clipboard and gain ownership of it */
-    //~ _cb_menu_item(eina_list_data_get(clip_inst->items));
+    _cb_menu_item(eina_list_data_get(clip_inst->items));
 
   return ECORE_CALLBACK_DONE;
 }
 
 static Eina_Bool
-_cb_xclip_item(void *data)
+_cb_xclip_apply_data(void *data)
 {
   Ecore_Exe *exe;
   char buf[PATH_MAX];
-  Eina_Strbuf *mybuffer;
-  mybuffer = eina_strbuf_new();
-  eina_strbuf_append(mybuffer, data);
-  eina_strbuf_replace_all(mybuffer, "\"", "\\\\\"");
-  eina_strbuf_replace_all(mybuffer, "\'", "\\\\\'");
   
-  snprintf(buf, sizeof(buf), "printf \'%s\' | xclip -selection clipboard", eina_strbuf_string_get(mybuffer));
+  snprintf(buf, sizeof(buf), "cat ~/.xclip_clip.txt | xclip -selection clipboard");
+
   exe = ecore_exe_run(buf, NULL);
   if (exe) ecore_exe_free(exe);
+  return ECORE_CALLBACK_DONE;
+}
 
-  eina_strbuf_free(mybuffer);
+static Eina_Bool
+_cb_xclip_save_data(void *data)
+{
+  Ecore_Exe *exe;
+  char buf[PATH_MAX];
+  
+  snprintf(buf, sizeof(buf), "xclip -selection clipboard -o > ~/.xclip_clip.txt");
+
+  exe = ecore_exe_run(buf, NULL);
+  if (exe) ecore_exe_free(exe);
   return ECORE_CALLBACK_DONE;
 }
 
@@ -504,9 +513,14 @@ _x_clipboard_update(const char *text)
   EINA_SAFETY_ON_NULL_RETURN(clip_inst);
   EINA_SAFETY_ON_NULL_RETURN(text);
 
-  //~ clipboard.set(clip_inst->win, text, strlen(text) + 1);
-
-  clip_inst->delay_timer = ecore_timer_add(0.2, _cb_xclip_item, text);
+  clipboard.set(clip_inst->win, text, strlen(text) + 1);
+  
+  /* calling xclip callback */
+  /* temporary solution for pasting content to the GTK environment
+  *  xclip needs to be installed as dependency 
+  *                                                             */
+  clip_inst->delay_timer = ecore_timer_add(0.2, _cb_xclip_save_data, NULL);
+  clip_inst->delay_timer = ecore_timer_add(1.0, _cb_xclip_apply_data, NULL);
 }
 
 static void
@@ -539,8 +553,6 @@ _clip_add_item(Clip_Data *cd)
 
   /* saving list to the file */
   clip_save(clip_inst->items);
-  clip_inst->delay_timer = ecore_timer_add(1.0, _cb_xclip_item, cd->content);
-  
 }
 
 static Eina_List *

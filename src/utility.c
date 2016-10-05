@@ -40,6 +40,7 @@ set_clip_content(char **content, char* text, int mode)
 {
   Eina_Bool ret = EINA_TRUE;
   char *temp, *trim;
+  char buf[50];
   /* Sanity check */
   if (!text) {
     WRN("ERROR: Text is NULL\n");
@@ -96,6 +97,7 @@ set_clip_name(char **name, char * text, int mode, int n)
   /* to be continued latter */
   if (name)
     *name = _sanitize_ln(text, n, mode);
+    //~ *name = text;
   else {
     ERR("Error: Clip name pointer is Null!!");
     return EINA_FALSE;
@@ -123,12 +125,12 @@ _sanitize_ln(char *text, const unsigned int n, const int mode)
 
   if (mode)
     text = strip_whitespace(text, TRIM_SPACES);
-
+    
   while (1) {
     chr = *text;
     if (chr == 0)
       break;
-    if (chr < 32) {
+    if ((chr < 32) && (chr >0)) {
       /* is it a tab */
       if (chr == 9){
         // default tab
@@ -143,13 +145,17 @@ _sanitize_ln(char *text, const unsigned int n, const int mode)
       }
     }
     else {
+    
     /* assume char is ok and add to temp buffer */
     *temp++ = *text++;
+    
     i++;
     }
     if (i == n) break;
   }
   *temp = 0;
+      
+
   return ret;
 }
 
