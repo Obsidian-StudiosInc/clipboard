@@ -3,10 +3,10 @@ msgstr ""
 "Project-Id-Version: clipboard\n"
 "Report-Msgid-Bugs-To: enlightenment-devel@lists.sourceforge.net\n"
 "POT-Creation-Date: 2016-11-11 20:58+0100\n"
-"PO-Revision-Date: 2016-07-18 20:18+0100\n"
-"Last-Translator: Stefan Uram <uram@szm.sk>\n"
-"Language-Team: slovak\n"
-"Language: slovak\n"
+"PO-Revision-Date: 2016-11-11 20:18+0100\n"
+"Last-Translator: Astroboy <dreamnext@gmail.com>\n"
+"Language-Team: spanish\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -17,90 +17,91 @@ msgstr ""
 
 #: src/e_mod_config.c:130
 msgid "Clipboards"
-msgstr "Schránky"
+msgstr "Portapapeles"
 
 #: src/e_mod_config.c:131
 msgid " Use Copy (Ctrl-C)"
-msgstr " Použi schránku (Ctrl-C)"
+msgstr " Use Copiar (Ctrl-C)"
 
 #: src/e_mod_config.c:134
 msgid " Use Primary (Selection)"
-msgstr " Použi schránku (Označenie)"
+msgstr " Use Primario (Selección)"
 
 #: src/e_mod_config.c:137
 msgid " Synchronize Clipboards"
-msgstr " Synchronizuj schránky"
+msgstr " Sincronizar Portapapeles"
 
 #: src/e_mod_config.c:146
 msgid "History"
-msgstr "História"
+msgstr "Historia"
 
 #: src/e_mod_config.c:147
 msgid " Save History"
-msgstr " Ulož históriu"
+msgstr " Guardar Historia"
 
 #: src/e_mod_config.c:150
 msgid " Reverse Order"
-msgstr " Opačné poradie"
+msgstr " Orden Inverso"
 
 #: src/e_mod_config.c:153
 msgid " Confirm before Clearing"
-msgstr " Povtvrď pred vymazaním"
+msgstr " Confirmar antes de borrar"
 
 #: src/e_mod_config.c:156
 msgid " Items in History"
-msgstr " Položiek v histórii"
+msgstr " Elementos en la Historia"
 
 #: src/e_mod_config.c:164
 msgid "Labels"
-msgstr "Názvy položiek"
+msgstr "Etiquetas"
 
 #: src/e_mod_config.c:165 src/e_mod_config.c:177
 msgid " Ignore Whitespace"
-msgstr " Ignoruj neviditeľné znaky"
+msgstr " Ignorar espacios en blanco"
 
 #: src/e_mod_config.c:168
 msgid " Label Length"
-msgstr " Dĺžka názvu položky"
+msgstr " Largo de la Etiqueta"
 
 #: src/e_mod_config.c:176
 msgid "Content"
-msgstr "Obsah schránky"
+msgstr "Contenido"
 
 #: src/e_mod_config.c:180
 msgid " Trim Whitespace"
-msgstr " Zruš neviditeľné znaky"
+msgstr " Eliminar Espacios en Blanco"
 
 #: src/e_mod_config.c:183
 msgid " Trim Newlines"
-msgstr " Zruš znak konca riadku"
+msgstr " Eliminar Nuevas Líneas"
 
 #: src/e_mod_main.c:274 src/e_mod_main.c:382
 msgid "Settings"
-msgstr "Nastavenia"
+msgstr "Configuración"
 
 #: src/e_mod_main.c:361
 msgid "Empty"
-msgstr "Prázdne"
+msgstr "Vacío"
 
 #: src/e_mod_main.c:369
 msgid "Clear"
-msgstr "Vymaž"
+msgstr "Limpiar"
 
 #: src/e_mod_main.c:603
 msgid "Confirm History Deletion"
-msgstr "Potvrď vymazanie histórie"
+msgstr "Confirmar Borrado del Historial"
 
 #: src/e_mod_main.c:605
 msgid ""
 "You wish to delete the clipboards history.<br><br>Are you sure you want to "
 "delete it?"
-msgstr "Praješ si vymazať históriu.<br><br>Si si istý, že ju chceš vymazať?"
+msgstr ""
+"Desea borrar el historial del portapapeles.<br><br>¿Está segur@ de hacerlo? "
 
 #: src/e_mod_main.c:608
 msgid "Delete"
-msgstr "Vymaž"
+msgstr "Borrarlo"
 
 #: src/e_mod_main.c:608
 msgid "Keep"
-msgstr "Zrušiť"
+msgstr "Mantenerlo"
