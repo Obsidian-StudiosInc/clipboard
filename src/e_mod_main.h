@@ -16,9 +16,9 @@
 #endif
 
 /* Key Board Bindings action names */
-#define ACT_FLOAT   "Show History"
-#define ACT_CONFIG  "Show Settings"
-#define ACT_CLEAR   "Clear History"
+#define ACT_FLOAT   D_("Show History")
+#define ACT_CONFIG  D_("Show Settings")
+#define ACT_CLEAR   D_("Clear History")
 
 /* Macros used for config file versioning */
 /* You can increment the EPOCH value if the old configuration is not

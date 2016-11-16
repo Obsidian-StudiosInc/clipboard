@@ -203,7 +203,7 @@ config_clipboard_module(E_Container *con, const char *params __UNUSED__)
   v->basic.apply_cfdata = _basic_apply_data;
   v->basic.check_changed = _basic_check_changed;
 
-  cfd = e_config_dialog_new(con, "Clipboard Settings",
+  cfd = e_config_dialog_new(con, D_("Clipboard Settings"),
             "E", "preferences/clipboard",
             "preferences-engine", 0, v, NULL);
   clip_cfg->config_dialog = cfd;
