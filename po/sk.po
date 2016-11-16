@@ -76,7 +76,6 @@ msgid " Trim Newlines"
 msgstr " Zruš znak konca riadku"
 
 #: src/e_mod_config.c:206
-#, fuzzy
 msgid "Clipboard Settings"
 msgstr "Nastavenie Správcu schránky"
 
@@ -111,21 +110,17 @@ msgid "Keep"
 msgstr "Zrušiť"
 
 #: src/e_mod_main.c:729 src/e_mod_main.c:730 src/e_mod_main.c:731
-#, fuzzy
 msgid "Clipboard"
-msgstr "Schránky"
+msgstr "Správca schránky"
 
 #: src/e_mod_main.h:19
-#, fuzzy
 msgid "Show History"
-msgstr "História"
+msgstr "Zobraziť históriu"
 
 #: src/e_mod_main.h:20
-#, fuzzy
 msgid "Show Settings"
-msgstr "Nastavenia"
+msgstr "Zobraziť nastavenia"
 
 #: src/e_mod_main.h:21
-#, fuzzy
 msgid "Clear History"
-msgstr "História"
+msgstr "Vymazať históriu"
