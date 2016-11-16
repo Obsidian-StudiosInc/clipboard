@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clipboard\n"
 "Report-Msgid-Bugs-To: enlightenment-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2016-11-11 21:04+0100\n"
+"POT-Creation-Date: 2016-11-16 21:00+0100\n"
 "PO-Revision-Date: 2016-07-18 20:18+0100\n"
 "Last-Translator: Stefan Uram <uram@szm.sk>\n"
 "Language-Team: slovak\n"
@@ -75,6 +75,11 @@ msgstr " Zruš neviditeľné znaky"
 msgid " Trim Newlines"
 msgstr " Zruš znak konca riadku"
 
+#: src/e_mod_config.c:206
+#, fuzzy
+msgid "Clipboard Settings"
+msgstr "Nastavenie Správcu schránky"
+
 #: src/e_mod_main.c:274 src/e_mod_main.c:382
 msgid "Settings"
 msgstr "Nastavenia"
@@ -104,3 +109,23 @@ msgstr "Vymaž"
 #: src/e_mod_main.c:573
 msgid "Keep"
 msgstr "Zrušiť"
+
+#: src/e_mod_main.c:729 src/e_mod_main.c:730 src/e_mod_main.c:731
+#, fuzzy
+msgid "Clipboard"
+msgstr "Schránky"
+
+#: src/e_mod_main.h:19
+#, fuzzy
+msgid "Show History"
+msgstr "História"
+
+#: src/e_mod_main.h:20
+#, fuzzy
+msgid "Show Settings"
+msgstr "Nastavenia"
+
+#: src/e_mod_main.h:21
+#, fuzzy
+msgid "Clear History"
+msgstr "História"

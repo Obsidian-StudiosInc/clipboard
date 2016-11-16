@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clipboard\n"
 "Report-Msgid-Bugs-To: enlightenment-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2016-11-11 21:04+0100\n"
+"POT-Creation-Date: 2016-11-16 21:00+0100\n"
 "PO-Revision-Date: 2016-11-11 20:18+0100\n"
 "Last-Translator: Astroboy <dreamnext@gmail.com>\n"
 "Language-Team: spanish\n"
@@ -75,6 +75,10 @@ msgstr " Eliminar Espacios en Blanco"
 msgid " Trim Newlines"
 msgstr " Eliminar Nuevas Líneas"
 
+#: src/e_mod_config.c:206
+msgid "Clipboard Settings"
+msgstr "Configuración del Portapapeles"
+
 #: src/e_mod_main.c:274 src/e_mod_main.c:382
 msgid "Settings"
 msgstr "Configuración"
@@ -105,3 +109,23 @@ msgstr "Borrarlo"
 #: src/e_mod_main.c:573
 msgid "Keep"
 msgstr "Mantenerlo"
+
+#: src/e_mod_main.c:729 src/e_mod_main.c:730 src/e_mod_main.c:731
+#, fuzzy
+msgid "Clipboard"
+msgstr "Portapapeles"
+
+#: src/e_mod_main.h:19
+#, fuzzy
+msgid "Show History"
+msgstr "Historia"
+
+#: src/e_mod_main.h:20
+#, fuzzy
+msgid "Show Settings"
+msgstr "Configuración"
+
+#: src/e_mod_main.h:21
+#, fuzzy
+msgid "Clear History"
+msgstr "Historia"
