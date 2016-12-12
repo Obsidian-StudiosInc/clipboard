@@ -1,0 +1,129 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: clipboard\n"
+"Report-Msgid-Bugs-To: enlightenment-devel@lists.sourceforge.net\n"
+"POT-Creation-Date: 2016-11-16 21:00+0100\n"
+"PO-Revision-Date: 2016-11-19 15:51+0100\n"
+"Last-Translator: Renato Rener <renato.rener@gmail.com>\n"
+"Language-Team: slovenian <renato.rener@gmail.com>\n"
+"Language: sl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.4\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: src/e_mod_config.c:130
+msgid "Clipboards"
+msgstr "Odložišča"
+
+#: src/e_mod_config.c:131
+msgid " Use Copy (Ctrl-C)"
+msgstr "Uporabi kopiranje (Ctrl-C)"
+
+#: src/e_mod_config.c:134
+msgid " Use Primary (Selection)"
+msgstr "Uporabi prvinsko (Izbor)"
+
+#: src/e_mod_config.c:137
+msgid " Synchronize Clipboards"
+msgstr "Uskladi odložišča"
+
+#: src/e_mod_config.c:146
+msgid "History"
+msgstr "Zgodovina"
+
+#: src/e_mod_config.c:147
+msgid " Save History"
+msgstr "Shrani zgodovino"
+
+#: src/e_mod_config.c:150
+msgid " Reverse Order"
+msgstr "Zamenjan vrstni red"
+
+#: src/e_mod_config.c:153
+msgid " Confirm before Clearing"
+msgstr "Potrdi pred očiščenjem"
+
+#: src/e_mod_config.c:156
+msgid " Items in History"
+msgstr "Predmeti zgodovine"
+
+#: src/e_mod_config.c:164
+msgid "Labels"
+msgstr "Nalepke"
+
+#: src/e_mod_config.c:165 src/e_mod_config.c:177
+msgid " Ignore Whitespace"
+msgstr "Ignoriraj prazno mesto"
+
+#: src/e_mod_config.c:168
+msgid " Label Length"
+msgstr "Dolžina nalepke"
+
+#: src/e_mod_config.c:176
+msgid "Content"
+msgstr "Vsebina"
+
+#: src/e_mod_config.c:180
+msgid " Trim Whitespace"
+msgstr "Odstrani prazna mesta"
+
+#: src/e_mod_config.c:183
+msgid " Trim Newlines"
+msgstr "Odstrani nove vrstice"
+
+#: src/e_mod_config.c:206
+msgid "Clipboard Settings"
+msgstr "Nastavitve odložišča"
+
+#: src/e_mod_main.c:274 src/e_mod_main.c:382
+msgid "Settings"
+msgstr "Nastavitve"
+
+#: src/e_mod_main.c:361
+msgid "Empty"
+msgstr "Sprazni"
+
+#: src/e_mod_main.c:369
+msgid "Clear"
+msgstr "Počisti"
+
+#: src/e_mod_main.c:568
+msgid "Confirm History Deletion"
+msgstr "Potrdite brisanje zgodovine"
+
+#: src/e_mod_main.c:570
+msgid ""
+"You wish to delete the clipboards history.<br><br>Are you sure you want to "
+"delete it?"
+msgstr ""
+"Izbrisati hočete zgodovino odložišča.<br><br>Ali ste prepričani, da jo "
+"hočete izbrisati?"
+
+#: src/e_mod_main.c:573
+msgid "Delete"
+msgstr "Izbriši"
+
+#: src/e_mod_main.c:573
+msgid "Keep"
+msgstr "Ohrani"
+
+#: src/e_mod_main.c:729 src/e_mod_main.c:730 src/e_mod_main.c:731
+msgid "Clipboard"
+msgstr "Odložišče"
+
+#: src/e_mod_main.h:19
+msgid "Show History"
+msgstr "Prikaži zgodovino"
+
+#: src/e_mod_main.h:20
+msgid "Show Settings"
+msgstr "Prikaži nastavitve"
+
+#: src/e_mod_main.h:21
+msgid "Clear History"
+msgstr "Počisti zgodovino"
