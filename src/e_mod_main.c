@@ -251,7 +251,7 @@ _cb_menu_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Mo
   if (inst->gcc) e_gadcon_locked_set(inst->gcc->gadcon, EINA_TRUE);
   /* Activate Menu  */
   e_menu_activate_mouse(inst->menu,
-                        e_util_zone_current_get(e_manager_current_get()),
+                        e_zone_current_get(),
                         x, y, w, h, dir, timestamp);
 }
 
@@ -282,7 +282,7 @@ _cb_context_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__,
   e_gadcon_canvas_zone_geometry_get(inst->gcc->gadcon, &x, &y, NULL, NULL);
 
   /* show the menu relative to gadgets position  */
-  e_menu_activate_mouse(m, e_util_zone_current_get(e_manager_current_get()),
+  e_menu_activate_mouse(m, e_zone_current_get(),
                         (x + event->output.x),
                         (y + event->output.y), 1, 1,
                         E_MENU_POP_DIRECTION_AUTO, event->timestamp);
@@ -297,8 +297,7 @@ _set_mouse_coord(Instance *inst,
                  Evas_Coord * const w, Evas_Coord * const h)
 {
    int cx, cy;
-   E_Container *con;
-   E_Manager   *man;
+
 
   if (mouse_event){
     evas_object_geometry_get(inst->o_button, x, y, w, h);
@@ -307,9 +306,9 @@ _set_mouse_coord(Instance *inst,
     *x += cx;
     *y += cy;
   } else {
-    man = e_manager_current_get();
-    con = e_container_current_get(man);
-    ecore_x_pointer_xy_get(con->win, x, y);
+
+    
+    ecore_x_pointer_xy_get(NULL, x, y);
     *w = 1;
     *h = 1;
   }

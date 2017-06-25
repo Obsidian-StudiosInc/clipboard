@@ -40,7 +40,7 @@ struct _Config_Item
 
 extern Config *clip_cfg;
 
-E_Config_Dialog *config_clipboard_module(E_Container *con, const char *params __UNUSED__);
+E_Config_Dialog *config_clipboard_module(Evas_Object *parent, const char *params __UNUSED__);
 Eet_Error        truncate_history(const unsigned int n);
 
 #endif
