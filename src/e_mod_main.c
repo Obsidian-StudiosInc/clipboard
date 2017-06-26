@@ -298,8 +298,6 @@ _set_mouse_coord(Instance *inst,
                  Evas_Coord * const w, Evas_Coord * const h)
 {
    int cx, cy;
-   //E_Container *con;
-   //E_Manager   *man;
 
   if (mouse_event){
     evas_object_geometry_get(inst->o_button, x, y, w, h);
@@ -309,9 +307,7 @@ _set_mouse_coord(Instance *inst,
     *y += cy;
   } else {
 
-    // FIXME: WRONG 
-    //man = e_manager_current_get();
-    //con = e_container_current_get(man);
+    // FIXME: Unsure if correct way to do this
     
     ecore_x_pointer_root_xy_get(x, y);
     *w = 1;
