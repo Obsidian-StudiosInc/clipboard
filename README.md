@@ -7,8 +7,8 @@ This is a clipboard module we created for the Bodhi Linux's e17 fork, Moksha. De
  Clipboard currently is a simple, basic features clipboard manager. It maintains a history of text copied to the clipboard from which you can choose with a bare minimum of configuration options.  Our main ambition, aside from learning EFL and enlightenment module programming, was to make it light on system resources with no additional dependencies, integrate in a natural way with the e17/Moksha desktops and be a usable alternative to other clipboard managers (Parcellite, CopyQ, glipper etc.).
 
 # Main Features
-<br>
-[<img align="right" src="http://i.imgur.com/006sZxB.png">](http://i.imgur.com/006sZxB.png)
+
+![img align="right"] (http://i.imgur.com/006sZxB.png)
 
 - Text only clipboard management. Sorry no image support.
 
