@@ -8,8 +8,6 @@ This is a clipboard module we created for the Bodhi Linux's e17 fork, Moksha. De
 
 # Main Features
 
-![img align="right"] (http://i.imgur.com/006sZxB.png)
-
 - Text only clipboard management. Sorry no image support.
 
 
