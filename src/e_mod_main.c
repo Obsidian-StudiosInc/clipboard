@@ -4,6 +4,7 @@
 #include "x_clipboard.h"
 #include "config_defaults.h"
 #include "history.h"
+#include "clip_log.h"
 
 #define TIMEOUT_1 1.0
 #define CLIP_LOG_NAME  "MOD:CLIP"
@@ -297,7 +298,8 @@ _set_mouse_coord(Instance *inst,
                  Evas_Coord * const w, Evas_Coord * const h)
 {
    int cx, cy;
-
+   //E_Container *con;
+   //E_Manager   *man;
 
   if (mouse_event){
     evas_object_geometry_get(inst->o_button, x, y, w, h);
@@ -307,8 +309,11 @@ _set_mouse_coord(Instance *inst,
     *y += cy;
   } else {
 
+    // FIXME: WRONG 
+    //man = e_manager_current_get();
+    //con = e_container_current_get(man);
     
-    ecore_x_pointer_xy_get(NULL, x, y);
+    ecore_x_pointer_root_xy_get(x, y);
     *w = 1;
     *h = 1;
   }
