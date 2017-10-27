@@ -1,0 +1,42 @@
+language: c
+compiler: gcc
+sudo: required
+dist: trusty
+env:
+  global:
+   - secure: "Gfzxw/1d9AtOP8XCzF3uBwjaRX7Q6P1M9c1/z/UwdLxgZG3nD6lgWXVfl9sMSa9LQWINYz4N/LWwVih1rknO7C3702XNrEaUbUBXq2SWfDlGsRvZ6fiIoH+cPSozhM18yxAEW3xx/1AmV0kPOVbqjnNHoUYhG3GsKTgHXZlesbkmzD7JJuZxdTjX98RfAV+Rr1TuBYSr1iUl4VyaTmNxWLRG5CtcGv+D87obRlJ6yruiD5txGAVtysYqm3pwPq2/IrTlihgBH907LfY0QuUtuWhU4KHTtvLpU/DOX/8feHuPScjLrol8A8JSKwtBggio9csWX0ZF4NNKGmLnxFBkjD3alBwb4T4nDY0ckfQJFOIf+AMljzxbbtshpvKmmnMzwU+Cuw65QXHVvJ/P6w5gFvJ6DBGjGgA0pkPKi93ZyOdSyHSGJ8H0Di7iNTNL5VAgmnrBiOwGbhUzNzQ6b76TnM5WKJiPMM8rzd0hDfr6cDCXvG5x/uwICmNtR0itqZjWZcFqqRyL7T/tDGyOf/e00LDUuey7Tpj/SkYG4GVcyfSy5fLmut1gWzZruA1G3S+hbvyetvn3EA/F+k4ctdcq+eU7MbYXGuzg6jqY7vHxdh2fRezlypbvk3yUn2fY7cmn5m5+pkeLahnzIwcoRSbKypX1pd6EwXce8qFNoI/GNa8="
+  matrix:
+    - MY_PV=0.0.0_alpha1
+
+before_install:
+  - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+
+install:
+  - sudo add-apt-repository -y ppa:niko2040/e19
+  - sudo apt-get -qq update
+  - sudo apt-get install -y gettext libc6-dbg libpam-ck-connector libck-connector0 libck-connector-dev libefl libefl-dbg libefl-dev python3-pip libpam0g-dev
+  - sudo pip3 install --upgrade pip
+  - sudo pip3 install meson
+  - mkdir .bin
+  - curl -L https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-linux.zip -o .bin/ninja-linux.zip
+  - unzip .bin/ninja-linux.zip -d .bin
+
+before_script:
+  - export PATH=$PATH:$PWD/.bin
+
+script:
+  - meson --prefix /usr . build
+  - .bin/ninja -C build
+
+notifications:
+  email: false
+
+addons:
+  coverity_scan:
+    project:
+      name: Obsidian-StudiosInc/clipboard
+      description: Build submitted via Travis CI
+    notification_email: wlt@o-sinc.com
+    build_command_prepend: meson --prefix /usr . coverity-build
+    build_command: .bin/ninja -C coverity-build
+    branch_pattern: master
