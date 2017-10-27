@@ -31,18 +31,18 @@ struct _E_Config_Dialog_Data
   int   trim_nl;        /* Should we trim new lines from selection         */
 };
 
-static int           _basic_apply_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata);
-static void         *_create_data(E_Config_Dialog *cfd __UNUSED__);
-static int           _basic_check_changed(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata);
+static int           _basic_apply_data(E_Config_Dialog *cfd EINA_UNUSED, E_Config_Dialog_Data *cfdata);
+static void         *_create_data(E_Config_Dialog *cfd EINA_UNUSED);
+static int           _basic_check_changed(E_Config_Dialog *cfd EINA_UNUSED, E_Config_Dialog_Data *cfdata);
 static void          _fill_data(E_Config_Dialog_Data *cfdata);
-void                 _free_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata);
+void                 _free_data(E_Config_Dialog *cfd EINA_UNUSED, E_Config_Dialog_Data *cfdata);
 static Evas_Object  *_basic_create_widgets(E_Config_Dialog *cfd, Evas *evas, E_Config_Dialog_Data *cfdata);
 static int           _update_widget(E_Config_Dialog_Data *cfdata);
 static Eina_Bool     _sync_state_changed(E_Config_Dialog_Data *cfdata);
 extern Mod_Inst     *clip_inst; /* Found in e_mod_main.c */
 
 static void *
-_create_data(E_Config_Dialog *cfd __UNUSED__)
+_create_data(E_Config_Dialog *cfd EINA_UNUSED)
 {
   E_Config_Dialog_Data *cfdata = E_NEW(E_Config_Dialog_Data, 1);
   _fill_data(cfdata);
@@ -50,7 +50,7 @@ _create_data(E_Config_Dialog *cfd __UNUSED__)
 }
 
 void
-_free_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
+_free_data(E_Config_Dialog *cfd EINA_UNUSED, E_Config_Dialog_Data *cfdata)
 {
   EINA_SAFETY_ON_NULL_RETURN(clip_cfg);
   clip_cfg->config_dialog = NULL;
@@ -80,7 +80,7 @@ _fill_data(E_Config_Dialog_Data *cfdata)
 }
 
 static int
-_basic_apply_data(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
+_basic_apply_data(E_Config_Dialog *cfd EINA_UNUSED, E_Config_Dialog_Data *cfdata)
 {
   clip_cfg->clip_copy      = cfdata->clip_copy;
   clip_cfg->clip_select    = cfdata->clip_select;
@@ -190,7 +190,7 @@ _basic_create_widgets(E_Config_Dialog *cfd, Evas *evas, E_Config_Dialog_Data *cf
 }
 
 E_Config_Dialog *
-config_clipboard_module(Evas_Object *parent, const char *params __UNUSED__)
+config_clipboard_module(Evas_Object *parent, const char *params EINA_UNUSED)
 {
   E_Config_Dialog *cfd;
   E_Config_Dialog_View *v;
@@ -211,7 +211,7 @@ config_clipboard_module(Evas_Object *parent, const char *params __UNUSED__)
 }
 
 static int
-_basic_check_changed(E_Config_Dialog *cfd __UNUSED__, E_Config_Dialog_Data *cfdata)
+_basic_check_changed(E_Config_Dialog *cfd EINA_UNUSED, E_Config_Dialog_Data *cfdata)
 {
   if (_sync_state_changed(cfdata))
     return _update_widget(cfdata);
