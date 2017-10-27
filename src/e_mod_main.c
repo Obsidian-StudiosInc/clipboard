@@ -621,7 +621,12 @@ _cb_menu_post_deactivate(void *data, E_Menu *menu EINA_UNUSED)
 }
 
 static void
-_cb_action_switch(E_Object *o EINA_UNUSED, const char *params, Instance *data, Evas *evas, Evas_Object *obj, Mouse_Event *event)
+_cb_action_switch(E_Object *o EINA_UNUSED,
+                  const char *params,
+                  Instance *data,
+                  Evas *evas EINA_UNUSED,
+                  Evas_Object *obj EINA_UNUSED,
+                  Mouse_Event *event)
 {
   if (!strcmp(params, "float"))
     _cb_menu_show(data, NULL, NULL, event);
