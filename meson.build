@@ -30,6 +30,7 @@ has_nls = get_option('nls')
 e_arch  = '@0@-@1@-@2@'.format(host_machine.system(), 
                                host_machine.cpu_family(), 
                                e.get_pkgconfig_variable('release'))
+install_nls = true
 
 # edje_cc binary compiler tool
 edje_cmd = get_option('edje-cc')
@@ -44,6 +45,7 @@ if dir_home == ''
 	dir_prefix = join_paths(e.get_pkgconfig_variable('modules'), proj)
 else
 	dir_prefix = join_paths(dir_home, '.e/e/modules', proj)
+	install_nls = false
 endif
 dir_mod    = join_paths(dir_prefix, e_arch)
 
@@ -68,7 +70,6 @@ configure_file(output: 'config.h', configuration: cfg)
 # subdirs
 subdir('data')
 subdir('src')
-# FIXME: install nls files in home?
-if has_nls and dir_home == ''
+if has_nls
   subdir('po')
 endif
