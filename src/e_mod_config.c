@@ -190,7 +190,8 @@ _basic_create_widgets(E_Config_Dialog *cfd, Evas *evas, E_Config_Dialog_Data *cf
 }
 
 E_Config_Dialog *
-config_clipboard_module(Evas_Object *parent, const char *params EINA_UNUSED)
+config_clipboard_module(Evas_Object *parent EINA_UNUSED,
+                        const char *params EINA_UNUSED)
 {
   E_Config_Dialog *cfd;
   E_Config_Dialog_View *v;
