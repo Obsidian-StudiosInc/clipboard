@@ -63,29 +63,8 @@ cfg.set_quoted('PACKAGE_URL'		, base_url + proj)
 cfg.set_quoted('VERSION'		, ver)
 configure_file(output: 'config.h', configuration: cfg)
 
-configure_file(input  : 'module.desktop.in',
-               output : 'module.desktop',
-               install_dir : dir_prefix,
-               configuration : cfg
-)
-
-# move to data
-cmd = [ edje_cmd,
-	'-id', join_paths(meson.source_root(), 'images'),
-	'@INPUT@', '@OUTPUT@'
-]
-src = 'e-module-@0@'.format( proj )
-custom_target(src + '.edj',
-              input      : src + '.edc',
-              output     : src + '.edj',
-              command    : cmd,
-              install_dir: dir_prefix,
-              install    : true
-             )
-out = join_paths(dir_prefix, src + '.edj')
-meson.add_install_script(chmod, 'a+r', out)
-
 # subdirs
+subdir('data')
 subdir('src')
 if has_nls
   subdir('po')
