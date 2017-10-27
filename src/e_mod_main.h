@@ -45,8 +45,8 @@ EAPI extern E_Module_Api e_modapi;
  * e_modapi_save:     this is called when e17 or by another reason is requested
  *                    to save the configuration file                      */
 EAPI void *e_modapi_init     (E_Module *m);
-EAPI int   e_modapi_shutdown (E_Module *m __UNUSED__);
-EAPI int   e_modapi_save     (E_Module *m __UNUSED__);
+EAPI int   e_modapi_shutdown (E_Module *m EINA_UNUSED);
+EAPI int   e_modapi_save     (E_Module *m EINA_UNUSED);
 
 /* Needed elsewhere */
 Eet_Error   clip_save(Eina_List *items);
