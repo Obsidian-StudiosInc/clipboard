@@ -39,10 +39,12 @@ if edje_cmd == ''
 endif
 
 # dir locations
-#dir_prefix = join_paths(get_option('homedir-install'), proj)
-#if dir_prefix == ''
+dir_home   = get_option('homedir-install')  
+if dir_home == ''
 	dir_prefix = join_paths(e.get_pkgconfig_variable('modules'), proj)
-#endif
+else
+	dir_prefix = join_paths(dir_home, '.e/e/modules', proj)
+endif
 dir_mod    = join_paths(dir_prefix, e_arch)
 
 # project args
@@ -66,6 +68,7 @@ configure_file(output: 'config.h', configuration: cfg)
 # subdirs
 subdir('data')
 subdir('src')
-if has_nls
+# FIXME: install nls files in home?
+if has_nls and dir_home == ''
   subdir('po')
 endif

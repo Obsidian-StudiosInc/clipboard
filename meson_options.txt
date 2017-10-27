@@ -6,9 +6,8 @@ option('edje-cc',
        type       : 'string',
        description: 'A path to a edje_cc. Defaults to system edje_cc')
 option('homedir-install',
-       type       : 'boolean',
-       value      : true,
-       description: 'Install module in homedir (default=false)')
+       type       : 'string',
+       description: 'Install in path to your home directory e.g. /home/user')
 option('nls',
 	type: 'boolean',
 	value: true,
