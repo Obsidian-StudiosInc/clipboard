@@ -15,11 +15,11 @@
 typedef Evas_Event_Mouse_Down Mouse_Event;
 
 /* gadcon requirements */
-static     Evas_Object  *_gc_icon(const E_Gadcon_Client_Class *client_class __UNUSED__, Evas * evas);
+static     Evas_Object  *_gc_icon(const E_Gadcon_Client_Class *client_class EINA_UNUSED, Evas * evas);
 static const char       *_gc_id_new(const E_Gadcon_Client_Class *client_class);
 static E_Gadcon_Client  *_gc_init(E_Gadcon * gc, const char *name, const char *id, const char *style);
-static void              _gc_orient(E_Gadcon_Client * gcc, E_Gadcon_Orient orient __UNUSED__);
-static const char       *_gc_label(const E_Gadcon_Client_Class *client_class __UNUSED__);
+static void              _gc_orient(E_Gadcon_Client * gcc, E_Gadcon_Orient orient EINA_UNUSED);
+static const char       *_gc_label(const E_Gadcon_Client_Class *client_class EINA_UNUSED);
 static void              _gc_shutdown(E_Gadcon_Client * gcc);
 
 /* Define the gadcon class that this module provides (just 1) */
@@ -46,19 +46,19 @@ Mod_Inst *clip_inst = NULL; /* Need by e_mod_config.c */
 static E_Action *act = NULL;
 
 /*   First some call backs   */
-static Eina_Bool _cb_clipboard_request(void *data __UNUSED__);
-static Eina_Bool _cb_event_selection(Instance *instance, int type __UNUSED__, Ecore_X_Event_Selection_Notify * event);
-static Eina_Bool _cb_event_owner(Instance *instance __UNUSED__, int type __UNUSED__, Ecore_X_Event_Fixes_Selection_Notify * event);
+static Eina_Bool _cb_clipboard_request(void *data EINA_UNUSED);
+static Eina_Bool _cb_event_selection(Instance *instance, int type EINA_UNUSED, Ecore_X_Event_Selection_Notify * event);
+static Eina_Bool _cb_event_owner(Instance *instance EINA_UNUSED, int type EINA_UNUSED, Ecore_X_Event_Fixes_Selection_Notify * event);
 static void      _cb_menu_item(Clip_Data *selected_clip);
-static void      _cb_menu_post_deactivate(void *data, E_Menu *menu __UNUSED__);
-static void      _cb_menu_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Mouse_Event *event);
-static void      _cb_context_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Mouse_Event *event);
+static void      _cb_menu_post_deactivate(void *data, E_Menu *menu EINA_UNUSED);
+static void      _cb_menu_show(void *data, Evas *evas EINA_UNUSED, Evas_Object *obj EINA_UNUSED, Mouse_Event *event);
+static void      _cb_context_show(void *data, Evas *evas EINA_UNUSED, Evas_Object *obj EINA_UNUSED, Mouse_Event *event);
 static void      _cb_clear_history(Instance *inst);
-static void      _cb_dialog_delete(void *data __UNUSED__);
-static void      _cb_dialog_keep(void *data __UNUSED__);
-static void      _cb_action_switch(E_Object *o __UNUSED__, const char *params, Instance *data, Evas *evas, Evas_Object *obj, Mouse_Event *event);
+static void      _cb_dialog_delete(void *data EINA_UNUSED);
+static void      _cb_dialog_keep(void *data EINA_UNUSED);
+static void      _cb_action_switch(E_Object *o EINA_UNUSED, const char *params, Instance *data, Evas *evas, Evas_Object *obj, Mouse_Event *event);
 
-static void      _cb_config_show(void *data, E_Menu *m __UNUSED__, E_Menu_Item *mi __UNUSED__);
+static void      _cb_config_show(void *data, E_Menu *m EINA_UNUSED, E_Menu_Item *mi EINA_UNUSED);
 
 /*   And then some auxillary functions */
 static void      _clip_config_new(E_Module *m);
@@ -176,7 +176,7 @@ _gc_shutdown(E_Gadcon_Client *gcc)
 }
 
 static void
-_gc_orient(E_Gadcon_Client *gcc, E_Gadcon_Orient orient __UNUSED__)
+_gc_orient(E_Gadcon_Client *gcc, E_Gadcon_Orient orient EINA_UNUSED)
 {
   e_gadcon_client_aspect_set (gcc, 16, 16);
   e_gadcon_client_min_size_set (gcc, 16, 16);
@@ -187,7 +187,7 @@ _gc_orient(E_Gadcon_Client *gcc, E_Gadcon_Orient orient __UNUSED__)
  *  do not confuse this with E_Module_Api
  */
 static const char *
-_gc_label (const E_Gadcon_Client_Class *client_class __UNUSED__)
+_gc_label (const E_Gadcon_Client_Class *client_class EINA_UNUSED)
 {
   return "Clipboard";
 }
@@ -197,7 +197,7 @@ _gc_label (const E_Gadcon_Client_Class *client_class __UNUSED__)
  * the module to a Shelf or Gadgets.
  */
 static Evas_Object *
-_gc_icon(const E_Gadcon_Client_Class *client_class __UNUSED__, Evas * evas)
+_gc_icon(const E_Gadcon_Client_Class *client_class EINA_UNUSED, Evas * evas)
 {
   Evas_Object *o = e_icon_add(evas);
   e_icon_fdo_icon_set(o, "edit-paste");
@@ -209,7 +209,7 @@ _gc_icon(const E_Gadcon_Client_Class *client_class __UNUSED__, Evas * evas)
  * modules
  */
 static const char *
-_gc_id_new (const E_Gadcon_Client_Class *client_class __UNUSED__)
+_gc_id_new (const E_Gadcon_Client_Class *client_class EINA_UNUSED)
 {
   return _gadcon_class.name;
 }
@@ -231,7 +231,7 @@ _gc_id_new (const E_Gadcon_Client_Class *client_class __UNUSED__)
  */
 
 static void
-_cb_menu_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Mouse_Event *event)
+_cb_menu_show(void *data, Evas *evas EINA_UNUSED, Evas_Object *obj EINA_UNUSED, Mouse_Event *event)
 {
   EINA_SAFETY_ON_NULL_RETURN(data);
   EINA_SAFETY_ON_NULL_RETURN(event);
@@ -257,7 +257,7 @@ _cb_menu_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Mo
 }
 
 static void
-_cb_context_show(void *data, Evas *evas __UNUSED__, Evas_Object *obj __UNUSED__, Mouse_Event *event)
+_cb_context_show(void *data, Evas *evas EINA_UNUSED, Evas_Object *obj EINA_UNUSED, Mouse_Event *event)
 {
   EINA_SAFETY_ON_NULL_RETURN(data);
   EINA_SAFETY_ON_NULL_RETURN(event);
@@ -425,7 +425,7 @@ _menu_fill(Instance *inst, Eina_Bool mouse_event)
 }
 
 static Eina_Bool
-_cb_event_selection(Instance *instance, int type __UNUSED__, Ecore_X_Event_Selection_Notify * event)
+_cb_event_selection(Instance *instance, int type EINA_UNUSED, Ecore_X_Event_Selection_Notify * event)
 {
   Ecore_X_Selection_Data_Text *text_data;
   Clip_Data *cd = NULL;
@@ -467,7 +467,7 @@ _cb_event_selection(Instance *instance, int type __UNUSED__, Ecore_X_Event_Selec
 }
 
 static Eina_Bool
-_cb_event_owner(Instance *instance __UNUSED__, int type __UNUSED__, Ecore_X_Event_Fixes_Selection_Notify * event)
+_cb_event_owner(Instance *instance EINA_UNUSED, int type EINA_UNUSED, Ecore_X_Event_Fixes_Selection_Notify * event)
 {
   EINA_SAFETY_ON_NULL_RETURN_VAL(event, ECORE_CALLBACK_DONE);
   /* If we lost owner of clipboard */
@@ -560,7 +560,7 @@ clip_save(Eina_List *items)
 }
 
 static void
-_cb_clear_history(Instance *inst __UNUSED__)
+_cb_clear_history(Instance *inst EINA_UNUSED)
 {
   EINA_SAFETY_ON_NULL_RETURN(clip_cfg);
 
@@ -579,19 +579,19 @@ _cb_clear_history(Instance *inst __UNUSED__)
 }
 
 static void
-_cb_dialog_keep(void *data __UNUSED__)
+_cb_dialog_keep(void *data EINA_UNUSED)
 {
   return;
 }
 
 static void
-_cb_dialog_delete(void *data __UNUSED__)
+_cb_dialog_delete(void *data EINA_UNUSED)
 {
   _clear_history();
 }
 
 static Eina_Bool
-_cb_clipboard_request(void *data __UNUSED__)
+_cb_clipboard_request(void *data EINA_UNUSED)
 {
 
   ecore_x_fixes_selection_notification_request(ECORE_X_ATOM_SELECTION_CLIPBOARD);
@@ -606,7 +606,7 @@ _cb_menu_item(Clip_Data *selected_clip)
 }
 
 static void
-_cb_menu_post_deactivate(void *data, E_Menu *menu __UNUSED__)
+_cb_menu_post_deactivate(void *data, E_Menu *menu EINA_UNUSED)
 {
   EINA_SAFETY_ON_NULL_RETURN(data);
 
@@ -621,7 +621,7 @@ _cb_menu_post_deactivate(void *data, E_Menu *menu __UNUSED__)
 }
 
 static void
-_cb_action_switch(E_Object *o __UNUSED__, const char *params, Instance *data, Evas *evas, Evas_Object *obj, Mouse_Event *event)
+_cb_action_switch(E_Object *o EINA_UNUSED, const char *params, Instance *data, Evas *evas, Evas_Object *obj, Mouse_Event *event)
 {
   if (!strcmp(params, "float"))
     _cb_menu_show(data, NULL, NULL, event);
@@ -777,7 +777,7 @@ e_modapi_init (E_Module *m)
 }
 
 static void
-_cb_config_show(void *data, E_Menu *m __UNUSED__, E_Menu_Item *mi __UNUSED__)
+_cb_config_show(void *data, E_Menu *m EINA_UNUSED, E_Menu_Item *mi EINA_UNUSED)
 {
   Instance *inst = NULL;
 
@@ -792,7 +792,7 @@ _cb_config_show(void *data, E_Menu *m __UNUSED__, E_Menu_Item *mi __UNUSED__)
  * here you should free all resources used while the module was enabled.
  */
 EAPI int
-e_modapi_shutdown (E_Module *m __UNUSED__)
+e_modapi_shutdown (E_Module *m EINA_UNUSED)
 {
   Config_Item *ci;
 
@@ -864,7 +864,7 @@ noconfig:
  * storage
  */
 EAPI int
-e_modapi_save(E_Module *m __UNUSED__)
+e_modapi_save(E_Module *m EINA_UNUSED)
 {
   e_config_domain_save("module.clipboard", conf_edd, clip_cfg);
   return 1;
