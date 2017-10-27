@@ -1,7 +1,12 @@
 # Clipboard module
+[![License](http://img.shields.io/badge/license-GPLv3-blue.svg?colorB=9977bb&style=plastic)](https://github.com/Obsidian-StudiosInc/clipboard/blob/master/LICENSE)
+[![Build Status](https://img.shields.io/travis/Obsidian-StudiosInc/clipboard/master.svg?colorA=9977bb&style=plastic)](https://travis-ci.org/Obsidian-StudiosInc/clipboard)
+[![Build Status](https://img.shields.io/shippable/59f38a4f6ad2b30700c00b6c/master.svg?colorA=9977bb&style=plastic)](https://app.shippable.com/projects/59f38a4f6ad2b30700c00b6c/)
+[![Code Quality](https://img.shields.io/coverity/scan/14160.svg?colorA=9977bb&style=plastic)](https://scan.coverity.com/projects/obsidian-studiosinc-clipboard)
+
 
 [<img align="left" src="http://i.imgur.com/ZzWlRgJ.png">](https://github.com/pasnox/oxygen-icons-png)
-<br>
+
 This is a clipboard module we created for the Bodhi Linux's e17 fork, Moksha. Despite being developed for Moksha, it should work on any e17 Desktop *meeting the requirements below*.
 
  Clipboard currently is a simple, basic features clipboard manager. It maintains a history of text copied to the clipboard from which you can choose with a bare minimum of configuration options.  Our main ambition, aside from learning EFL and enlightenment module programming, was to make it light on system resources with no additional dependencies, integrate in a natural way with the e17/Moksha desktops and be a usable alternative to other clipboard managers (Parcellite, CopyQ, glipper etc.).
