@@ -782,11 +782,10 @@ e_modapi_init (E_Module *m)
 }
 
 static void
-_cb_config_show(void *data, E_Menu *m EINA_UNUSED, E_Menu_Item *mi EINA_UNUSED)
+_cb_config_show(void *data EINA_UNUSED,
+                E_Menu *m EINA_UNUSED,
+                E_Menu_Item *mi EINA_UNUSED)
 {
-  Instance *inst = NULL;
-
-  inst = data;
   if (!clip_cfg) return;
   if (clip_cfg->config_dialog) return;
   config_clipboard_module(NULL, NULL);
