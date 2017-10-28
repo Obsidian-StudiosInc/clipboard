@@ -62,12 +62,20 @@ itself](https://www.enlightenment.org/download).
 - [Enlightenment 17](https://git.enlightenment.org/core/enlightenment.git/?h=enlightenment-0.17)
 
 # Installation
-
+System installation
 ```bash
 mkdir build
 meson . build
 ninja -C build
-ninja -C install
+ninja -C build install
+```
+
+To install in home directory
+```bash
+mkdir build
+meson . -Dhomedir-install=${HOME} build
+ninja -C build
+ninja -C build install
 ```
 
 # Development
