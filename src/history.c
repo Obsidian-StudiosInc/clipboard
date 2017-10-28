@@ -175,7 +175,8 @@ read_history(Eina_List **items, unsigned ignore_ws, unsigned label_length)
     Clip_Data *cd = NULL;
     Eina_List *l = NULL;
     char *ret, *str, history_path[PATH_MAX];
-    unsigned int i, size;
+    int size;
+    unsigned int i;
     long version, item_num;
 
     /* Open history file */
