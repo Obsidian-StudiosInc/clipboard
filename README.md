@@ -90,7 +90,7 @@ e-developers or translators.
 
 # Thanks
 - [Jeff Hoogland](https://github.com/JeffHoogland)
-- [Leif Middelschulte] (share module author which our project is based on)
+- [Leif Middelschulte](https://github.com/leiflm)
 - [Marcel Hollerbach](https://github.com/marcelhollerbach)
 - [Stephen Houston](https://github.com/okratitan)
 
