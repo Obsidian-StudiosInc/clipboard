@@ -116,7 +116,7 @@ _sanitize_ln(char *text, const unsigned int n, const int mode)
 
   char *ret = malloc(n + 1);
   char *temp = ret;
-  int chr, i = 0;
+  unsigned int chr, i = 0;
 
   if (!ret) return NULL;
 
