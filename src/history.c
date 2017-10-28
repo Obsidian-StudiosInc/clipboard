@@ -88,7 +88,7 @@ _set_data_path(char *path)
      */
     temp_str = getenv("XDG_DATA_HOME");
     if (temp_str && temp_str[0] == '/' ) {
-      const size_t len = snprintf(NULL, 0, "%s", temp_str) 
+      const int len = snprintf(NULL, 0, "%s", temp_str) 
                               + 1 + (temp_str[strlen(temp_str)] != '/');
       if (len <= PATH_MAX) {
         snprintf(path, strlen(temp_str)+1, "%s", temp_str);
@@ -106,7 +106,7 @@ _set_data_path(char *path)
       struct passwd *pw = NULL;
       pw = getpwuid(getuid());
       temp_str = pw->pw_dir;
-      const size_t len = snprintf(NULL, 0, "%s/.local/share/", temp_str) + 1;
+      const int len = snprintf(NULL, 0, "%s/.local/share/", temp_str) + 1;
       if (len <= PATH_MAX) {
         // Hopefully unnecessary Safety check
         if (temp_str)
@@ -142,7 +142,7 @@ _set_history_path(char *path)
    Eina_Bool success = EINA_TRUE;
 
    if(_set_data_path(path)) {
-       const size_t len = snprintf(NULL, 0, "%s%s/%s", path, CLIPBOARD_MOD_NAME, HISTORY_NAME) + 1;
+       const int len = snprintf(NULL, 0, "%s%s/%s", path, CLIPBOARD_MOD_NAME, HISTORY_NAME) + 1;
        if (len <= PATH_MAX) {
          strcpy(temp_str, path);
          sprintf(path, "%s%s/", temp_str, CLIPBOARD_MOD_NAME);
