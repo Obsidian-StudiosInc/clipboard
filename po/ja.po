@@ -1,10 +1,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: clipboard\n"
-"Report-Msgid-Bugs-To: enlightenment-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2016-11-16 21:00+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-10-29 00:36-0400\n"
 "PO-Revision-Date: 2016-11-21 17:42+0900\n"
-"Last-Translator: BALLOON a.k.a. Fu-sen. (Keiichi SHIGA) <balloonakafusen+bodhi@gmail.com>\n"
+"Last-Translator: BALLOON a.k.a. Fu-sen. (Keiichi SHIGA) <balloonakafusen"
+"+bodhi@gmail.com>\n"
 "Language-Team: japanese\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
@@ -76,11 +77,11 @@ msgstr "空白を削除"
 msgid " Trim Newlines"
 msgstr "改行を削除"
 
-#: src/e_mod_config.c:206
+#: src/e_mod_config.c:207
 msgid "Clipboard Settings"
 msgstr "クリップボード設定"
 
-#: src/e_mod_main.c:274 src/e_mod_main.c:382
+#: src/e_mod_main.c:275 src/e_mod_main.c:382
 msgid "Settings"
 msgstr "設定"
 
@@ -112,18 +113,18 @@ msgstr "削除"
 msgid "Keep"
 msgstr "保持"
 
-#: src/e_mod_main.c:729 src/e_mod_main.c:730 src/e_mod_main.c:731
+#: src/e_mod_main.c:737 src/e_mod_main.c:738 src/e_mod_main.c:739
 msgid "Clipboard"
 msgstr "クリップボード"
 
-#: src/e_mod_main.h:19
+#: src/e_mod_main.h:17
 msgid "Show History"
 msgstr "履歴を表示"
 
-#: src/e_mod_main.h:20
+#: src/e_mod_main.h:18
 msgid "Show Settings"
 msgstr "設定を表示"
 
-#: src/e_mod_main.h:21
+#: src/e_mod_main.h:19
 msgid "Clear History"
 msgstr "履歴の削除"
