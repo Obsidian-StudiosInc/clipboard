@@ -8,17 +8,15 @@
 
 #ifdef ENABLE_NLS
 # include <libintl.h>
-# define D_(string) dgettext(PACKAGE, string)
+# define _(x) gettext(x)
 #else
-# define bindtextdomain(domain,dir)
-# define bind_textdomain_codeset(domain,codeset)
-# define N_(string) (string)
+# define _(x) (x)
 #endif
 
 /* Key Board Bindings action names */
-#define ACT_FLOAT   D_("Show History")
-#define ACT_CONFIG  D_("Show Settings")
-#define ACT_CLEAR   D_("Clear History")
+#define ACT_FLOAT   _("Show History")
+#define ACT_CONFIG  _("Show Settings")
+#define ACT_CLEAR   _("Clear History")
 
 /* Macros used for config file versioning */
 /* You can increment the EPOCH value if the old configuration is not
