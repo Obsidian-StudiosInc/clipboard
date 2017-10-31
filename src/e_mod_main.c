@@ -49,16 +49,16 @@ static E_Action *act = NULL;
 static Eina_Bool _cb_clipboard_request(void *data EINA_UNUSED);
 static Eina_Bool _cb_event_selection(Instance *instance, int type EINA_UNUSED, Ecore_X_Event_Selection_Notify * event);
 static Eina_Bool _cb_event_owner(Instance *instance EINA_UNUSED, int type EINA_UNUSED, Ecore_X_Event_Fixes_Selection_Notify * event);
-static void      _cb_menu_item(Clip_Data *selected_clip);
+static void      _clipboard_cb_paste_item(void *d1, void *d2);
 static void      _cb_menu_post_deactivate(void *data, E_Menu *menu EINA_UNUSED);
 static void      _cb_context_show(void *data, Evas *evas EINA_UNUSED, Evas_Object *obj EINA_UNUSED, Mouse_Event *event);
-static void      _cb_clear_history(void *d1 EINA_UNUSED, void *d2 EINA_UNUSED);
+static void      _cb_clear_history(void *d1, void *d2 EINA_UNUSED);
 static void      _cb_dialog_delete(void *data EINA_UNUSED);
 static void      _cb_dialog_keep(void *data EINA_UNUSED);
 static void      _cb_action_switch(E_Object *o EINA_UNUSED, const char *params, Instance *data, Evas *evas, Evas_Object *obj, Mouse_Event *event);
 
 static void      _cb_config_show(void *data, E_Menu *m EINA_UNUSED, E_Menu_Item *mi EINA_UNUSED);
-static void      _clipboard_config_show(void *d1 EINA_UNUSED, void *d2 EINA_UNUSED);
+static void      _clipboard_config_show(void *d1, void *d2 EINA_UNUSED);
 static void      _clipboard_popup_free(Instance *inst);
 
 /*   And then some auxillary functions */
@@ -328,7 +328,12 @@ _clipboard_popup_new(Instance *inst)
           set_clip_name(&clip->name, clip->content,
                          clip_cfg->ignore_ws, clip_cfg->label_length);
         }
-        o = e_widget_button_add(evas, clip->name, NULL, _cb_menu_item, clip, NULL);
+        o = e_widget_button_add(evas,
+                                clip->name,
+                                NULL,
+                                _clipboard_cb_paste_item,
+                                clip->content,
+                                inst->popup);
         e_widget_table_object_align_append(inst->table, o, 0, row, 2, 1, 1, 0, 1, 0, 0, 0.5);
         row++;
       }
@@ -342,7 +347,7 @@ _clipboard_popup_new(Instance *inst)
       e_widget_table_object_align_append(inst->table, o, 0, row, 2, 1, 1, 0, 1, 0, 0.5, 0.5);
       row++;
     }
-  
+
   o = e_widget_button_add(evas, _("Clear"), "edit-clear", _cb_clear_history, inst, NULL);
   e_widget_disabled_set(o, !clip_inst->items);
   e_widget_table_object_align_append(inst->table, o, 0, row, 1, 1, 0, 0, 0, 0, 0.5, 0.5);
@@ -409,7 +414,7 @@ _cb_event_owner(Instance *instance EINA_UNUSED, int type EINA_UNUSED, Ecore_X_Ev
   /* If we lost owner of clipboard */
   if (event->reason)
     /* Reset clipboard and gain ownership of it */
-    _cb_menu_item(eina_list_data_get(clip_inst->items));
+    _clipboard_cb_paste_item(eina_list_data_get(clip_inst->items), NULL);
 
   return ECORE_CALLBACK_DONE;
 }
@@ -537,9 +542,11 @@ _cb_clipboard_request(void *data EINA_UNUSED)
 }
 
 static void
-_cb_menu_item(Clip_Data *selected_clip)
+_clipboard_cb_paste_item(void *d1, void *d2)
 {
-  _x_clipboard_update(selected_clip->content);
+  _x_clipboard_update((const char *)d1);
+  if(d2)
+    _clipboard_popup_free((Instance *)d2);
 }
 
 static void
@@ -686,7 +693,7 @@ e_modapi_init (E_Module *m)
   hist_err = read_history(&(clip_inst->items), clip_cfg->ignore_ws, clip_cfg->label_length);
 
   if (hist_err == EET_ERROR_NONE && eina_list_count(clip_inst->items))
-    _cb_menu_item(eina_list_data_get(clip_inst->items));
+    _clipboard_cb_paste_item(eina_list_data_get(clip_inst->items), NULL);
   else
     /* Something must be wrong with history file
      *   so we create a new one */
