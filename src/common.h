@@ -42,7 +42,6 @@ typedef struct _Instance Instance;
 struct _Instance
 {
     E_Gadcon_Client *gcc;
-    E_Menu *menu;
     Evas_Object *o_button, *table;
     E_Gadcon_Popup *popup;
 };
