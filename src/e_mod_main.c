@@ -333,7 +333,7 @@ _clipboard_popup_new(Instance *inst)
                                 NULL,
                                 _clipboard_cb_paste_item,
                                 clip->content,
-                                inst->popup);
+                                inst);
         e_widget_table_object_align_append(inst->table, o, 0, row, 2, 1, 1, 0, 1, 0, 0, 0.5);
         row++;
       }
