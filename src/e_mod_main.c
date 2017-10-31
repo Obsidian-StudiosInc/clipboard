@@ -725,11 +725,11 @@ _clipboard_config_show(void *d1, void *d2 EINA_UNUSED)
 }
 
 static void
-_cb_config_show(void *data EINA_UNUSED,
+_cb_config_show(void *data,
                 E_Menu *m EINA_UNUSED,
                 E_Menu_Item *mi EINA_UNUSED)
 {
-  _clipboard_config_show(NULL, NULL);
+  _clipboard_config_show((Instance *)data, NULL);
 }
 
 /*
