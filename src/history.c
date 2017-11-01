@@ -229,6 +229,7 @@ read_history(Eina_List **items, unsigned ignore_ws, unsigned label_length)
           if (l)
             E_FREE_LIST(l, free_clip_data);
           free(str);
+          free(cd);
           return eet_close(history_file);
         }
         // FIXME: DATA VALIDATION
