@@ -46,9 +46,6 @@ Mod_Inst *clip_inst = NULL; /* Need by e_mod_config.c */
 static E_Action *act = NULL;
 
 /*   First some call backs   */
-static Eina_Bool _cb_clipboard_request(void *data EINA_UNUSED);
-static Eina_Bool _cb_event_selection(Instance *instance, int type EINA_UNUSED, Ecore_X_Event_Selection_Notify * event);
-static Eina_Bool _cb_event_owner(Instance *instance EINA_UNUSED, int type EINA_UNUSED, Ecore_X_Event_Fixes_Selection_Notify * event);
 static void      _clipboard_cb_paste_item(void *d1, void *d2);
 static void      _cb_menu_post_deactivate(void *data, E_Menu *menu EINA_UNUSED);
 static void      _cb_context_show(void *data, Evas *evas EINA_UNUSED, Evas_Object *obj EINA_UNUSED, Mouse_Event *event);
@@ -68,7 +65,6 @@ static void      _clip_inst_free(Instance *inst);
 static void      _clip_add_item(Clip_Data *clip_data);
 static void       _clipboard_popup_new(Instance *inst);
 static void      _clear_history(void);
-static void      _x_clipboard_update(const char *text);
 static Eina_List *     _item_in_history(Clip_Data *cd);
 static int             _clip_compare(Clip_Data *cd, char *text);
 
@@ -365,70 +361,6 @@ _clipboard_popup_new(Instance *inst)
   E_OBJECT_DEL_SET(inst->popup, _clipboard_popup_del_cb);
 }
 
-static Eina_Bool
-_cb_event_selection(Instance *instance, int type EINA_UNUSED, Ecore_X_Event_Selection_Notify * event)
-{
-  Ecore_X_Selection_Data_Text *text_data;
-  Clip_Data *cd = NULL;
-  char *last="";
-
-  EINA_SAFETY_ON_NULL_RETURN_VAL(instance, EINA_TRUE);
-
-  if (clip_inst->items)
-    last =  ((Clip_Data *) eina_list_data_get (clip_inst->items))->content;
-
-  if ((text_data = clipboard.get_text(event))) {
-    if (strcmp(last, text_data->text ) != 0) {
-      if (text_data->data.length == 0)
-        return ECORE_CALLBACK_DONE;
-      if (clip_cfg->ignore_ws_copy && is_empty(text_data->text)) {
-        clipboard.clear();
-        return ECORE_CALLBACK_DONE;
-      }
-      cd = E_NEW(Clip_Data, 1);
-      if (!set_clip_content(&cd->content, text_data->text,
-                             CLIP_TRIM_MODE(clip_cfg))) {
-        CRI("Something bad happened !!");
-        /* Try to continue */
-        E_FREE(cd);
-        goto error;
-      }
-      if (!set_clip_name(&cd->name, cd->content,
-                    clip_cfg->ignore_ws, clip_cfg->label_length)){
-        CRI("Something bad happened !!");
-        /* Try to continue */
-        E_FREE(cd);
-        goto error;
-      }
-      _clip_add_item(cd);
-    }
-  }
-  error:
-  return ECORE_CALLBACK_DONE;
-}
-
-static Eina_Bool
-_cb_event_owner(Instance *instance EINA_UNUSED, int type EINA_UNUSED, Ecore_X_Event_Fixes_Selection_Notify * event)
-{
-  EINA_SAFETY_ON_NULL_RETURN_VAL(event, ECORE_CALLBACK_DONE);
-  /* If we lost owner of clipboard */
-  if (event->reason)
-    /* Reset clipboard and gain ownership of it */
-    _clipboard_cb_paste_item(eina_list_data_get(clip_inst->items), NULL);
-
-  return ECORE_CALLBACK_DONE;
-}
-
-/* Updates clipboard content with the selected text of the modules Menu */
-void
-_x_clipboard_update(const char *text)
-{
-  EINA_SAFETY_ON_NULL_RETURN(clip_inst);
-  EINA_SAFETY_ON_NULL_RETURN(text);
-
-  clipboard.set(clip_inst->win, text, strlen(text) + 1);
-}
-
 static void
 _clip_add_item(Clip_Data *cd)
 {
@@ -532,19 +464,18 @@ _cb_dialog_delete(void *data EINA_UNUSED)
   _clear_history();
 }
 
-static Eina_Bool
-_cb_clipboard_request(void *data EINA_UNUSED)
-{
-
-  ecore_x_fixes_selection_notification_request(ECORE_X_ATOM_SELECTION_CLIPBOARD);
-  clipboard.request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
-  return EINA_TRUE;
-}
-
 static void
 _clipboard_cb_paste_item(void *d1, void *d2)
 {
-  _x_clipboard_update((const char *)d1);
+  INF("_clipboard_cb_paste_item");
+  const char *paste;
+
+  paste = d1;
+  elm_cnp_selection_set(clip_inst->ewin,
+                        ELM_SEL_TYPE_CLIPBOARD,
+                        ELM_SEL_FORMAT_TEXT,
+                        paste,
+                        strlen(paste));
   if(d2)
     _clipboard_popup_free((Instance *)d2);
 }
@@ -593,6 +524,101 @@ _clip_inst_free(Instance *inst)
   if(inst->o_button)
     evas_object_del(inst->o_button);
   E_FREE(inst);
+}
+
+static Eina_Bool
+_cliboard_cb_paste(void *data,
+                   Evas_Object *obj EINA_UNUSED,
+                   Elm_Selection_Data *event)
+{
+  INF("_cliboard_cb_paste");
+  Clip_Data *cd = NULL;
+  Instance *instance = data;
+  char *paste;
+  char *last = "";
+
+  EINA_SAFETY_ON_NULL_RETURN_VAL(instance, EINA_TRUE);
+
+  if (clip_inst->items)
+    last =  ((Clip_Data *) eina_list_data_get (clip_inst->items))->content;
+
+  if(event)
+    paste = event->data;
+  if (paste) {
+    if (strcmp(last, paste ) != 0) {
+      if (strlen(paste) == 0)
+        return ECORE_CALLBACK_DONE;
+      if (clip_cfg->ignore_ws_copy && is_empty(paste)) {
+        clipboard.clear();
+        return ECORE_CALLBACK_DONE;
+      }
+      cd = E_NEW(Clip_Data, 1);
+      if (!set_clip_content(&cd->content, paste,
+                             CLIP_TRIM_MODE(clip_cfg))) {
+        CRI("Something bad happened !!");
+        /* Try to continue */
+        E_FREE(cd);
+        goto error;
+      }
+      if (!set_clip_name(&cd->name, cd->content,
+                    clip_cfg->ignore_ws, clip_cfg->label_length)){
+        CRI("Something bad happened !!");
+        /* Try to continue */
+        E_FREE(cd);
+        goto error;
+      }
+      _clip_add_item(cd);
+    }
+  }
+  error:
+  return EINA_TRUE;
+}
+
+static void
+_clipboard_cb_elm_selection_lost(void *data, Elm_Sel_Type selection)
+{
+  Mod_Inst *mod_inst;
+  
+  mod_inst = data;
+  INF("_clipboard_cb_elm_selection_lost");
+  INF("_clipboard_cb_elm_selection_lost %s", (char *)data);
+  switch(selection)
+    {
+      case ELM_SEL_TYPE_PRIMARY:
+          INF("_clipboard_cb_elm_selection_lost ELM_SEL_TYPE_PRIMARY");
+          break;
+      case ELM_SEL_TYPE_SECONDARY:
+          INF("_clipboard_cb_elm_selection_lost ELM_SEL_TYPE_SECONDARY");
+          break;
+      case ELM_SEL_TYPE_XDND:
+          INF("_clipboard_cb_elm_selection_lost ELM_SEL_TYPE_CLIPBOARD");
+          break;
+      case ELM_SEL_TYPE_CLIPBOARD:
+          INF("_clipboard_cb_elm_selection_lost ELM_SEL_TYPE_CLIPBOARD");
+          elm_cnp_selection_get(mod_inst->ewin,
+                                ELM_SEL_TYPE_CLIPBOARD,
+                                ELM_SEL_FORMAT_TARGETS,
+                                _cliboard_cb_paste,
+                                mod_inst);
+          break;
+    }
+}
+
+static Eina_Bool
+_clipboard_cb_event_selection(void *data,
+                              Evas_Object *obj EINA_UNUSED,
+                              void *event EINA_UNUSED)
+{
+  Mod_Inst *mod_inst;
+  
+  mod_inst = data;
+  INF("_clipboard_cb_event_selection");
+  elm_cnp_selection_get(mod_inst->ewin,
+                        ELM_SEL_TYPE_CLIPBOARD,
+                        ELM_SEL_FORMAT_TARGETS,
+                        _cliboard_cb_paste,
+                        mod_inst);
+  return EINA_TRUE;
 }
 
 /*
@@ -679,16 +705,6 @@ e_modapi_init (E_Module *m)
   clip_inst = E_NEW(Mod_Inst, 1);
   clip_inst->inst = E_NEW(Instance, 1);
 
-  /* Create an invisible window for clipboard input purposes
-   *   It is my understanding this should not displayed.*/
-  clip_inst->win = ecore_x_window_input_new(0, 10, 10, 100, 100);
-
-  /* Now add some callbacks to handle clipboard events */
-  E_LIST_HANDLER_APPEND(clip_inst->handle, ECORE_X_EVENT_SELECTION_NOTIFY, _cb_event_selection, clip_inst);
-  E_LIST_HANDLER_APPEND(clip_inst->handle, ECORE_X_EVENT_FIXES_SELECTION_NOTIFY, _cb_event_owner, clip_inst);
-  clipboard.request(clip_inst->win, ECORE_X_SELECTION_TARGET_UTF8_STRING);
-  clip_inst->check_timer = ecore_timer_add(TIMEOUT_1, _cb_clipboard_request, clip_inst);
-
   /* Read History file and set clipboard */
   hist_err = read_history(&(clip_inst->items), clip_cfg->ignore_ws, clip_cfg->label_length);
 
@@ -708,6 +724,23 @@ e_modapi_init (E_Module *m)
       WRN("History File truncation!");
       truncate_history(clip_cfg->hist_items);
   }
+
+  clip_inst->ewin = elm_win_add(NULL, NULL, ELM_WIN_BASIC);
+
+  /* Now add some callbacks to handle clipboard events */
+  ecore_event_handler_add(ECORE_EVENT_MOUSE_BUTTON_UP,
+                          (Ecore_Event_Handler_Cb)_clipboard_cb_event_selection,
+                          clip_inst);
+  /* Does not seem to fire */
+  ecore_event_handler_add(ELM_CNP_EVENT_SELECTION_CHANGED,
+                          (Ecore_Event_Handler_Cb)_clipboard_cb_event_selection,
+                          clip_inst);
+  /* Re-add to history */
+  elm_cnp_selection_loss_callback_set(e_comp->evas,
+                                      ELM_SEL_TYPE_CLIPBOARD,
+                                      _clipboard_cb_elm_selection_lost,
+                                      clip_inst);
+
   /* Tell any gadget containers (shelves, etc) that we provide a module */
   e_gadcon_provider_register(&_gadcon_class);
 
@@ -745,13 +778,9 @@ e_modapi_shutdown (E_Module *m EINA_UNUSED)
    *  and I usually avoid gotos but here I feel their use is harmless */
   EINA_SAFETY_ON_NULL_GOTO(clip_inst, noclip);
 
-  /* Kill our clip_inst window and cleanup */
-  if (clip_inst->win)
-    ecore_x_window_free(clip_inst->win);
+  /* Kill our clip_inst and cleanup */
   E_FREE_LIST(clip_inst->handle, ecore_event_handler_del);
   clip_inst->handle = NULL;
-  ecore_timer_del(clip_inst->check_timer);
-  clip_inst->check_timer = NULL;
   E_FREE_LIST(clip_inst->items, free_clip_data);
   _clip_inst_free(clip_inst->inst);
   E_FREE(clip_inst);
