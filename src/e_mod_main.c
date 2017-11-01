@@ -526,7 +526,6 @@ _cliboard_cb_paste(void *data,
                    Evas_Object *obj EINA_UNUSED,
                    Elm_Selection_Data *event)
 {
-  INF("_cliboard_cb_paste");
   Clip_Data *cd = NULL;
   Instance *instance = data;
   char *paste = NULL;
@@ -574,8 +573,6 @@ _clipboard_cb_elm_selection_lost(void *data, Elm_Sel_Type selection)
   Mod_Inst *mod_inst;
   
   mod_inst = data;
-  INF("_clipboard_cb_elm_selection_lost");
-  INF("_clipboard_cb_elm_selection_lost %s", (char *)data);
   switch(selection)
     {
       case ELM_SEL_TYPE_PRIMARY:
@@ -606,7 +603,6 @@ _clipboard_cb_event_selection(void *data,
   Mod_Inst *mod_inst;
   
   mod_inst = data;
-  INF("_clipboard_cb_event_selection");
   elm_cnp_selection_get(mod_inst->ewin,
                         ELM_SEL_TYPE_CLIPBOARD,
                         ELM_SEL_FORMAT_TARGETS,
