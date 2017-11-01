@@ -53,12 +53,9 @@ struct _Mod_Inst
      *   complete with a hidden window for event notification purposes */
 
     Instance *inst;
-    /* A pointer to an Ecore window used to
+    /* A pointer to an window used to
      * recieve or send clipboard events to */
-    Ecore_X_Window win;
     Evas_Object *ewin;
-    /* Timer callback function to reguest Clipboard events */
-    Ecore_Timer  *check_timer;
     /* Callback function to handle clipboard events */
     Eina_List *handle;
     /* Stores Clipboard History */
