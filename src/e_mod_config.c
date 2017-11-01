@@ -107,9 +107,6 @@ _basic_apply_data(E_Config_Dialog *cfd EINA_UNUSED, E_Config_Dialog_Data *cfdata
   clip_cfg->trim_ws        = cfdata->trim_ws;
   clip_cfg->trim_nl        = cfdata->trim_nl;
 
-  /* Be sure we set our clipboard 'object'with new configuration */
-  init_clipboard_struct(clip_cfg);
-
   /* and Update our Widget sync state info */
   cfdata->sync_state.copy   = clip_cfg->clip_copy;
   cfdata->sync_state.select = clip_cfg->clip_select;
