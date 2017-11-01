@@ -534,7 +534,7 @@ _cliboard_cb_paste(void *data,
   INF("_cliboard_cb_paste");
   Clip_Data *cd = NULL;
   Instance *instance = data;
-  char *paste;
+  char *paste = NULL;
   char *last = "";
 
   EINA_SAFETY_ON_NULL_RETURN_VAL(instance, EINA_TRUE);
