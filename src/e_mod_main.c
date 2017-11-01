@@ -189,8 +189,8 @@ _gc_shutdown(E_Gadcon_Client *gcc)
    Instance *inst;
    
    inst = gcc->data;
-  _clip_inst_free(inst);
   _clipboard_popup_free(inst);
+  _clip_inst_free(inst);
 }
 
 static void
