@@ -1,7 +1,6 @@
 /* This is a test */
 
 #include "e_mod_main.h"
-#include "x_clipboard.h"
 #include "config_defaults.h"
 #include "history.h"
 #include "clip_log.h"
@@ -369,7 +368,6 @@ _clip_add_item(Clip_Data *cd)
 
   if (*cd->content == 0) {
     ERR("Warning Clip content is Empty!");
-    clipboard.clear(); /* stop event selection cb */
     return;
   }
 
@@ -416,9 +414,6 @@ _clear_history(void)
   EINA_SAFETY_ON_NULL_RETURN(clip_inst);
   if (clip_inst->items)
     E_FREE_LIST(clip_inst->items, free_clip_data);
-
-  /* Ensure clipboard is clear and save history */
-  clipboard.clear();
 
   clip_save(clip_inst->items);
 }
@@ -549,7 +544,6 @@ _cliboard_cb_paste(void *data,
       if (strlen(paste) == 0)
         return ECORE_CALLBACK_DONE;
       if (clip_cfg->ignore_ws_copy && is_empty(paste)) {
-        clipboard.clear();
         return ECORE_CALLBACK_DONE;
       }
       cd = E_NEW(Clip_Data, 1);
@@ -679,9 +673,6 @@ e_modapi_init (E_Module *m)
    * then create a default one */
   if (!clip_cfg)
     _clip_config_new(m);
-
-  /* Be sure we initialize our clipboard 'object' */
-  init_clipboard_struct(clip_cfg);
 
   /* Initialize Einna_log for developers */
   logger_init(CLIP_LOG_NAME);
