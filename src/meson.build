@@ -12,7 +12,7 @@ clipboard_srcs = [
 shared_library('module',
 	sources			: clipboard_srcs,
 	include_directories	: [inc, top_inc],
-	dependencies		: [ecore_x, edje, elm, e],
+	dependencies		: [edje, elm, e],
 	install			: true,
 	install_dir             : dir_mod,
 	link_args		: '-Wl,--unresolved-symbols=ignore-in-object-files',
