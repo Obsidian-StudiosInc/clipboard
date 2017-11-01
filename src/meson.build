@@ -6,8 +6,7 @@ clipboard_srcs = [
 	'e_mod_config.h',	'e_mod_config.c',
 	'e_mod_main.h',		'e_mod_main.c',
 	'history.h',		'history.c',
-	'utility.h',		'utility.c',
-	'x_clipboard.h',	'x_clipboard.c'
+	'utility.h',		'utility.c'
 ]
 
 shared_library('module',
