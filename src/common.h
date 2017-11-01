@@ -56,6 +56,7 @@ struct _Mod_Inst
     /* A pointer to an Ecore window used to
      * recieve or send clipboard events to */
     Ecore_X_Window win;
+    Evas_Object *ewin;
     /* Timer callback function to reguest Clipboard events */
     Ecore_Timer  *check_timer;
     /* Callback function to handle clipboard events */
