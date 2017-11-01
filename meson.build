@@ -20,7 +20,6 @@ top_inc  = include_directories('.')
 e_version = '>= 0.21.0'
 efl_version = '>= 1.19.0'
 
-ecore_x	= dependency('ecore-x',		version: efl_version)
 edje	= dependency('edje',		version: efl_version)
 elm	= dependency('elementary',	version: efl_version)
 e	= dependency('enlightenment',	version: e_version)
