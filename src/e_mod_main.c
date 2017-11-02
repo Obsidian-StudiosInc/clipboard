@@ -601,6 +601,12 @@ _clipboard_cb_event_selection(void *data,
                         ELM_SEL_FORMAT_TARGETS,
                         _cliboard_cb_paste,
                         mod_inst);
+  if(clip_cfg->clip_select)
+    elm_cnp_selection_get(e_comp->evas,
+                          ELM_SEL_TYPE_PRIMARY,
+                          ELM_SEL_FORMAT_TARGETS,
+                          _cliboard_cb_paste,
+                          mod_inst);
   return EINA_TRUE;
 }
 
