@@ -5,7 +5,6 @@
 #include "history.h"
 #include "clip_log.h"
 
-#define TIMEOUT_1 1.0
 #define CLIP_LOG_NAME  "MOD:CLIP"
 
 /* Stuff for convenience to compress code */
