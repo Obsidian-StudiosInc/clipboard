@@ -1,6 +1,6 @@
 # project
 project('clipboard', 'c',
-        version        : '0.0.0_alpha1',
+        version        : '0.1.0_alpha1',
         license        : 'GPL-3.0',
         default_options: [ 'c_std=gnu99' ],
         meson_version  : '>= 0.43.0')
