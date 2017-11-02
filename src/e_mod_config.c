@@ -1,5 +1,4 @@
 #include "e_mod_main.h"
-#include "x_clipboard.h"
 
 struct _E_Config_Dialog_Data
 {
