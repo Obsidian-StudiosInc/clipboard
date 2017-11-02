@@ -301,7 +301,6 @@ _clipboard_popup_new(Instance *inst)
   evas = e_comp->evas;
 
   inst->table = e_widget_table_add(e_win_evas_win_get(evas), 0);
-  ERR("e_widget_table_add ");
 
   if (clip_inst->items){
     Eina_List *it;
@@ -576,16 +575,10 @@ _clipboard_cb_elm_selection_lost(void *data, Elm_Sel_Type selection)
   switch(selection)
     {
       case ELM_SEL_TYPE_PRIMARY:
-          INF("_clipboard_cb_elm_selection_lost ELM_SEL_TYPE_PRIMARY");
-          break;
       case ELM_SEL_TYPE_SECONDARY:
-          INF("_clipboard_cb_elm_selection_lost ELM_SEL_TYPE_SECONDARY");
-          break;
       case ELM_SEL_TYPE_XDND:
-          INF("_clipboard_cb_elm_selection_lost ELM_SEL_TYPE_CLIPBOARD");
           break;
       case ELM_SEL_TYPE_CLIPBOARD:
-          INF("_clipboard_cb_elm_selection_lost ELM_SEL_TYPE_CLIPBOARD");
           elm_cnp_selection_get(mod_inst->ewin,
                                 ELM_SEL_TYPE_CLIPBOARD,
                                 ELM_SEL_FORMAT_TARGETS,
