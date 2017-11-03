@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clipboard\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-29 00:36-0400\n"
+"POT-Creation-Date: 2017-11-02 22:23-0400\n"
 "PO-Revision-Date: 2016-11-21 17:42+0900\n"
 "Last-Translator: BALLOON a.k.a. Fu-sen. (Keiichi SHIGA) <balloonakafusen"
 "+bodhi@gmail.com>\n"
@@ -17,87 +17,87 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: src/e_mod_config.c:130
+#: src/e_mod_config.c:126
 msgid "Clipboards"
 msgstr "クリップボード"
 
-#: src/e_mod_config.c:131
+#: src/e_mod_config.c:127
 msgid " Use Copy (Ctrl-C)"
 msgstr " コピー (Ctrl-C) を使用"
 
-#: src/e_mod_config.c:134
+#: src/e_mod_config.c:130
 msgid " Use Primary (Selection)"
 msgstr "プライマリ (セレクション) を使用"
 
-#: src/e_mod_config.c:137
+#: src/e_mod_config.c:133
 msgid " Synchronize Clipboards"
 msgstr "クリップボードを同期する"
 
-#: src/e_mod_config.c:146
+#: src/e_mod_config.c:142
 msgid "History"
 msgstr "履歴"
 
-#: src/e_mod_config.c:147
+#: src/e_mod_config.c:143
 msgid " Save History"
 msgstr "履歴を保存"
 
-#: src/e_mod_config.c:150
+#: src/e_mod_config.c:146
 msgid " Reverse Order"
 msgstr "並びを逆にする"
 
-#: src/e_mod_config.c:153
+#: src/e_mod_config.c:149
 msgid " Confirm before Clearing"
 msgstr "削除前に確認する"
 
-#: src/e_mod_config.c:156
+#: src/e_mod_config.c:152
 msgid " Items in History"
 msgstr "履歴項目"
 
-#: src/e_mod_config.c:164
+#: src/e_mod_config.c:160
 msgid "Labels"
 msgstr "ラベル"
 
-#: src/e_mod_config.c:165 src/e_mod_config.c:177
+#: src/e_mod_config.c:161 src/e_mod_config.c:173
 msgid " Ignore Whitespace"
 msgstr "空白を無視"
 
-#: src/e_mod_config.c:168
+#: src/e_mod_config.c:164
 msgid " Label Length"
 msgstr "ラベルの長さ"
 
-#: src/e_mod_config.c:176
+#: src/e_mod_config.c:172
 msgid "Content"
 msgstr "内容"
 
-#: src/e_mod_config.c:180
+#: src/e_mod_config.c:176
 msgid " Trim Whitespace"
 msgstr "空白を削除"
 
-#: src/e_mod_config.c:183
+#: src/e_mod_config.c:179
 msgid " Trim Newlines"
 msgstr "改行を削除"
 
-#: src/e_mod_config.c:207
+#: src/e_mod_config.c:203
 msgid "Clipboard Settings"
 msgstr "クリップボード設定"
 
-#: src/e_mod_main.c:275 src/e_mod_main.c:382
+#: src/e_mod_main.c:252 src/e_mod_main.c:348
 msgid "Settings"
 msgstr "設定"
 
-#: src/e_mod_main.c:361
+#: src/e_mod_main.c:339
 msgid "Empty"
 msgstr "空"
 
-#: src/e_mod_main.c:369
+#: src/e_mod_main.c:344
 msgid "Clear"
 msgstr "削除"
 
-#: src/e_mod_main.c:568
+#: src/e_mod_main.c:436
 msgid "Confirm History Deletion"
 msgstr "履歴削除の確認"
 
-#: src/e_mod_main.c:570
+#: src/e_mod_main.c:438
 msgid ""
 "You wish to delete the clipboards history.<br><br>Are you sure you want to "
 "delete it?"
@@ -105,15 +105,15 @@ msgstr ""
 "クリップボードの履歴を削除しようとしています。<br><br>削除を行ってよろしいで"
 "すか？"
 
-#: src/e_mod_main.c:573
+#: src/e_mod_main.c:441
 msgid "Delete"
 msgstr "削除"
 
-#: src/e_mod_main.c:573
+#: src/e_mod_main.c:441
 msgid "Keep"
 msgstr "保持"
 
-#: src/e_mod_main.c:737 src/e_mod_main.c:738 src/e_mod_main.c:739
+#: src/e_mod_main.c:683 src/e_mod_main.c:684 src/e_mod_main.c:685
 msgid "Clipboard"
 msgstr "クリップボード"
 
