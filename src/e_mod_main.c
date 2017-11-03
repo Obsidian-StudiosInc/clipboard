@@ -413,6 +413,8 @@ _clear_history(void)
   if (clip_inst->items)
     E_FREE_LIST(clip_inst->items, free_clip_data);
 
+  elm_object_cnp_selection_clear(e_comp->evas, ELM_SEL_TYPE_CLIPBOARD);
+
   clip_save(clip_inst->items);
 }
 
