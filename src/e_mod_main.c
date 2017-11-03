@@ -462,7 +462,6 @@ _cb_dialog_delete(void *data EINA_UNUSED)
 static void
 _clipboard_cb_paste_item(void *d1, void *d2)
 {
-  INF("_clipboard_cb_paste_item");
   const char *paste;
 
   paste = d1;
