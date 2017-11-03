@@ -78,7 +78,6 @@ _clip_config_new(E_Module *m)
 
     clip_cfg->clip_copy      = CF_DEFAULT_COPY;
     clip_cfg->clip_select    = CF_DEFAULT_SELECT;
-    clip_cfg->sync           = CF_DEFAULT_SYNC;
     clip_cfg->persistence    = CF_DEFAULT_PERSISTANCE;
     clip_cfg->hist_reverse   = CF_DEFAULT_HIST_REVERSE;
     clip_cfg->hist_items     = CF_DEFAULT_HIST_ITEMS;
@@ -91,7 +90,6 @@ _clip_config_new(E_Module *m)
   }
   E_CONFIG_LIMIT(clip_cfg->clip_copy, 0, 1);
   E_CONFIG_LIMIT(clip_cfg->clip_select, 0, 1);
-  E_CONFIG_LIMIT(clip_cfg->sync, 0, 1);
   E_CONFIG_LIMIT(clip_cfg->persistence, 0, 1);
   E_CONFIG_LIMIT(clip_cfg->hist_reverse, 0, 1);
   E_CONFIG_LIMIT(clip_cfg->hist_items, HIST_MIN, HIST_MAX);
@@ -644,7 +642,6 @@ e_modapi_init (E_Module *m)
   E_CONFIG_VAL(D, T, version, INT);
   E_CONFIG_VAL(D, T, clip_copy, INT);
   E_CONFIG_VAL(D, T, clip_select, INT);
-  E_CONFIG_VAL(D, T, sync, INT);
   E_CONFIG_VAL(D, T, persistence, INT);
   E_CONFIG_VAL(D, T, hist_reverse, INT);
   E_CONFIG_VAL(D, T, hist_items, DOUBLE);
