@@ -21,7 +21,6 @@ struct _Config
   int version;          /* Configuration version                           */
   int clip_copy;        /* Clipboard to use                                */
   int clip_select;      /* Clipboard to use                                */
-  int sync;             /* Synchronize clipboards flag                     */
   int persistence;      /* History file persistance                        */
   int hist_reverse;     /* Order to display History                        */
   double hist_items;    /* Number of history items to store                */
