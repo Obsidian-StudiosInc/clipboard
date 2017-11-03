@@ -715,13 +715,15 @@ e_modapi_init (E_Module *m)
   clip_inst->ewin = elm_win_add(NULL, NULL, ELM_WIN_BASIC);
 
   /* Now add some callbacks to handle clipboard events */
-  ecore_event_handler_add(ECORE_EVENT_MOUSE_BUTTON_UP,
-                          (Ecore_Event_Handler_Cb)_clipboard_cb_event_selection,
-                          clip_inst);
+  E_LIST_HANDLER_APPEND(clip_inst->handle,
+                        ECORE_EVENT_MOUSE_BUTTON_UP,
+                        (Ecore_Event_Handler_Cb)_clipboard_cb_event_selection,
+                        clip_inst);
   /* Does not seem to fire */
-  ecore_event_handler_add(ELM_CNP_EVENT_SELECTION_CHANGED,
-                          (Ecore_Event_Handler_Cb)_clipboard_cb_event_selection,
-                          clip_inst);
+  E_LIST_HANDLER_APPEND(clip_inst->handle,
+                        ELM_CNP_EVENT_SELECTION_CHANGED,
+                        (Ecore_Event_Handler_Cb)_clipboard_cb_event_selection,
+                        clip_inst);
   /* Re-add to history */
   elm_cnp_selection_loss_callback_set(e_comp->evas,
                                       ELM_SEL_TYPE_CLIPBOARD,
