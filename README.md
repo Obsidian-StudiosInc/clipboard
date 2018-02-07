@@ -2,7 +2,7 @@
 [![License](http://img.shields.io/badge/license-GPLv3-blue.svg?colorB=9977bb&style=plastic)](https://github.com/Obsidian-StudiosInc/clipboard/blob/master/LICENSE)
 [![Build Status](https://img.shields.io/travis/Obsidian-StudiosInc/clipboard/master.svg?colorA=9977bb&style=plastic)](https://travis-ci.org/Obsidian-StudiosInc/clipboard)
 [![Build Status](https://img.shields.io/shippable/59f38a4f6ad2b30700c00b6c/master.svg?colorA=9977bb&style=plastic)](https://app.shippable.com/projects/59f38a4f6ad2b30700c00b6c/)
-[![Code Quality](https://img.shields.io/coverity/scan/14160.svg?colorA=9977bb&style=plastic)](https://scan.coverity.com/projects/obsidian-studiosinc-clipboard)
+[![Code Quality](https://sonarcloud.io/api/project_badges/measure?project=clipboard&metric=alert_status)](https://sonarcloud.io/dashboard?id=clipboard)
 
 [<img align="left" src="http://i.imgur.com/ZzWlRgJ.png">](https://github.com/pasnox/oxygen-icons-png)
 
