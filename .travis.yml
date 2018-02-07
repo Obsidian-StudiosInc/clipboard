@@ -32,8 +32,8 @@ before_script:
 
 script:
   - meson --prefix /usr . build
-  - if [ "${TRAVIS}" = "true" ]; then build-wrapper-linux-x86-64 --out-dir bw-output ${BUILD_CMD}; fi
-  - if [ "${TRAVIS}" = "true" ]; then sonar-scanner; else ${BUILD_CMD}; fi
+  - if [ ! ${SHIPPABLE} ]; then build-wrapper-linux-x86-64 --out-dir bw-output ${BUILD_CMD}; fi
+  - if [ ! ${SHIPPABLE} ]; then sonar-scanner; else ${BUILD_CMD}; fi
 
 notifications:
   email: false
