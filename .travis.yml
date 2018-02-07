@@ -4,12 +4,12 @@ sudo: required
 dist: trusty
 env:
   global:
-   - secure: "Gfzxw/1d9AtOP8XCzF3uBwjaRX7Q6P1M9c1/z/UwdLxgZG3nD6lgWXVfl9sMSa9LQWINYz4N/LWwVih1rknO7C3702XNrEaUbUBXq2SWfDlGsRvZ6fiIoH+cPSozhM18yxAEW3xx/1AmV0kPOVbqjnNHoUYhG3GsKTgHXZlesbkmzD7JJuZxdTjX98RfAV+Rr1TuBYSr1iUl4VyaTmNxWLRG5CtcGv+D87obRlJ6yruiD5txGAVtysYqm3pwPq2/IrTlihgBH907LfY0QuUtuWhU4KHTtvLpU/DOX/8feHuPScjLrol8A8JSKwtBggio9csWX0ZF4NNKGmLnxFBkjD3alBwb4T4nDY0ckfQJFOIf+AMljzxbbtshpvKmmnMzwU+Cuw65QXHVvJ/P6w5gFvJ6DBGjGgA0pkPKi93ZyOdSyHSGJ8H0Di7iNTNL5VAgmnrBiOwGbhUzNzQ6b76TnM5WKJiPMM8rzd0hDfr6cDCXvG5x/uwICmNtR0itqZjWZcFqqRyL7T/tDGyOf/e00LDUuey7Tpj/SkYG4GVcyfSy5fLmut1gWzZruA1G3S+hbvyetvn3EA/F+k4ctdcq+eU7MbYXGuzg6jqY7vHxdh2fRezlypbvk3yUn2fY7cmn5m5+pkeLahnzIwcoRSbKypX1pd6EwXce8qFNoI/GNa8="
-  matrix:
+    - BUILD_CMD=".bin/ninja -C build"
     - MY_PV=0.0.0_alpha1
 
-before_install:
-  - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+cache:
+  directories:
+    - $HOME/.sonar/cache
 
 install:
   - sudo add-apt-repository -y ppa:niko2040/e19
@@ -18,25 +18,22 @@ install:
   - sudo pip3 install --upgrade pip
   - sudo pip3 install meson
   - mkdir .bin
-  - curl -L https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-linux.zip -o .bin/ninja-linux.zip
+  - curl -L https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-linux.zip -o .bin/ninja-linux.zip
   - unzip .bin/ninja-linux.zip -d .bin
+
+addons:
+  sonarcloud:
+    organization: obsidian-studiosinc-github
+    token:
+      secure: Gdq9VjX5p9GZ/PONETMKFYoiWE07VQIJqAL6bLpXRXvchCI4TnyuYsVPMa57Qwx/aI46sJfXgv2wbzcs4XPn81sARa4KTI9+rl1QKzQ5XODVDE+BS67GjDawXQ3EY1PXMyp8lrBVfflb/DnGZT8gkcivfkWPvwg7tbp1uz72Eai9Cjmga5PVLer94DIoFw2AgMPpD7E0344mvFlDfOtCkadifKoEtrujvJSkk5xG970X5VO9/RCkpUj1gPZv/NJu7rv+PTbHNR4UmDzmfPWYIKGw22K798tMFzgG8f5e5XcxJF4zoq3TS4RUHPnfJ/nlfb7uX7htnessMpLcVRlLJGGeU9SIoUP1JKNPGGpfCo6HIjlC9gQeevs+kKxb9BliZ8avZnfqsLW8IIHCl43hCkDp9kjZnTg7kcEEiiIrAD2PAYHZTY6cFpykxrPdQYOko5Hs4nDVcdFPxdQK8Ar3tc0c2YPQ2oDZVud8cfvj+SuLeUewauzB5iMgBRy43cMOmnxazqiIBuLxwFONyEp5fTy/WiRDqLOYm/fCDzU7QEhwFNsuy3BYLQbhDoHgD4ebVimmM+uxcBOaIiMNr+v+hN7+N0uzDP+JxGXg1ZZIk1Y541XA2QDkYIU+WELWScWDq99c85kNXwqvbRgiE8tsY+NfntGVTzXGNQOGWV+0XYA=
 
 before_script:
   - export PATH=$PATH:$PWD/.bin
 
 script:
   - meson --prefix /usr . build
-  - .bin/ninja -C build
+  - if [ "${TRAVIS}" = "true" ]; then build-wrapper-linux-x86-64 --out-dir bw-output ${BUILD_CMD}; fi
+  - if [ "${TRAVIS}" = "true" ]; then sonar-scanner; else ${BUILD_CMD}; fi
 
 notifications:
   email: false
-
-addons:
-  coverity_scan:
-    project:
-      name: Obsidian-StudiosInc/clipboard
-      description: Build submitted via Travis CI
-    notification_email: wlt@o-sinc.com
-    build_command_prepend: meson --prefix /usr . coverity-build
-    build_command: .bin/ninja -C coverity-build
-    branch_pattern: master
