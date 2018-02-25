@@ -302,7 +302,8 @@ save_history(Eina_List *items)
       }
       /* Otherwise write each item */
       EINA_LIST_FOREACH(items, l, cd) {
-        snprintf(str, str_len, "%d", i++);
+	i++;
+        snprintf(str, str_len, "%d", i);
         eet_write(history_file, str,  cd->content, strlen(cd->content) + 1, 0);
       }
       /* and wrap it up */
