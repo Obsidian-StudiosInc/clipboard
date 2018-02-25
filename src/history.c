@@ -25,7 +25,7 @@
 do {                                                 \
   long _tempn_ = n, _digits_ = 1;                    \
   while (_tempn_ /= 10) _digits_++;                  \
-  str = cmalloc(_digits_ + 1);                        \
+  str = calloc(_digits_ + 1);                        \
   if (!str) {                                        \
     /* This is bad, leave it to calling function */  \
     CRI("ERROR: Memory allocation Failed!!");        \
