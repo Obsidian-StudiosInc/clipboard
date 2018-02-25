@@ -138,7 +138,7 @@ _set_history_path(char *path)
 {
    EINA_SAFETY_ON_NULL_RETURN_VAL(path, EINA_FALSE);
 
-   char temp_str[PATH_MAX];
+   char temp_str[PATH_MAX] = {0};
    Eina_Bool success = EINA_TRUE;
 
    if(_set_data_path(path)) {
@@ -171,13 +171,16 @@ _set_history_path(char *path)
 Eet_Error
 read_history(Eina_List **items, unsigned ignore_ws, unsigned label_length)
 {
-    Eet_File *history_file;
+    Eet_File *history_file = NULL;
     Clip_Data *cd = NULL;
     Eina_List *l = NULL;
-    char *ret, *str, history_path[PATH_MAX];
-    int size;
-    unsigned int i;
-    long version, item_num;
+    char history_path[PATH_MAX] = {0};
+    char *ret = NULL;
+    char *str = NULL;
+    int size = 0;
+    unsigned int i =0;
+    long item_num = 0;
+    long version = 0;
 
     /* Open history file */
     if(!_set_history_path(history_path)) {
@@ -261,11 +264,13 @@ read_history(Eina_List **items, unsigned ignore_ws, unsigned label_length)
 Eet_Error
 save_history(Eina_List *items)
 {
-    Eet_File *history_file;
-    Eina_List *l;
-    Clip_Data *cd;
-    char history_path[PATH_MAX], *str;
-    unsigned int n, i = 1;
+    Eet_File *history_file = NULL;
+    Eina_List *l = NULL;
+    Clip_Data *cd = NULL;
+    char history_path[PATH_MAX] = {0};
+    char *str = NULL;
+    unsigned int i = 1;
+    unsigned int n = 0;
     Eet_Error ret;
 
     /* Open history file */
