@@ -25,20 +25,20 @@
 do {                                                 \
   long _tempn_ = n, _digits_ = 1;                    \
   while (_tempn_ /= 10) _digits_++;                  \
-  str = malloc(_digits_ + 1);                        \
+  str = cmalloc(_digits_ + 1);                        \
   if (!str) {                                        \
     /* This is bad, leave it to calling function */  \
     CRI("ERROR: Memory allocation Failed!!");        \
     eet_close(history_file);                         \
     return EET_ERROR_OUT_OF_MEMORY;                  \
    }                                                 \
-   sprintf(str, "%d", 0);                            \
+   snprintf(str, sizeof(str), "%d", 0);                            \
  } while(0)
 
 #define PATH_MAX_ERR                                              \
 do {                                                              \
   ERR("PATH_MAX exceeded. Need Len %d, PATH_MAX %d", len, PATH_MAX); \
-  strcpy(path, "");                                               \
+  memset(path,0,PATH_MAX);                                        \
   success = EINA_FALSE;                                           \
  } while(0)                                                       \
 
@@ -94,7 +94,7 @@ _set_data_path(char *path)
         snprintf(path, strlen(temp_str)+1, "%s", temp_str);
         // Ensure XDG_DATA_HOME terminates in '/'
         if (path[strlen(path)-1] != '/')
-          strcat(path, "/");
+          strncat(path, "/", PATH_MAX-strlen(path)-1);
       }
       else
         PATH_MAX_ERR;
@@ -110,10 +110,10 @@ _set_data_path(char *path)
       if (len <= PATH_MAX) {
         // Hopefully unnecessary Safety check
         if (temp_str)
-           sprintf(path,"%s/.local/share/",temp_str);
+           snprintf(path, PATH_MAX-1, "%s/.local/share/", temp_str);
         else {
            // Should never happen
-           strcpy(path, "");
+           memset(path,0,PATH_MAX);
            success = EINA_FALSE;
         }
      }
@@ -145,9 +145,9 @@ _set_history_path(char *path)
        const int len = snprintf(NULL, 0, "%s%s/%s", path, CLIPBOARD_MOD_NAME, HISTORY_NAME) + 1;
        if (len <= PATH_MAX) {
          strncpy(temp_str, path, PATH_MAX-1);
-         sprintf(path, "%s%s/", temp_str, CLIPBOARD_MOD_NAME);
+         snprintf(path, PATH_MAX-1, "%s%s/", temp_str, CLIPBOARD_MOD_NAME);
          success = _mkpath_if_not_exists(path);
-         strcat(path, HISTORY_NAME);
+         strncat(path, HISTORY_NAME, PATH_MAX-strlen(path)-1);
        }
        else
         PATH_MAX_ERR;
@@ -221,7 +221,7 @@ read_history(Eina_List **items, unsigned ignore_ws, unsigned label_length)
     /* Read each item */
     for (i = 1; i <= item_num; i++){
         cd = E_NEW(Clip_Data, 1);
-        sprintf(str, "%d", i);
+        snprintf(str, sizeof(str), "%d", i);
         ret = eet_read(history_file, str, &size);
         if (!ret) {
           ERR("History file corruption: %s", history_path);
@@ -281,18 +281,18 @@ save_history(Eina_List *items)
       n = eina_list_count(items);
       CALLOC_DIGIT_STR(str,n);
       /* Write history version */
-      sprintf(str, "%d", (HISTORY_VERSION > 9 ? 9 : HISTORY_VERSION));
+      snprintf(str, sizeof(str), "%d", (HISTORY_VERSION > 9 ? 9 : HISTORY_VERSION));
       eet_write(history_file, "VERSION",  str, strlen(str) + 1, 0);
       /* If we have no items in history wrap it up and return */
       if(!items) {
-        sprintf(str, "%d", 0);
+        snprintf(str, sizeof(str), "%d", 0);
         eet_write(history_file, "MAX_ITEMS",  str, strlen(str) + 1, 0);
         free(str);
         return eet_close(history_file);;
       }
       /* Otherwise write each item */
       EINA_LIST_FOREACH(items, l, cd) {
-        sprintf(str, "%d", i++);
+        snprintf(str, sizeof(str), "%d", i++);
         eet_write(history_file, str,  cd->content, strlen(cd->content) + 1, 0);
       }
       /* and wrap it up */
