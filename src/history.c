@@ -23,16 +23,17 @@
 /* convenience macros to compress code */
 #define CALLOC_DIGIT_STR(str, n)                     \
 do {                                                 \
-  long _tempn_ = n, _digits_ = 1;                    \
+  long _digits_ = 1;                                 \
+  long _tempn_ = n;                                  \
   while (_tempn_ /= 10) _digits_++;                  \
-  str = calloc(_digits_ + 1);                        \
+  str = calloc(_digits_ + 1, sizeof(long));          \
   if (!str) {                                        \
     /* This is bad, leave it to calling function */  \
     CRI("ERROR: Memory allocation Failed!!");        \
     eet_close(history_file);                         \
     return EET_ERROR_OUT_OF_MEMORY;                  \
    }                                                 \
-   snprintf(str, sizeof(str), "%d", 0);                            \
+   snprintf(str, _digits_, "%d", 0);                  \
  } while(0)
 
 #define PATH_MAX_ERR                                              \
@@ -178,6 +179,7 @@ read_history(Eina_List **items, unsigned ignore_ws, unsigned label_length)
     char *ret = NULL;
     char *str = NULL;
     int size = 0;
+    int str_len = 0;
     unsigned int i =0;
     long item_num = 0;
     long version = 0;
@@ -221,10 +223,11 @@ read_history(Eina_List **items, unsigned ignore_ws, unsigned label_length)
     }
     /* Malloc properly sized str */
     CALLOC_DIGIT_STR(str, item_num);
+    str_len = sizeof(str);
     /* Read each item */
     for (i = 1; i <= item_num; i++){
         cd = E_NEW(Clip_Data, 1);
-        snprintf(str, sizeof(str), "%d", i);
+        snprintf(str, str_len, "%d", i);
         ret = eet_read(history_file, str, &size);
         if (!ret) {
           ERR("History file corruption: %s", history_path);
@@ -269,6 +272,7 @@ save_history(Eina_List *items)
     Clip_Data *cd = NULL;
     char history_path[PATH_MAX] = {0};
     char *str = NULL;
+    int str_len = 0;
     unsigned int i = 1;
     unsigned int n = 0;
     Eet_Error ret;
@@ -285,19 +289,20 @@ save_history(Eina_List *items)
       /*   if !items, 0 items is assumed */
       n = eina_list_count(items);
       CALLOC_DIGIT_STR(str,n);
+      str_len = sizeof(str)-1;
       /* Write history version */
-      snprintf(str, sizeof(str), "%d", (HISTORY_VERSION > 9 ? 9 : HISTORY_VERSION));
+      snprintf(str, str_len, "%d", (HISTORY_VERSION > 9 ? 9 : HISTORY_VERSION));
       eet_write(history_file, "VERSION",  str, strlen(str) + 1, 0);
       /* If we have no items in history wrap it up and return */
       if(!items) {
-        snprintf(str, sizeof(str), "%d", 0);
+        snprintf(str, str_len, "%d", 0);
         eet_write(history_file, "MAX_ITEMS",  str, strlen(str) + 1, 0);
         free(str);
         return eet_close(history_file);;
       }
       /* Otherwise write each item */
       EINA_LIST_FOREACH(items, l, cd) {
-        snprintf(str, sizeof(str), "%d", i++);
+        snprintf(str, str_len, "%d", i++);
         eet_write(history_file, str,  cd->content, strlen(cd->content) + 1, 0);
       }
       /* and wrap it up */
