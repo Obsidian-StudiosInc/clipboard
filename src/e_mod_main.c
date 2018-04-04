@@ -592,8 +592,7 @@ _clipboard_cb_event_selection(void *data,
                               void *event EINA_UNUSED)
 {
   Mod_Inst *mod_inst;
-  
-      INF("Step 4a");
+
   mod_inst = data;
   elm_cnp_selection_get(mod_inst->ewin,
                         ELM_SEL_TYPE_CLIPBOARD,
