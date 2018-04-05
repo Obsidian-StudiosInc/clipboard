@@ -16,7 +16,7 @@ install:
   - sudo apt-get -qq update
   - sudo apt-get install -y enlightenment gettext libc6-dbg libefl libefl-dbg libefl-dev python3-pip
   - sudo pip3 install --upgrade pip
-  - sudo pip3 install meson
+  - sudo pip3 install meson==0.44
   - mkdir .bin
   - curl -L https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-linux.zip -o .bin/ninja-linux.zip
   - unzip .bin/ninja-linux.zip -d .bin
