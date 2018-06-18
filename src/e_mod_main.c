@@ -537,8 +537,11 @@ _cliboard_cb_paste(void *data,
 
   if(event)
     paste = event->data;
-  if (paste) {
-    if (strcmp(last, paste ) != 0) {
+
+  if (!paste)
+    return EINA_TRUE;
+      
+  if (strcmp(last, paste ) != 0) {
       if (strlen(paste) == 0)
         return ECORE_CALLBACK_DONE;
       if (clip_cfg->ignore_ws_copy && is_empty(paste)) {
@@ -560,7 +563,6 @@ _cliboard_cb_paste(void *data,
         goto error;
       }
       _clip_add_item(cd);
-    }
   }
   error:
   return EINA_TRUE;
