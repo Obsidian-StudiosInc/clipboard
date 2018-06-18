@@ -240,7 +240,8 @@ _cb_context_show(void *data,
   IF_TRUE_RETURN(event->button != 3);
 
   Instance *inst = data;
-  Evas_Coord x, y;
+  Evas_Coord x;
+  Evas_Coord y;
   E_Menu *m;
   E_Menu_Item *mi;
 
