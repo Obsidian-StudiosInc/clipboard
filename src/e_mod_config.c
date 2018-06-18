@@ -99,7 +99,9 @@ _basic_apply_data(E_Config_Dialog *cfd EINA_UNUSED, E_Config_Dialog_Data *cfdata
 static Evas_Object *
 _basic_create_widgets(E_Config_Dialog *cfd, Evas *evas, E_Config_Dialog_Data *cfdata)
 {
-  Evas_Object *o, *ob, *of;
+  Evas_Object *o;
+  Evas_Object *ob;
+  Evas_Object *of;
 
   o = e_widget_list_add(evas, 0, 0);
   /* Clipboard Config Section     */
@@ -207,7 +209,8 @@ truncate_history(const unsigned int n)
   EINA_SAFETY_ON_NULL_RETURN_VAL(clip_inst, EET_ERROR_BAD_OBJECT);
   if (clip_inst->items) {
     if (eina_list_count(clip_inst->items) > n) {
-      Eina_List *last, *discard;
+      Eina_List *last;
+      Eina_List *discard;
       last = eina_list_nth_list(clip_inst->items, n-1);
       clip_inst->items = eina_list_split_list(clip_inst->items, last, &discard);
       if (discard)
