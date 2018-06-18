@@ -573,16 +573,14 @@ _clipboard_cb_elm_selection_lost(void *data, Elm_Sel_Type selection)
   mod_inst = data;
   switch(selection)
     {
-      case ELM_SEL_TYPE_PRIMARY:
-      case ELM_SEL_TYPE_SECONDARY:
-      case ELM_SEL_TYPE_XDND:
-          break;
       case ELM_SEL_TYPE_CLIPBOARD:
           elm_cnp_selection_get(mod_inst->ewin,
                                 ELM_SEL_TYPE_CLIPBOARD,
                                 ELM_SEL_FORMAT_TARGETS,
                                 _cliboard_cb_paste,
                                 mod_inst);
+          break;
+      default:
           break;
     }
 }
