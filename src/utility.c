@@ -12,7 +12,8 @@ Eina_Bool
 set_clip_content(char **content, char* text, int mode)
 {
   Eina_Bool ret = EINA_TRUE;
-  char *temp, *trim;
+  char *temp;
+  char *trim;
   /* Sanity check */
   if (!text) {
     WRN("ERROR: Text is NULL\n");
