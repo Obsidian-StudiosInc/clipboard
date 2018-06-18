@@ -495,9 +495,10 @@ _cb_action_switch(E_Object *o EINA_UNUSED,
     _clipboard_popup_new(data);
   else if (!strcmp(params, "settings"))
     _cb_config_show(data, NULL, NULL);
-  else if (!strcmp(params, "clear"))
     /* Only call clear dialog if there is something to clear */
-    if (clip_inst->items) _cb_clear_history(NULL, NULL);
+  else if (!strcmp(params, "clear") &&
+           clip_inst->items)
+    _cb_clear_history(NULL, NULL);
 }
 
 void
