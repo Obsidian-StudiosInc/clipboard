@@ -50,7 +50,7 @@ dir_mod    = join_paths(dir_prefix, e_arch)
 
 # project args
 add_project_arguments('-DHAVE_CONFIG_H=1', language : 'c')
-if get_option('debug')
+if get_option('buildtype').startswith('debug')
 	add_project_arguments('-g', language : 'c')
 endif
 if has_nls
