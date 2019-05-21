@@ -7,7 +7,7 @@ MY_PWD="$(pwd)"
 CFLAGS=-g
 MY_PWD+="/build"
 meson \
-	-Ddebug=true \
+	--buildtype=debug \
 	-Dhomedir-install=${HOME} \
 	$@ . build
 ninja -C build
