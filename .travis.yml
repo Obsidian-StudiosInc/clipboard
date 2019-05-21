@@ -5,7 +5,7 @@ dist: trusty
 env:
   global:
     - BUILD_CMD=".bin/ninja -C build"
-    - MY_PV=0.1.0_alpha5
+    - MY_PV=0.1.0_alpha6
 
 cache:
   directories:
