@@ -26,9 +26,13 @@ e	= dependency('enlightenment',	version: e_version)
 
 has_nls = get_option('nls')
 
-e_arch  = '@0@-gnu-@1@-@2@'.format(host_machine.system(), 
-                                   host_machine.cpu_family(), 
-                                   e.get_pkgconfig_variable('release'))
+host_os = host_machine.system()
+if host_os == 'linux'
+  host_os = 'linux-gnu'
+endif
+
+e_arch  = '@0@-@1@-@2@'.format(host_os, host_machine.cpu_family(), 
+                               e.get_pkgconfig_variable('release'))
 install_nls = true
 
 # edje_cc binary compiler tool
