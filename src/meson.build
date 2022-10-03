@@ -15,6 +15,6 @@ shared_library('module',
 	dependencies		: [edje, elm, e],
 	install			: true,
 	install_dir             : dir_mod,
-	link_args		: '-Wl,--unresolved-symbols=ignore-in-object-files',
+	link_args		: '-Wl,--unresolved-symbols=ignore-all',
         name_prefix             : ''
 )
